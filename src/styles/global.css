@@ -25,6 +25,7 @@
 /* The scroll position drives the same fade for cached glyphs and live particles. */
 .hero .hero-copy,
 .hero .hero-glyph-surface,
+.hero .coordinates,
 .hero .hero-bottom {
   opacity: var(--hero-exit-opacity, 1);
 }
@@ -39,3 +40,8 @@
 .archive-note h2{font-size:21px;margin-bottom:8px}
 .archive-note p{font-size:12px;color:var(--muted);line-height:2}
 @media(max-width:720px){.archive-note{grid-template-columns:1fr;padding:25px;gap:15px}}
+
+.coordinates{position:absolute;top:50px;right:var(--pad);font-size:10px;line-height:1.8;color:var(--muted);text-align:right;letter-spacing:.12em;font-family:var(--mono)}
+.coordinates .coord-star{color:var(--gold);display:block;font-size:13px;margin-bottom:7px;letter-spacing:.2em}
+@media(min-width:1800px){.coordinates{right:calc((100vw - 1280px)/2)}}
+@media(max-width:720px){.coordinates{top:28px;font-size:8px}.coordinates .coord-star{font-size:10px;margin-bottom:4px}}
