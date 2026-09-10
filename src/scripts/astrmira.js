@@ -3,6 +3,9 @@ import { createMotionQuality, nextFrameTime } from './motion-quality.js';
 import { createParticleGrid } from './particle-grid.js';
 import { mountArticleTocs } from './article-toc.js';
 import { mountPaperCarousels } from './paper-carousel.js';
+import { createParticlePainter } from './particle-painter.js';
+import { createNearestParticleLookup } from './nearest-particle.js';
+import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -41,9 +44,8 @@ import { mountPaperCarousels } from './paper-carousel.js';
     $('.site-nav')?.classList.remove('is-open');
     drawQuant(3); drawAgent(); updateMotionButtons();
     if (focus) main?.focus({ preventScroll: true });
-    prepareHeroTail();
+    resizeStars({ render: false });
     observeCometDock();
-    updateStarTarget();
   }
 
   function go(route, push = true) {
@@ -253,48 +255,19 @@ import { mountPaperCarousels } from './paper-carousel.js';
     $('[data-brief-result]').scrollIntoView({behavior:paused?'instant':'smooth',block:'nearest'});
   });
 
-  // Artistic volumetric star: a small, isolated WebGL sphere, not an astronomical simulation.
-  function createVolume() {
-    const canvas=$('#mira-volume'); if(!canvas)return null;
-    const gl=canvas.getContext('webgl',{alpha:true,antialias:false,premultipliedAlpha:false,powerPreference:'low-power'});
-    if(!gl){$('.mira-object').dataset.webgl='false';return null;}
-    const vertex=`attribute vec2 a_position;void main(){gl_Position=vec4(a_position,0.0,1.0);}`;
-    const fragment=`precision mediump float;
-      uniform vec2 u_resolution;uniform float u_time;
-      float hash(vec3 p){p=fract(p*.3183099+vec3(.1,.2,.3));p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
-      float noise(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
-      float fbm(vec3 p){float v=0.0;float a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.07+1.4;a*=.51;}return v;}
-      void main(){vec2 uv=(gl_FragCoord.xy-.5*u_resolution)/u_resolution.y;float d=length(uv);float r=.222;float t=u_time*.085;
-        float haze=exp(-d*11.0)*.24;vec3 color=vec3(.77,.59,.34);float alpha=haze;
-        if(d<r){float z=sqrt(max(0.0,1.0-dot(uv/r,uv/r)));vec3 n=vec3(uv/r,z);float detail=fbm(n*8.0+vec3(t,t*.8,0.0));float fine=noise(n*49.0+vec3(t*2.0));float light=.46+.54*max(dot(n,normalize(vec3(-.55,.6,.8))),0.0);float hot=smoothstep(.3,.73,detail*.8+fine*.2);color=mix(vec3(.5,.19,.035),vec3(1.0,.84,.51),hot);color*=light;color+=vec3(.35,.17,.04)*pow(1.0-z,2.0);alpha=1.0;}
-        else{float angle=atan(uv.y,uv.x);float streak=.5+.5*noise(vec3(cos(angle)*11.0,sin(angle)*11.0,t));float corona=exp(-(d-r)*(49.0+streak*32.0))*(.32+.35*streak);alpha=max(alpha,corona);color=mix(vec3(.44,.58,.74),vec3(.99,.75,.4),corona);}
-        alpha*=1.0-smoothstep(.40,.49,d);gl_FragColor=vec4(color,alpha);
-      }`;
-    const compile=(type,source)=>{const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){gl.deleteShader(shader);return null;}return shader;};
-    const vs=compile(gl.VERTEX_SHADER,vertex),fs=compile(gl.FRAGMENT_SHADER,fragment);
-    if(!vs||!fs){$('.mira-object').dataset.webgl='false';return null;}
-    const program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
-    if(!gl.getProgramParameter(program,gl.LINK_STATUS)){gl.deleteProgram(program);$('.mira-object').dataset.webgl='false';return null;}
-    gl.deleteShader(vs);gl.deleteShader(fs);gl.useProgram(program);
-    const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
-    const position=gl.getAttribLocation(program,'a_position');gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
-    const resolution=gl.getUniformLocation(program,'u_resolution'),time=gl.getUniformLocation(program,'u_time');
-    gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2f(resolution,canvas.width,canvas.height);
-    let lost=false;
-    canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();lost=true;$('.mira-object').dataset.webgl='false';});
-    return elapsed=>{if(lost)return;gl.uniform1f(time,elapsed/1000);gl.drawArrays(gl.TRIANGLES,0,6);};
-  }
-  let drawVolume = null;
   const companion = $('.mira-object');
   let heroTail = null;
   let heroDeparture = null;
   let exitWheelHeld = false, lastExitWheel = -Infinity;
   let heroContentOpacity = 1;
+  let heroOpacityStyle = '';
   let cometPath = null, cometParam = null, cometUpdatedAt = null;
   let cometDockElement = null, cometDockSurface = null, cometDockObserver = null;
+  let companionPose = '', companionAppearance = '', dockAppearance = '';
   let cometHasDeparted = false;
   let cometStrands = [];
   let cometTrail = createCometTrail(Math.hypot(innerWidth, innerHeight) * .82);
+  let trailPaintState = null;
   let introStart = 0, raf = 0, lastFrame = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
@@ -305,7 +278,9 @@ import { mountPaperCarousels } from './paper-carousel.js';
   let maskRadius = 0, targetMaskRadius = 0, maskX = -9999, maskY = -9999, targetMaskX = -9999, targetMaskY = -9999;
   const starCanvas = $('#starfield');
   const starCtx = starCanvas?.getContext('2d');
+  const particlePainter = createParticlePainter(starCtx, $('#particlefield'), () => startLoop());
   let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
+  let allTextParticles = [], allIntroQueue = [], introQueue = [], introCursor = 0, appliedTextBudget = null;
   let glyphLayers = [];
   let heroElement = $('.hero'), heroCopy = $('.hero-copy'), frameHeroRect = null;
   let particleGrid = createParticleGrid([]), activeTextParticles = new Set();
@@ -362,16 +337,18 @@ import { mountPaperCarousels } from './paper-carousel.js';
       gathered.push(p);
     }
 
+    const nearestGuide = createNearestParticleLookup(gathered);
+    const cellGuides = new Map();
     for (const p of textParticles) {
       if (p.sourceStar) continue;
       // Glyph detail develops locally around arriving stars. It never starts
       // as thousands of equally bright specks scattered over the viewport.
-      let nearest = null, distance = Infinity;
-      for (const guide of gathered) {
-        const dx = p.relX - guide.relX, dy = p.relY - guide.relY;
-        const d = dx * dx + dy * dy;
-        if (d < distance) { distance = d; nearest = guide; }
-      }
+      // A mask cell shares one guide; nearby stroke detail still gets its own
+      // timing jitter. This avoids repeating a spatial query for every pixel.
+      const cell = p.glyphCell;
+      if (!cellGuides.has(cell)) cellGuides.set(cell, nearestGuide(p.relX, p.relY).point);
+      const nearest = cellGuides.get(cell);
+      const distance = nearest ? (p.relX - nearest.relX) ** 2 + (p.relY - nearest.relY) ** 2 : Infinity;
       const angle = rand() * Math.PI * 2;
       const radius = 5 + rand() * (p.isTitle ? 24 : 10);
       p.startRelX = p.relX + Math.cos(angle) * radius;
@@ -383,6 +360,14 @@ import { mountPaperCarousels } from './paper-carousel.js';
       p.delay = Math.min(revealAt, INTRO_DURATION - p.travelDuration - 120);
       p.bend = 0;
     }
+    for (const p of textParticles) {
+      p.travelX = p.relX - p.startRelX;
+      p.travelY = p.relY - p.startRelY;
+      const length = Math.hypot(p.travelX, p.travelY) || 1;
+      p.arcX = -p.travelY / length * p.bend;
+      p.arcY = p.travelX / length * p.bend;
+    }
+    allIntroQueue = textParticles.filter(p => !p.sourceStar).sort((a, b) => a.delay - b.delay);
   }
 
   function createGlyphLayer(hero, glyph, left, top, width, height, dpr, isTitle, visible) {
@@ -409,7 +394,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
       image.data[i] = image.data[i + 1] = image.data[i + 2] = 255;
     }
     const layer = {
-      canvas, ctx, glyph, mask, maskCtx, image, dpr, cellSize, columns, rows,
+      canvas, ctx, glyph, mask, maskCtx, image, alphaData: image.data, dpr, cellSize, columns, rows,
       particles: [], needsPaint: true, active: true,
       cells: Array.from({ length: columns * rows }, (_, i) => ({
         x: i % columns, y: Math.floor(i / columns),
@@ -425,7 +410,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
     // Grow neighbouring stroke coverage through empty cells in one grid pass,
     // rather than comparing every empty cell with every occupied cell.
     const queue = [];
-    layer.cells.forEach((cell, i) => { if (cell.count) queue.push(i); });
+    layer.cells.forEach((cell, i) => { cell.source = null; if (cell.count) queue.push(i); });
     for (let head = 0; head < queue.length; head++) {
       const index = queue[head], cell = layer.cells[index];
       const neighbours = [];
@@ -446,19 +431,14 @@ import { mountPaperCarousels } from './paper-carousel.js';
     for (const layer of glyphLayers) {
       if (!introStart && !layer.active && !layer.needsPaint) continue;
       let changing = false;
-      for (const cell of layer.cells) cell.sum = 0;
-      for (const p of layer.particles) {
-        const distance = p.settled ? 0 : Math.hypot(p.x - heroLeft - p.relX, p.y - heroTop - p.relY);
-        const arrival = introStart ? smoothstep((p.introProgress - 0.72) / 0.28) : 1;
-        p.glyphCell.sum += arrival * (1 - smoothstep((distance - 1) / 9));
-      }
+      const downBlend = 1 - Math.exp(-frameStep / 4), upBlend = 1 - Math.exp(-frameStep / 7);
       for (const cell of layer.cells) {
         if (!cell.count) continue;
-        const target = cell.sum / cell.count;
-        const blend = 1 - Math.exp(-frameStep / (target < cell.alpha ? 4 : 7));
+        const target = clamp(cell.sum / cell.count, 0, 1);
+        const blend = target < cell.alpha ? downBlend : upBlend;
         cell.alpha = paused ? target : cell.alpha + (target - cell.alpha) * blend;
         if (Math.abs(target - cell.alpha) < 0.002) cell.alpha = target;
-        if (cell.alpha !== target || target < 1) changing = true;
+        if (cell.alpha !== target) changing = true;
       }
       let changed = layer.needsPaint;
       for (let i = 0; i < layer.cells.length; i++) {
@@ -466,17 +446,11 @@ import { mountPaperCarousels } from './paper-carousel.js';
         if (!cell.count) cell.alpha = cell.source?.alpha || 0;
         const alpha = Math.round(cell.alpha * 255);
         const index = i * 4 + 3;
-        if (layer.image.data[index] !== alpha) changed = true;
-        layer.image.data[index] = alpha;
+        if (layer.alphaData[index] !== alpha) changed = true;
+        layer.alphaData[index] = alpha;
       }
 
-      // Match the glyph's bilinear mask exactly. Particle opacity is its
-      // complement, including while the particle is displaced from its home.
-      for (const p of layer.particles) {
-        const { indices, weights } = p.glyphSample;
-        p.glyphBlend = (layer.image.data[indices[0]] * weights[0] + layer.image.data[indices[1]] * weights[1]
-          + layer.image.data[indices[2]] * weights[2] + layer.image.data[indices[3]] * weights[3]) / 255;
-      }
+      // Moving particles sample this mask on demand when they are drawn.
       layer.active = changing;
 
       if (!changed) continue;
@@ -496,6 +470,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
     glyphLayers.forEach(layer => layer.canvas.remove());
     glyphLayers = [];
     activeTextParticles.clear();
+    allTextParticles = []; allIntroQueue = []; introQueue = []; introCursor = 0; appliedTextBudget = null;
     particleGrid = createParticleGrid([]);
     sampledTextDensity = quality.text;
     const hero = $('.hero');
@@ -551,7 +526,10 @@ import { mountPaperCarousels } from './paper-carousel.js';
       const isSmall = fontSize <= 18;
       // Sampling controls the flying particles; the cached glyph keeps the
       // complete strokes once this region has gathered.
-      const lineStep = (isTitle ? (isMobile ? 2.5 : 1.9) : (isSmall ? (isMobile ? 1.2 : 1.0) : (isMobile ? 1.5 : 1.25))) / Math.sqrt(sampledTextDensity);
+      // Moving grains describe the gathering; the full-resolution glyph mask
+      // supplies the complete strokes. Dense pixel-by-pixel physics adds cost
+      // without making settled text any sharper.
+      const lineStep = (isTitle ? (isMobile ? 3.8 : 3.6) : (isSmall ? 1.55 : 2.4)) / Math.sqrt(sampledTextDensity);
 
       for (let py = 0; py < h; py += lineStep) {
         for (let px = 0; px < w; px += lineStep) {
@@ -598,13 +576,14 @@ import { mountPaperCarousels } from './paper-carousel.js';
               };
               particle.glyphCell = glyphLayer.cells[Math.round(py / glyphLayer.cellSize) * glyphLayer.columns + Math.round(px / glyphLayer.cellSize)];
               particle.glyphCell.count++;
+              particle.coverage = isAlreadySolidified && !introStart ? 1 : 0;
+              particle.glyphCell.sum += particle.coverage;
               glyphLayer.particles.push(particle);
             }
             points.push(particle);
           }
         }
       }
-      if (glyphLayer) finishGlyphLayer(glyphLayer);
     }
 
     // 1. Kicker: 幻梦星芒 / ASTR — MIRA
@@ -689,19 +668,71 @@ import { mountPaperCarousels } from './paper-carousel.js';
         rect.top - heroRect.top + rect.height / 2, rgb, false, null, 'right');
     }
 
-    textParticles = points;
-    particleGrid = createParticleGrid(points);
-    activeTextParticles = new Set(points);
+    allTextParticles = textParticles = points;
     prepareTextIntro(heroRect);
+    applyTextBudget();
+  }
+
+  function applyTextBudget() {
+    const budget = Math.min(quality.text, sampledTextDensity);
+    if (appliedTextBudget === budget) return;
+    const initial = appliedTextBudget === null;
+    appliedTextBudget = budget;
+    const solid = heroCopy?.classList.contains('is-solidified') && !introStart;
+    const ratio = budget / sampledTextDensity;
+    for (const p of allTextParticles) {
+      const enabled = Boolean(p.sourceStar) || p.detailRank <= ratio;
+      if (enabled && p.enabled === false) {
+        p.settled = Boolean(solid); p.dislodged = false; p.dislodgedFactor = 0;
+        p.vx = p.vy = p.glow = 0;
+        p.coverage = solid ? 1 : 0;
+      }
+      p.enabled = enabled;
+    }
+    textParticles = allTextParticles.filter(p => p.enabled);
+    if (!initial) {
+      for (const layer of glyphLayers) {
+        layer.particles = [];
+        for (const cell of layer.cells) { cell.count = 0; cell.sum = 0; }
+        layer.active = true;
+      }
+      for (const p of textParticles) {
+        if (!p.glyphCell) continue;
+        p.glyphCell.count++;
+        p.glyphCell.sum += p.coverage || 0;
+        p.glyphLayer.particles.push(p);
+      }
+    }
+    for (const layer of glyphLayers) finishGlyphLayer(layer);
+    particleGrid = createParticleGrid(textParticles);
+    activeTextParticles = new Set([...activeTextParticles].filter(p => p.enabled));
+    for (const p of textParticles) if (p.sourceStar) activeTextParticles.add(p);
+    introQueue = allIntroQueue.filter(p => p.enabled);
+    introCursor = 0;
+  }
+
+  function settleHeroText(left, top) {
+    heroCopy?.classList.add('is-solidified', 'is-settled');
+    for (const p of textParticles) {
+      p.x = left + p.relX; p.y = top + p.relY;
+      p.settled = true; p.dislodged = false; p.dislodgedFactor = 0;
+      p.vx = p.vy = p.glow = 0;
+      setGlyphCoverage(p, 1);
+    }
+    introCursor = introQueue.length;
+    textOriginX = left; textOriginY = top;
   }
 
   function resizeStarBuffer() {
     if (!starCanvas || !starCtx) return;
     const dpr = Math.min(devicePixelRatio || 1, quality.dpr);
     const bounds = starCanvas.getBoundingClientRect();
-    starCanvas.width = Math.round(bounds.width * dpr);
-    starCanvas.height = Math.round(bounds.height * dpr);
+    const width = Math.round(bounds.width * dpr), height = Math.round(bounds.height * dpr);
+    if (starCanvas.width !== width) starCanvas.width = width;
+    if (starCanvas.height !== height) starCanvas.height = height;
     starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    particlePainter.resize(bounds.width, bounds.height, dpr);
+    trailPaintState = null;
   }
 
   function applyMotionQuality(next) {
@@ -709,11 +740,12 @@ import { mountPaperCarousels } from './paper-carousel.js';
     document.documentElement.dataset.motionQuality = next.name;
     renderStars = stars.filter(star => star.detailRank < next.stars);
     renderStrands = cometStrands.filter((_, i) => i % next.strandStep === 0);
+    applyTextBudget();
     // Changing detail must not rebuild glyphs or restart the comet's history.
     resizeStarBuffer();
   }
 
-  function resizeStars() {
+  function resizeStars({ render = true } = {}) {
     vw = innerWidth; vh = innerHeight;
     if (starCanvas && starCtx) {
       resizeStarBuffer();
@@ -752,8 +784,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
     sampleTextParticles();
     prepareHeroTail();
     applyMotionQuality(quality);
-    placeStar(true);
-    paintParticlesAndStars(performance.now());
+    if (render) { placeStar(true); paintParticlesAndStars(performance.now()); }
   }
 
   function heroStarAnchor(rect) {
@@ -938,7 +969,8 @@ import { mountPaperCarousels } from './paper-carousel.js';
       const rect = frameHeroRect;
       progress = clamp(window.scrollY / Math.max(1, rect.bottom + window.scrollY), 0, 1);
       heroContentOpacity = paused ? 1 : 1 - smoothstep((progress - .08) / .76);
-      hero.style.setProperty('--hero-exit-opacity', heroContentOpacity.toFixed(3));
+      const opacity = heroContentOpacity.toFixed(3);
+      if (opacity !== heroOpacityStyle) { hero.style.setProperty('--hero-exit-opacity', opacity); heroOpacityStyle = opacity; }
     } else {
       heroContentOpacity = 1;
     }
@@ -949,12 +981,18 @@ import { mountPaperCarousels } from './paper-carousel.js';
       const docking = cometWorld.docking || 0;
       const flyingScale = .72 + (scale - .72) * blend;
       const flyingOpacity = .9 + (.42 + depth * .38 - .9) * blend;
-      companion.classList.add('has-comet-motion');
+      if (!companion.classList.contains('has-comet-motion')) companion.classList.add('has-comet-motion');
       companion.classList.toggle('is-docked', docking === 1);
-      companion.style.setProperty('--companion-opacity', (flyingOpacity + (.95 - flyingOpacity) * docking).toFixed(3));
-      companion.style.setProperty('--companion-scale', (flyingScale + ((cometPath.dock?.scale ?? flyingScale) - flyingScale) * docking).toFixed(3));
-      companion.style.setProperty('--companion-dock', docking.toFixed(3));
-      cometDockSurface?.style.setProperty('--comet-dock', docking.toFixed(3));
+      const opacity = (flyingOpacity + (.95 - flyingOpacity) * docking).toFixed(3);
+      const size = (flyingScale + ((cometPath.dock?.scale ?? flyingScale) - flyingScale) * docking).toFixed(3);
+      const dock = docking.toFixed(3), appearance = `${opacity}:${size}:${dock}`;
+      if (appearance !== companionAppearance) {
+        companion.style.setProperty('--companion-opacity', opacity);
+        companion.style.setProperty('--companion-scale', size);
+        companion.style.setProperty('--companion-dock', dock);
+        companionAppearance = appearance;
+      }
+      if (dock !== dockAppearance) { cometDockSurface?.style.setProperty('--comet-dock', dock); dockAppearance = dock; }
     }
   }
 
@@ -1025,8 +1063,12 @@ import { mountPaperCarousels } from './paper-carousel.js';
     starX = targetX;
     starY = targetY;
     if (companion) {
-      companion.style.left = starX.toFixed(2) + 'px';
-      companion.style.top = starY.toFixed(2) + 'px';
+      const pose = `translate3d(${starX.toFixed(2)}px, ${starY.toFixed(2)}px, 0) translate(-50%, -50%)`;
+      if (pose !== companionPose) {
+        companion.style.left = companion.style.top = '0';
+        companion.style.transform = pose;
+        companionPose = pose;
+      }
     }
     if (immediate) {
       prevStarX = starX; prevStarY = starY;
@@ -1043,6 +1085,13 @@ import { mountPaperCarousels } from './paper-carousel.js';
     const opening = segments.find(segment => segment.points[0].param <= cometPath.heroLength);
     if (opening) revealHeroTail(opening.points, opening.feather, opening.rear, opening.opacity);
     else revealHeroTail([], 1);
+    if (particlePainter.accelerated) {
+      const drawable = segments.filter(segment => segment.points.some(point => point.param > cometPath.heroLength));
+      const state = drawable.length ? `${window.scrollX}:${window.scrollY}:${cometTrail.rear}:${cometTrail.distance}:${renderStrands.length}:${drawable.map(segment => segment.opacity).join(',')}` : '';
+      if (state === trailPaintState) return;
+      starCtx.clearRect(0, 0, vw, vh);
+      trailPaintState = state;
+    } else trailPaintState = null;
     for (const segment of segments) paintCometSegment(segment);
   }
 
@@ -1121,7 +1170,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
     if (!starCtx) return;
     const frameStep = lastPaint ? clamp((now - lastPaint) / (1000 / 60), 0, 3) : 1;
     lastPaint = now;
-    starCtx.clearRect(0, 0, vw, vh);
+    if (!particlePainter.accelerated) starCtx.clearRect(0, 0, vw, vh);
 
     const starVx = starX - prevStarX;
     const starVy = starY - prevStarY;
@@ -1155,30 +1204,23 @@ import { mountPaperCarousels } from './paper-carousel.js';
       if (introElapsed > 3500) copy?.classList.add('is-settled');
       if (introElapsed >= INTRO_DURATION) {
         introStart = 0;
-        if (copy) {
-          if (!copy.classList.contains('is-solidified')) copy.classList.add('is-solidified');
-          if (!copy.classList.contains('is-settled')) copy.classList.add('is-settled');
-        }
-        for (const p of textParticles) {
-          p.x = heroLeft + p.relX;
-          p.y = heroTop + p.relY;
-          p.settled = true;
-          p.dislodged = false;
-          p.dislodgedFactor = 0;
-          p.vx = 0; p.vy = 0;
-        }
-        textOriginX = heroLeft; textOriginY = heroTop;
+        settleHeroText(heroLeft, heroTop);
       }
     } else {
       if (copy && !copy.classList.contains('is-solidified')) {
-        copy.classList.add('is-solidified');
-        copy.classList.add('is-settled');
+        settleHeroText(heroLeft, heroTop);
       }
     }
     const isSolidified = copy ? copy.classList.contains('is-solidified') : false;
 
+    if (!isSolidified) {
+      while (introCursor < introQueue.length && introQueue[introCursor].delay <= introElapsed) {
+        activeTextParticles.add(introQueue[introCursor++]);
+      }
+    }
+
     const pointerOnHero = heroVisible && !paused && !heroDeparture && mouseX > -1000;
-    const workingText = !heroVisible ? [] : !isSolidified ? textParticles
+    const workingText = !heroVisible ? [] : !isSolidified ? activeTextParticles
       : pointerOnHero ? particleGrid.near(mouseX - heroLeft, mouseY - heroTop, 82, activeTextParticles)
         : activeTextParticles;
 
@@ -1229,16 +1271,10 @@ import { mountPaperCarousels } from './paper-carousel.js';
       if (hero && s.textParticle) continue;
       const twinkle = paused ? 1 : (0.86 + 0.14 * Math.sin(now / (2600 + s.depth * 3100) + s.p)) + s.glow * 0.3;
       const alpha = clamp(s.o * twinkle, 0, 1);
-      starCtx.beginPath();
-      starCtx.arc(s.x + pointerX * (0.05 + s.depth * 0.1), s.y + pointerY * (0.05 + s.depth * 0.1), s.r * (1 + s.glow * 0.35), 0, Math.PI * 2);
-      starCtx.fillStyle = s.isGold ? `rgba(238, 215, 172, ${alpha})` : `rgba(176, 202, 230, ${alpha})`;
-      starCtx.fill();
+      particlePainter.dot(s.x + pointerX * (.05 + s.depth * .1), s.y + pointerY * (.05 + s.depth * .1), s.r * (1 + s.glow * .35), s.isGold ? 238 : 176, s.isGold ? 215 : 202, s.isGold ? 172 : 230, alpha);
 
       if (s.glow > 0.35 || (s.depth > 0.90 && alpha > 0.6)) {
-        starCtx.beginPath();
-        starCtx.arc(s.x, s.y, s.r * 0.45, 0, Math.PI * 2);
-        starCtx.fillStyle = `rgba(255, 252, 240, ${clamp(alpha * 0.95, 0, 1)})`;
-        starCtx.fill();
+        particlePainter.dot(s.x, s.y, s.r * .45, 255, 252, 240, clamp(alpha * .95, 0, 1));
       }
     }
 
@@ -1293,12 +1329,10 @@ import { mountPaperCarousels } from './paper-carousel.js';
           p.introProgress = progress;
           const fromX = heroLeft + p.startRelX;
           const fromY = heroTop + p.startRelY;
-          const dx = homeX - fromX, dy = homeY - fromY;
-          const distance = Math.hypot(dx, dy) || 1;
-          const arc = Math.sin(Math.PI * u) * p.bend;
+          const arc = p.bend ? Math.sin(Math.PI * u) : 0;
           const drift = p.sourceStar ? Math.sin(introElapsed / 1500 + p.sourceStar.p) * 1.2 * (1 - u) : 0;
-          p.x = fromX + dx * u - (dy / distance) * arc + drift;
-          p.y = fromY + dy * u + (dx / distance) * arc + drift * 0.5;
+          p.x = fromX + p.travelX * u + p.arcX * arc + drift;
+          p.y = fromY + p.travelY * u + p.arcY * arc + drift * 0.5;
           p.vx = 0; p.vy = 0;
           p.glow = 0;
           p.settled = progress === 1;
@@ -1354,6 +1388,9 @@ import { mountPaperCarousels } from './paper-carousel.js';
           }
         }
 
+        const arrival = introStart ? smoothstep((p.introProgress - .72) / .28) : 1;
+        const glyphDistance = p.settled ? 0 : Math.hypot(p.x - homeX, p.y - homeY);
+        setGlyphCoverage(p, arrival * (1 - smoothstep((glyphDistance - 1) / 9)));
         if (!p.settled) {
           dislodgedCount++;
           activeTextParticles.add(p);
@@ -1367,11 +1404,11 @@ import { mountPaperCarousels } from './paper-carousel.js';
     // as it arrives, keeping empty space clear during the opening.
     if (heroVisible) {
       for (const p of workingText) {
-        if (!introStart && p.settled && p.glyphBlend >= .998) {
+        p.glyphBlend = sampleGlyphCoverage(p);
+        if (p.settled && p.glyphBlend >= .998) {
           activeTextParticles.delete(p);
           continue;
         }
-        if (!p.sourceStar && p.detailRank > quality.text / sampledTextDensity) continue;
         const reveal = introStart ? smoothstep(p.introProgress) : 1;
         const arrival = introStart ? smoothstep((p.introProgress - 0.55) / 0.45) : 1;
         let alpha = p.targetAlpha;
@@ -1390,43 +1427,32 @@ import { mountPaperCarousels } from './paper-carousel.js';
         alpha *= heroContentOpacity;
         if (alpha <= 0.01) continue;
 
-        let rgb;
+        let red, green, blue;
         if (isSolidified) {
           const f = p.dislodgedFactor;
-          rgb = [
-            Math.round(p.targetColorRgb[0] + (p.vanGoghRgb[0] - p.targetColorRgb[0]) * f),
-            Math.round(p.targetColorRgb[1] + (p.vanGoghRgb[1] - p.targetColorRgb[1]) * f),
-            Math.round(p.targetColorRgb[2] + (p.vanGoghRgb[2] - p.targetColorRgb[2]) * f)
-          ];
+          red = p.targetColorRgb[0] + (p.vanGoghRgb[0] - p.targetColorRgb[0]) * f;
+          green = p.targetColorRgb[1] + (p.vanGoghRgb[1] - p.targetColorRgb[1]) * f;
+          blue = p.targetColorRgb[2] + (p.vanGoghRgb[2] - p.targetColorRgb[2]) * f;
         } else {
           const f = 1 - arrival;
           const starRgb = p.sourceStar?.isGold ? [238, 215, 172] : [176, 202, 230];
-          rgb = [
-            Math.round(p.targetColorRgb[0] + (starRgb[0] - p.targetColorRgb[0]) * f),
-            Math.round(p.targetColorRgb[1] + (starRgb[1] - p.targetColorRgb[1]) * f),
-            Math.round(p.targetColorRgb[2] + (starRgb[2] - p.targetColorRgb[2]) * f)
-          ];
+          red = p.targetColorRgb[0] + (starRgb[0] - p.targetColorRgb[0]) * f;
+          green = p.targetColorRgb[1] + (starRgb[1] - p.targetColorRgb[1]) * f;
+          blue = p.targetColorRgb[2] + (starRgb[2] - p.targetColorRgb[2]) * f;
         }
 
         // Settled small text retains its dense glyph sampling.
         if (p.settled && p.isSmall) {
           // High-definition subpixel rasterization: 100% crisp typography
-          starCtx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha.toFixed(3)})`;
-          starCtx.fillRect(p.x - 0.55, p.y - 0.55, 1.1, 1.1);
+          particlePainter.dot(p.x, p.y, -.55, red, green, blue, alpha);
         } else {
           const startRadius = p.sourceStar ? p.sourceStar.r : p.radius * 0.65;
           const renderRadius = (introStart ? startRadius + (p.radius - startRadius) * arrival : p.radius) * (1 + p.glow * 0.35);
 
-          starCtx.beginPath();
-          starCtx.arc(p.x, p.y, renderRadius, 0, Math.PI * 2);
-          starCtx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha.toFixed(3)})`;
-          starCtx.fill();
+          particlePainter.dot(p.x, p.y, renderRadius, red, green, blue, alpha);
 
-          if (p.glow > 0.25 || Math.hypot(p.vx, p.vy) > 1.2) {
-            starCtx.beginPath();
-            starCtx.arc(p.x, p.y, Math.max(0.4, renderRadius * 0.45), 0, Math.PI * 2);
-            starCtx.fillStyle = `rgba(255, 252, 242, ${clamp(alpha * 0.85, 0, 1).toFixed(3)})`;
-            starCtx.fill();
+          if (p.glow > 0.25 || p.vx * p.vx + p.vy * p.vy > 1.44) {
+            particlePainter.dot(p.x, p.y, Math.max(.4, renderRadius * .45), 255, 252, 242, alpha * .85);
           }
         }
       }
@@ -1471,13 +1497,11 @@ import { mountPaperCarousels } from './paper-carousel.js';
         stardustSparks[kept++] = sp;
         const x = sp.x - (sp.world ? window.scrollX : 0), y = sp.y - (sp.world ? window.scrollY : 0);
         if (x < -3 || x > vw + 3 || y < -3 || y > vh + 3) continue;
-        starCtx.beginPath();
-        starCtx.arc(x, y, sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
-        starCtx.fillStyle = `rgba(${sp.rgb[0]},${sp.rgb[1]},${sp.rgb[2]},${clamp(sp.life * 0.9, 0, 1) * turnOpacity})`;
-        starCtx.fill();
+        particlePainter.dot(x, y, sp.size * (.5 + sp.life * .5), sp.rgb[0], sp.rgb[1], sp.rgb[2], clamp(sp.life * .9, 0, 1) * turnOpacity);
       }
       stardustSparks.length = kept;
     }
+    particlePainter.flush();
     sceneBusy = Boolean(introStart || heroDeparture || cometMovingSpeed > .6 || (heroVisible && activeTextParticles.size));
     if (!paused) {
       mouseVx *= Math.pow(0.86, frameStep);
@@ -1502,14 +1526,15 @@ import { mountPaperCarousels } from './paper-carousel.js';
     }
     maskRadius = 0; targetMaskRadius = 0;
     stardustSparks = [];
-    activeTextParticles = new Set(textParticles);
+    activeTextParticles = new Set(textParticles.filter(p => p.sourceStar));
+    introCursor = 0;
     cometParam = 0;
     cometUpdatedAt = null;
     cometHasDeparted = false;
     cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
     for (const layer of glyphLayers) {
       layer.active = true;
-      layer.cells.forEach(cell => { cell.alpha = 0; });
+      layer.cells.forEach(cell => { cell.alpha = 0; cell.sum = 0; });
       layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
       layer.needsPaint = true;
     }
@@ -1517,9 +1542,9 @@ import { mountPaperCarousels } from './paper-carousel.js';
     const heroRect = hero ? hero.getBoundingClientRect() : { left: 0, top: 0 };
     textOriginX = heroRect.left;
     textOriginY = heroRect.top;
-    prepareTextIntro(heroRect);
     if (textParticles.length > 0) {
       textParticles.forEach(p => {
+        p.coverage = 0;
         p.settled = false;
         p.dislodged = false;
         p.dislodgedFactor = 0;
@@ -1550,7 +1575,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
       if (departed) heroDeparture = null;
       renderCost = performance.now() - started;
     }
-    pendingQuality = motionQuality.sample(now, renderCost, sceneBusy) || pendingQuality;
+    pendingQuality = motionQuality.sample(now, renderCost, sceneBusy, Boolean(introStart)) || pendingQuality;
     if (!paused) raf = requestAnimationFrame(tick);
   }
 
@@ -1632,16 +1657,15 @@ import { mountPaperCarousels } from './paper-carousel.js';
     updateMotionButtons(); startLoop();
   });
 
-  resizeStars();
   if (standalone && location.hash.startsWith('#/') && location.hash.length > 2) go(location.hash.slice(2), false);
   else initPage();
-  placeStar(true);
   startIntro();
   startLoop();
 
-  if (document.fonts && document.fonts.ready) {
+  if (document.fonts?.status === 'loading') {
     document.fonts.ready.then(() => {
-      if (!introStart) sampleTextParticles();
+      sampleTextParticles();
+      if (paused) paintParticlesAndStars(performance.now());
     });
   }
 })();

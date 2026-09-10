@@ -23,8 +23,8 @@ export function createMotionQuality({ cores, memory } = {}) {
   return {
     get current() { return MOTION_QUALITY[level]; },
     reset,
-    sample(now, renderCost, busy) {
-      if (previous === null || now - previous > 250) {
+    sample(now, renderCost, busy, opening = false) {
+      if (previous === null || (now - previous > 250 && (renderCost === null || renderCost <= FRAME_INTERVAL * .5))) {
         reset(); previous = started = now;
         return null;
       }
@@ -32,14 +32,16 @@ export function createMotionQuality({ cores, memory } = {}) {
       if (now - previous > FRAME_INTERVAL * 1.5) late++;
       previous = now;
       if (renderCost !== null) { draws++; cost += renderCost; if (busy) busyDraws++; }
-      if (now - started < 2000 || !draws) return null;
+      // The expensive gathering lasts only a few seconds: waiting two seconds
+      // between steps leaves most of it on an unsuitable tier.
+      if (now - started < (opening ? 400 : 2000) || !draws) return null;
 
       const meanCost = cost / draws, lateRatio = late / frames;
       let next = level;
       // Leave half a 60 Hz frame for layout, compositing and other page work.
       if (meanCost > FRAME_INTERVAL * .5 || lateRatio > .2) {
         next = Math.max(0, level - 1); healthy = 0;
-      } else if (meanCost < FRAME_INTERVAL * .25 && lateRatio < .05 && busyDraws / draws > .5) {
+      } else if (!opening && meanCost < FRAME_INTERVAL * .25 && lateRatio < .05 && busyDraws / draws > .5) {
         // Recovery needs six seconds of real animation, not an idle screen.
         if (++healthy >= 3) { next = Math.min(2, level + 1); healthy = 0; }
       } else healthy = 0;
