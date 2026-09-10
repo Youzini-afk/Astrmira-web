@@ -1,4 +1,4 @@
-import { createCometPath, setCometDock, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrail } from './comet-path.js';
+import { createCometPath, setCometDock, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrailSegments, cometTurnOpacity } from './comet-path.js';
 import { createMotionQuality, nextFrameTime } from './motion-quality.js';
 import { createParticleGrid } from './particle-grid.js';
 import { mountArticleTocs } from './article-toc.js';
@@ -889,15 +889,15 @@ import { mountPaperCarousels } from './paper-carousel.js';
     cometDockObserver.observe(cometDockElement.ownerSVGElement);
   }
 
-  function revealHeroTail(points, feather) {
+  function revealHeroTail(points, feather, rearDistance = cometTrail.rear, segmentOpacity = 1) {
     if (!heroTail) return;
     const opening = points.filter(p => p.param <= cometPath.heroLength);
     if (opening.length < 2) { heroTail.group.setAttribute('opacity', '0'); heroTail.state = null; return; }
     const first = opening[0], last = opening[opening.length - 1];
     const rear = cometPoint(cometPath, first.param).u;
     const front = cometPoint(cometPath, last.param).u;
-    const fadeEnd = opening.find(p => p.distance >= cometTrail.rear + feather) || last;
-    const opacity = smoothstep((last.distance - cometTrail.rear) / feather);
+    const fadeEnd = opening.find(p => p.distance >= rearDistance + feather) || last;
+    const opacity = smoothstep((last.distance - rearDistance) / feather) * segmentOpacity;
     const state = `${rear}:${front}:${fadeEnd.param}:${opacity}`;
     if (state === heroTail.state) return;
     const from = heroTail.route.getPointAtLength(heroTail.length * rear);
@@ -929,7 +929,9 @@ import { mountPaperCarousels } from './paper-carousel.js';
       cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
       const from = cometWorld.docking === 1 ? cometParam : Math.max(0, cometParam - cometTrail.maxLength);
       recordCometMotion(cometTrail, cometPath, from, cometParam, now);
-    } else recordCometMotion(cometTrail, cometPath, previous, cometParam, now);
+    } else if (recordCometMotion(cometTrail, cometPath, previous, cometParam, now)) {
+      for (const spark of stardustSparks) if (spark.world) spark.turnFadeAt ??= now;
+    }
     if (!introStart && window.scrollY > 0) cometHasDeparted = true;
     let progress = 1;
     if (hero) {
@@ -1034,10 +1036,17 @@ import { mountPaperCarousels } from './paper-carousel.js';
 
   function paintCometTrail(now) {
     fadeCometTrail(cometTrail, now, !paused && !introStart && cometHasDeparted);
-    const points = visibleCometTrail(cometTrail);
-    const feather = Math.max(1, Math.min(cometTrail.maxLength * .3, (cometTrail.distance - cometTrail.rear) * .65));
-    revealHeroTail(points, feather);
-    if (points.length < 2) return;
+    const segments = visibleCometTrailSegments(cometTrail).map(segment => ({
+      ...segment,
+      feather: Math.max(1, Math.min(cometTrail.maxLength * .3, (segment.distance - segment.rear) * .65))
+    }));
+    const opening = segments.find(segment => segment.points[0].param <= cometPath.heroLength);
+    if (opening) revealHeroTail(opening.points, opening.feather, opening.rear, opening.opacity);
+    else revealHeroTail([], 1);
+    for (const segment of segments) paintCometSegment(segment);
+  }
+
+  function paintCometSegment({ points, distance, rear, opacity, feather }) {
     const first = points.findIndex(point => point.param > cometPath.heroLength);
     if (first < 0) return;
     const nodes = points.slice(Math.max(0, first - 1)).map((point, i, list) => {
@@ -1048,7 +1057,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
         nx: -(b.y - a.y) / length, ny: (b.x - a.x) / length,
         // Every opening filament ends at this same point. Ease their width out
         // from it instead of starting the continuation with an offset fan.
-        spread: Math.pow((cometTrail.distance - point.distance) / cometTrail.maxLength, 1.2)
+        spread: Math.pow((distance - point.distance) / cometTrail.maxLength, 1.2)
           * smoothstep((point.param - cometPath.heroLength) / Math.min(180, cometTrail.maxLength * .2)),
         distance: point.distance
       };
@@ -1057,8 +1066,8 @@ import { mountPaperCarousels } from './paper-carousel.js';
     // filament is one path, matching the opening fan without a bright core.
     const chunks = [];
     let chunk = [nodes[0]];
-    const step = feather / 8, fadeEnd = cometTrail.rear + feather;
-    let boundary = cometTrail.rear + (Math.floor((nodes[0].distance - cometTrail.rear) / step) + 1) * step;
+    const step = feather / 8, fadeEnd = rear + feather;
+    let boundary = rear + (Math.floor((nodes[0].distance - rear) / step) + 1) * step;
     for (let i = 1; i < nodes.length; i++) {
       let a = nodes[i - 1];
       const b = nodes[i];
@@ -1078,8 +1087,8 @@ import { mountPaperCarousels } from './paper-carousel.js';
     starCtx.lineJoin = 'round';
     for (const part of chunks) {
       const a = part[0], b = part[part.length - 1];
-      const fromAlpha = smoothstep((a.distance - cometTrail.rear) / feather);
-      const toAlpha = smoothstep((b.distance - cometTrail.rear) / feather);
+      const fromAlpha = smoothstep((a.distance - rear) / feather);
+      const toAlpha = smoothstep((b.distance - rear) / feather);
       const gradients = new Map();
       for (const strand of renderStrands) {
         let color = strand.color;
@@ -1100,7 +1109,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
           if (i) starCtx.lineTo(x, y); else starCtx.moveTo(x, y);
         });
         starCtx.lineWidth = strand.width;
-        starCtx.globalAlpha = strand.alpha * Math.sqrt(quality.strandStep);
+        starCtx.globalAlpha = strand.alpha * Math.sqrt(quality.strandStep) * opacity;
         starCtx.strokeStyle = color;
         starCtx.stroke();
       }
@@ -1457,13 +1466,14 @@ import { mountPaperCarousels } from './paper-carousel.js';
           sp.vx *= damping; sp.vy *= damping;
           sp.life -= sp.decay * frameStep;
         }
-        if (sp.life <= 0) continue;
+        const turnOpacity = sp.turnFadeAt === undefined ? 1 : cometTurnOpacity(sp.turnFadeAt, now);
+        if (sp.life <= 0 || turnOpacity <= 0) continue;
         stardustSparks[kept++] = sp;
         const x = sp.x - (sp.world ? window.scrollX : 0), y = sp.y - (sp.world ? window.scrollY : 0);
         if (x < -3 || x > vw + 3 || y < -3 || y > vh + 3) continue;
         starCtx.beginPath();
         starCtx.arc(x, y, sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
-        starCtx.fillStyle = `rgba(${sp.rgb[0]},${sp.rgb[1]},${sp.rgb[2]},${clamp(sp.life * 0.9, 0, 1)})`;
+        starCtx.fillStyle = `rgba(${sp.rgb[0]},${sp.rgb[1]},${sp.rgb[2]},${clamp(sp.life * 0.9, 0, 1) * turnOpacity})`;
         starCtx.fill();
       }
       stardustSparks.length = kept;

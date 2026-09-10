@@ -89,14 +89,17 @@ export function cometPoint(path, param) {
 }
 
 export function createCometTrail(maxLength) {
-  return { points: [], distance: 0, rear: 0, lastMotion: 0, maxLength };
+  return { points: [], distance: 0, rear: 0, lastMotion: 0, maxLength, direction: 0, reversal: null, turns: [] };
 }
 
 function prune(trail) {
   let remove = 0;
   while (remove + 1 < trail.points.length && trail.points[remove + 1].distance <= trail.rear) remove++;
   if (remove) trail.points.splice(0, remove);
+  trail.turns = trail.turns.filter(turn => turn.distance > trail.rear);
 }
+
+export const cometTurnOpacity = (started, now) => 1 - smooth((now - started) / 300);
 
 export function recordCometMotion(trail, path, from, to, now) {
   // Scrolling past the destination is not new motion: don't create stationary
@@ -106,6 +109,7 @@ export function recordCometMotion(trail, path, from, to, now) {
     trail.points.push({ ...cometPoint(path, from), distance: trail.distance });
     trail.lastMotion = now;
   }
+  const before = trail.distance;
   // Always record the shared endpoints, even when one frame crosses a join.
   // Both renderers must meet at the exact anchor rather than nearby samples.
   const anchors = [...new Set([path.heroLength, path.join, ...(path.dock ? [path.dock.start, path.dock.end] : [])])];
@@ -128,12 +132,39 @@ export function recordCometMotion(trail, path, from, to, now) {
       trail.lastMotion = now;
     }
   }
+  let reversed = false;
+  const moved = trail.distance - before;
+  if (moved > 0) {
+    const direction = Math.sign(to - from);
+    if (!trail.direction) trail.direction = direction;
+    if (direction === trail.direction) trail.reversal = null;
+    else {
+      trail.reversal ??= { distance: before, travelled: 0 };
+      trail.reversal.travelled += moved;
+      // Require a few actual screen-scale pixels, so subpixel settling and
+      // trackpad jitter don't keep cutting the wake into tiny fragments.
+      if (trail.reversal.travelled >= 3) {
+        if (trail.reversal.distance > trail.rear) {
+          trail.turns.push({ distance: trail.reversal.distance, started: now, opacity: 1 });
+        }
+        trail.direction = direction;
+        trail.reversal = null;
+        reversed = true;
+      }
+    }
+  }
   trail.rear = Math.max(trail.rear, trail.distance - trail.maxLength);
   prune(trail);
+  return reversed;
 }
 
 export function fadeCometTrail(trail, now, dissolve) {
   if (dissolve) {
+    for (const turn of trail.turns) {
+      turn.opacity = cometTurnOpacity(turn.started, now);
+      // A later reversal cannot restart an older segment's fade clock.
+      if (!turn.opacity) trail.rear = Math.max(trail.rear, turn.distance);
+    }
     const remaining = 1 - smooth((now - trail.lastMotion - 600) / 5200);
     // The rear only advances: faded history never reappears on the next scroll.
     trail.rear = Math.max(trail.rear, trail.distance - trail.maxLength * remaining);
@@ -148,4 +179,23 @@ export function visibleCometTrail(trail) {
   if (a.distance >= trail.rear) return points;
   const t = (trail.rear - a.distance) / (b.distance - a.distance);
   return [{ ...between(a, b, t), distance: trail.rear }, ...points.slice(1)];
+}
+
+export function visibleCometTrailSegments(trail) {
+  const turns = new Map(trail.turns.map(turn => [turn.distance, turn]));
+  const segments = [];
+  let points = [];
+  const append = opacity => {
+    if (points.length > 1) segments.push({ points, rear: points[0].distance, distance: points.at(-1).distance, opacity });
+  };
+  for (const point of visibleCometTrail(trail)) {
+    points.push(point);
+    const turn = turns.get(point.distance);
+    if (turn) {
+      append(turn.opacity);
+      points = [point];
+    }
+  }
+  append(1);
+  return segments;
 }
