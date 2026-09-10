@@ -1,0 +1,33 @@
+---
+interface Props { decorative?: boolean; }
+const { decorative = true } = Astro.props;
+const vectors = [[45,88],[57,62],[67,101],[76,78],[87,55],[96,92],[108,67],[114,104],[60,120],[92,117]];
+const graph = [[272,69],[312,59],[332,98],[298,116],[264,101]];
+---
+
+<svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : '向量、图谱与文档共享同一节点标识，汇入 TriviumDB 存储内核。'}>
+  <g stroke="#91b9d5" stroke-width=".7">
+    <path d="M22 224H358M190 24V226" stroke-opacity=".1" />
+    <ellipse cx="190" cy="124" rx="133" ry="74" stroke-opacity=".12" stroke-dasharray="2 7" />
+    <path d="M118 91L167 115M263 91L213 115M190 186V149" stroke-opacity=".5" />
+    <path d="M272 69L312 59L332 98L298 116L264 101L272 69L298 116L312 59M264 101L332 98" stroke-opacity=".45" />
+    <path d="M169 180H201L213 192V221H169Z" stroke-opacity=".55" />
+    <path d="M201 180V192H213M178 198H204M178 205H200M178 212H193" stroke-opacity=".4" />
+  </g>
+  {vectors.map(([cx, cy], i) => <circle cx={cx} cy={cy} r={i === 3 ? 2.5 : 1.4}
+    fill={i === 3 ? '#d6b881' : '#91b9d5'} opacity={i === 3 ? .9 : .3 + (i % 3) * .16} />)}
+  {graph.map(([cx, cy], i) => <g>
+    <circle cx={cx} cy={cy} r="4.5" fill="#0d131d" stroke="#91b9d5" stroke-opacity=".65" stroke-width=".7" />
+    <circle cx={cx} cy={cy} r="1.4" fill={i === 0 ? '#d6b881' : '#91b9d5'} opacity=".75" />
+  </g>)}
+  <circle cx="190" cy="124" r="31" stroke="#d6b881" stroke-opacity=".2" stroke-width=".7" />
+  <path d="M190 99L212 111V137L190 150L168 137V111Z" fill="#d6b881" fill-opacity=".055" stroke="#d6b881" stroke-opacity=".7" stroke-width=".8" />
+  {!decorative && <g fill="#91a5b9" font-family="monospace" font-size="8" letter-spacing="1.4" text-anchor="middle">
+    <text x="80" y="38">VECTOR</text>
+    <text x="299" y="38">GRAPH</text>
+    <text x="190" y="241">DOCUMENT</text>
+  </g>}
+  <text x="190" y="128" fill="#d6b881" font-family="monospace" font-size="11" letter-spacing="1.5" text-anchor="middle">TDB</text>
+</svg>

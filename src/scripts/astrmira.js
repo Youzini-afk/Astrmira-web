@@ -148,7 +148,7 @@ import { createParticleGrid } from './particle-grid.js';
       if (!card.hidden) count++;
     });
     $$('[data-project-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.projectFilter === value)));
-    const output = $('[data-project-count]'); if (output) output.textContent = `${count} 个业务方向`;
+    const output = $('[data-project-count]'); if (output) output.textContent = `${count} 项`;
   }
   function filterResearchItems() {
     let count = 0;
