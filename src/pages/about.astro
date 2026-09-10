@@ -1,0 +1,246 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="关于我们与变星之源 — Astrmira 幻梦星芒" currentPath="/about">
+  <div class="wrap page-container">
+    <div class="page-header">
+      <div class="breadcrumb">
+        <a href="/">Astrmira</a>
+        <span class="sep">/</span>
+        <span>About</span>
+      </div>
+
+      <div class="eyebrow">MISSION & HERITAGE</div>
+      <h1 class="page-title">变星、幻梦与第一性原理。</h1>
+      <p class="page-lead">
+        Astrmira 是一家偏前沿研究的企业。我们相信，最好的工程系统诞生于对底层第一性原理的严谨追问，而最深刻的理论探索离不开对未知宇宙的浪漫好奇。
+      </p>
+    </div>
+
+    <div class="about-content-layout">
+      <aside class="about-sidebar">
+        <div class="eyebrow">ASTRONOMICAL RECORD</div>
+        <p class="aside-meta">
+          <strong>TARGET</strong>: Omicron Ceti / Mira<br>
+          <strong>DISCOVERY</strong>: 1596 (David Fabricius)<br>
+          <strong>PULSATION</strong>: ~332.9 Days<br>
+          <strong>UV TAIL</strong>: ~13 Light-Years<br>
+          <strong>SOURCE</strong>: NASA APOD (2007-08-17)
+        </p>
+
+        <div class="aside-note">
+          <p>“恒星会剧烈脉动，但探索从未停歇。”</p>
+        </div>
+      </aside>
+
+      <div class="about-body">
+        <section class="story-section">
+          <h2>名字的故事：Astr · Mira · Mirage</h2>
+          <p>
+            Astrmira 的发音与词根，承载着三层意象：
+          </p>
+          <ul>
+            <li><strong>Astr</strong>：浩瀚星辰与深空，代表人类面对未知问题时的终极好奇与求索视界。</li>
+            <li><strong>Mira</strong>：蒭藁增二（Omicron Ceti），天文学史上最著名的变星。1596 年以前，西方天文学界普遍坚信“恒星是永恒不变的晶球”，而 Mira 约 11 个月的剧烈光度涨落，彻底打破了这一旧范式，被称为 “The Wonderful Star”。NASA GALEX 卫星更捕捉到它在星际介质中高速飞行时甩出的 13 光年紫外星尾。</li>
+            <li><strong>Mirage</strong>：海市蜃楼、幻梦。在严谨的数学推导与代码编写之前，科学往往始于直觉的大胆想象。</li>
+          </ul>
+          <p>
+            我们将这三重意象交织，命名为<strong>「幻梦星芒」</strong>。
+          </p>
+        </section>
+
+        <section class="values-section">
+          <h2>我们的研究态度</h2>
+          <div class="value-item">
+            <h3>01 / 从第一性原理出发</h3>
+            <p>不追逐虚浮的名词泡沫。无论是分布式数据库的原子提交、高维向量检索的近邻拓扑，还是 Agent 的多步规划，我们始终回到计算机科学与数理逻辑的根源问题。</p>
+          </div>
+
+          <div class="value-item">
+            <h3>02 / 追求可验证的落地系统</h3>
+            <p>论文不是探索的终点，而是可复现系统的起点。我们坚持让严谨的数理理论在真实算力与真实负载中淬炼为高可靠、高吞吐的坚实代码。</p>
+          </div>
+
+          <div class="value-item">
+            <h3>03 / 保持敬畏与开放协同</h3>
+            <p>面对庞大未解的复杂世界，我们与顶尖高校、科研机构及行业先锋保持密切的联合攻关，开放交流，让探索留下能够持续生长的痕迹。</p>
+          </div>
+        </section>
+
+        <div class="about-cta-box">
+          <div class="eyebrow">JOIN THE INQUIRY</div>
+          <h3>下一个值得探索的问题，期待与你同行。</h3>
+          <p>我们持续寻找志同道合的研究员、系统工程师与学术合作伙伴。</p>
+          <a href="/contact" class="button button-primary">联系我们 <span class="arrow">&nearr;</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .page-container {
+    padding-top: 60px;
+    padding-bottom: 110px;
+  }
+
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--gold);
+  }
+
+  .breadcrumb .sep {
+    color: var(--line);
+  }
+
+  .page-title {
+    font-family: var(--serif);
+    font-size: clamp(38px, 4.8vw, 56px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 12px 0 18px;
+  }
+
+  .page-lead {
+    font-size: 14.5px;
+    color: var(--muted);
+    line-height: 2;
+    max-width: 760px;
+    margin-bottom: 50px;
+  }
+
+  .about-content-layout {
+    display: grid;
+    grid-template-columns: 1fr 2.3fr;
+    gap: 60px;
+    border-top: 1px solid var(--line);
+    padding-top: 40px;
+  }
+
+  .about-sidebar {
+    border-right: 1px solid var(--line);
+    padding-right: 40px;
+  }
+
+  .aside-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 2.2;
+    margin-top: 16px;
+    margin-bottom: 30px;
+  }
+
+  .aside-meta strong {
+    color: var(--gold);
+  }
+
+  .aside-note {
+    background: rgba(16, 20, 28, 0.6);
+    border-left: 2px solid var(--gold);
+    padding: 16px 20px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  .about-body section {
+    margin-bottom: 60px;
+  }
+
+  .about-body h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    margin-bottom: 20px;
+    letter-spacing: 0.02em;
+  }
+
+  .about-body p {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 2.1;
+    margin-bottom: 18px;
+  }
+
+  .about-body ul {
+    list-style: none;
+    margin: 20px 0 24px;
+  }
+
+  .about-body ul li {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 2;
+    margin-bottom: 14px;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .about-body ul li::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 10px;
+    top: 2px;
+  }
+
+  .about-body ul li strong {
+    color: var(--text);
+  }
+
+  .value-item {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    margin-top: 24px;
+  }
+
+  .value-item h3 {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .about-cta-box {
+    background: rgba(16, 20, 28, 0.8);
+    border: 1px solid var(--line);
+    padding: 36px 40px;
+    margin-top: 50px;
+  }
+
+  .about-cta-box h3 {
+    font-size: 22px;
+    margin: 12px 0 10px;
+  }
+
+  .about-cta-box .button {
+    margin-top: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .about-content-layout {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .about-sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+      padding-right: 0;
+      padding-bottom: 30px;
+    }
+  }
+</style>

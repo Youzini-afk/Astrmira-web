@@ -1,0 +1,351 @@
+---
+// MiraHero.astro: First light hero section
+---
+
+<section class="hero-section">
+  <!-- Top Astronomical Metadata -->
+  <div class="hero-meta-left">
+    <span>A RESEARCH OBSERVATORY</span>
+    <span class="muted">FOUNDATIONS & FRONTIER LAB</span>
+  </div>
+
+  <div class="hero-meta-right">
+    <span class="gold-coord">O CETI / MIRA</span>
+    <span class="muted">THE WONDERFUL STAR · ARTISTIC INTERPRETATION</span>
+  </div>
+
+  <!-- Central Brand & Proposition -->
+  <div class="hero-content">
+    <div class="hero-kicker">
+      <span>幻梦星芒</span>
+      <span class="kicker-sep">/</span>
+      <span>ASTR — MIRA — GE</span>
+    </div>
+
+    <h1 class="hero-title">Astr<em>mira</em></h1>
+
+    <h2 class="hero-proposition">于未知处求索，让智能扎根。</h2>
+    <div class="hero-english">From first principles to real-world intelligence.</div>
+
+    <p class="hero-desc">
+      我们研究数据、计算与智能的底层问题，<br>
+      让严谨的理论，成为可用的系统。
+    </p>
+
+    <div class="hero-actions">
+      <a href="#research" class="button button-primary">
+        探索我们的研究 <span class="arrow">&nearr;</span>
+      </a>
+      <a href="#projects" class="button button-quiet">
+        发现项目 <span class="arrow">&darr;</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Hero Bottom Bar -->
+  <div class="hero-bottom-bar">
+    <div class="scroll-cue">
+      <span class="scroll-line"></span>
+      <span>SCROLL TO DISCOVER</span>
+    </div>
+
+    <div class="hero-controls">
+      <button class="ctrl-btn" id="btn-replay-intro" title="重新播放开场演变动画">
+        <span>&circlearrowleft; 重播星芒</span>
+      </button>
+      <button class="ctrl-btn" id="btn-toggle-motion" title="切换静态/动态模式">
+        <span class="ctrl-dot"></span>
+        <span id="motion-status-text">动效正常</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Domain Ticker Strip -->
+<div class="domains-strip">
+  <div class="domains-inner">
+    <span>DATABASES</span>
+    <i class="sep">✦</i>
+    <span>RETRIEVAL</span>
+    <i class="sep">✦</i>
+    <span>VECTORS</span>
+    <i class="sep">✦</i>
+    <span>QUANTIZATION</span>
+    <i class="sep">✦</i>
+    <span>POST-TRAINING</span>
+    <i class="sep">✦</i>
+    <span>MATHEMATICS</span>
+  </div>
+</div>
+
+<style>
+  .hero-section {
+    min-height: calc(100vh - 90px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 60px var(--pad) 80px;
+    overflow: hidden;
+  }
+
+  .hero-meta-left {
+    position: absolute;
+    top: 40px;
+    left: var(--pad);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--faint);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .hero-meta-right {
+    position: absolute;
+    top: 40px;
+    right: var(--pad);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .gold-coord {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .hero-content {
+    text-align: center;
+    position: relative;
+    z-index: 5;
+    max-width: 900px;
+    margin: auto 0;
+  }
+
+  .hero-kicker {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: #9ba5b6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .kicker-sep {
+    color: rgba(214, 184, 129, 0.4);
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(84px, 13.5vw, 192px);
+    letter-spacing: -0.05em;
+    font-weight: 400;
+    line-height: 1.0;
+    color: var(--text);
+    text-shadow: 0 4px 60px rgba(0, 0, 0, 0.9);
+    margin-bottom: 18px;
+    user-select: none;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    color: var(--text);
+  }
+
+  .hero-proposition {
+    font-size: clamp(20px, 2.2vw, 30px);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .hero-english {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    margin-bottom: 24px;
+  }
+
+  .hero-desc {
+    font-size: 13.5px;
+    color: #a5aebd;
+    line-height: 2.1;
+    letter-spacing: 0.04em;
+    max-width: 580px;
+    margin: 0 auto 36px;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .hero-actions .button {
+    min-width: 170px;
+  }
+
+  .hero-bottom-bar {
+    position: absolute;
+    bottom: 30px;
+    left: var(--pad);
+    right: var(--pad);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    z-index: 5;
+  }
+
+  .scroll-cue {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    letter-spacing: 0.14em;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 36px;
+    background: linear-gradient(to bottom, transparent, var(--gold));
+  }
+
+  .hero-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .ctrl-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+
+  .ctrl-btn:hover {
+    color: var(--gold);
+  }
+
+  .ctrl-dot {
+    width: 5px;
+    height: 5px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  /* Domains Strip */
+  .domains-strip {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: rgba(9, 12, 18, 0.6);
+    position: relative;
+    z-index: 10;
+  }
+
+  .domains-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--pad);
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: #9ba5b6;
+    letter-spacing: 0.08em;
+  }
+
+  .domains-inner .sep {
+    color: #5c4e38;
+    font-style: normal;
+    font-size: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .hero-meta-left, .hero-meta-right {
+      position: static;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: 20vw;
+    }
+    .hero-proposition {
+      font-size: 19px;
+    }
+    .hero-english {
+      font-size: 14px;
+    }
+    .hero-desc {
+      font-size: 12px;
+    }
+    .hero-actions {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .hero-actions .button {
+      width: 100%;
+    }
+    .hero-bottom-bar {
+      position: static;
+      margin-top: 40px;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .domains-inner {
+      justify-content: center;
+      padding: 16px var(--pad);
+    }
+  }
+</style>
+
+<script>
+  const btnReplay = document.getElementById('btn-replay-intro');
+  const btnMotion = document.getElementById('btn-toggle-motion');
+  const motionText = document.getElementById('motion-status-text');
+
+  if (btnReplay) {
+    btnReplay.addEventListener('click', () => {
+      if (typeof (window as any).replayAstrmiraIntro === 'function') {
+        (window as any).replayAstrmiraIntro();
+      }
+    });
+  }
+
+  if (btnMotion && motionText) {
+    btnMotion.addEventListener('click', () => {
+      if (typeof (window as any).toggleAstrmiraMotion === 'function') {
+        const isPaused = (window as any).toggleAstrmiraMotion();
+        motionText.textContent = isPaused ? '动效已暂停' : '动效正常';
+      }
+    });
+  }
+</script>

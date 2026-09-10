@@ -1,0 +1,398 @@
+---
+// StarCompanion.astro: The central celestial star that morphs and accompanies the user
+---
+
+<div id="mira-companion" class="mira-companion" data-phase="geometry" aria-hidden="true">
+  <!-- Layer 1: 3D Volumetric Star Canvas -->
+  <canvas id="mira-volume-canvas" width="420" height="420" class="star-layer layer-volume"></canvas>
+
+  <!-- Layer 2: Van Gogh Impressionist Painterly Swirl Canvas -->
+  <canvas id="mira-pigment-canvas" width="420" height="420" class="star-layer layer-pigment"></canvas>
+
+  <!-- Layer 3: Minimalist Geometric Celestial Starlight Vector -->
+  <div class="star-layer layer-geometry">
+    <svg viewBox="0 0 400 400" fill="none" class="geometry-svg">
+      <!-- Outer subtle orbit rings -->
+      <ellipse cx="200" cy="200" rx="160" ry="68" transform="rotate(-32 200 200)" stroke="#d6b881" stroke-width="0.75" stroke-dasharray="3 7" opacity="0.35"/>
+      <ellipse cx="200" cy="200" rx="135" ry="54" transform="rotate(-32 200 200)" stroke="#d6b881" stroke-width="1.2" opacity="0.8"/>
+      
+      <!-- Four-pointed celestial diamond star -->
+      <path d="M200 115 C208 175 225 192 285 200 C225 208 208 225 200 285 C192 225 175 208 115 200 C175 192 192 175 200 115 Z" fill="#d6b881" filter="url(#gold-glow)"/>
+      
+      <!-- Inner star core -->
+      <circle cx="200" cy="200" r="4.5" fill="#fffef8"/>
+      
+      <!-- Orbiting marker dot -->
+      <circle cx="314" cy="130" r="2.8" fill="#d6b881"/>
+      <circle cx="86" cy="270" r="2" fill="#91b9d5" opacity="0.85"/>
+      
+      <!-- Filter definition -->
+      <defs>
+        <filter id="gold-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .mira-companion {
+    position: fixed;
+    top: 260px;
+    left: 50%;
+    width: 380px;
+    height: 380px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 15;
+    will-change: transform, left, top, opacity;
+    transition: opacity 0.8s ease;
+  }
+
+  .star-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .layer-volume {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  .layer-pigment {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  .layer-geometry {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  .geometry-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 16px rgba(214, 184, 129, 0.3));
+    animation: slow-celestial-spin 48s linear infinite;
+  }
+
+  @keyframes slow-celestial-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Active Phase States */
+  .mira-companion[data-phase="volume"] .layer-volume {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .mira-companion[data-phase="pigment"] .layer-pigment {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .mira-companion[data-phase="geometry"] .layer-geometry {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Docked state when scrolled into inner content */
+  .mira-companion.is-docked {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.48);
+  }
+
+  .mira-companion.is-docked .geometry-svg {
+    animation-duration: 24s;
+  }
+
+  @media (max-width: 768px) {
+    .mira-companion {
+      width: 260px;
+      height: 260px;
+    }
+    .mira-companion.is-docked {
+      transform: translate(-50%, -50%) scale(0.35);
+      opacity: 0.4;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star-layer {
+      transition: none !important;
+    }
+    .geometry-svg {
+      animation: none !important;
+    }
+    .layer-volume, .layer-pigment {
+      display: none !important;
+    }
+    .layer-geometry {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+  }
+</style>
+
+<script>
+  // Orchestrator for the 3D Star -> Van Gogh Painterly Swirl -> Geometric Celestial Companion
+  (function initCompanion() {
+    const companion = document.getElementById('mira-companion');
+    if (!companion) return;
+
+    const volumeCanvas = document.getElementById('mira-volume-canvas') as HTMLCanvasElement;
+    const pigmentCanvas = document.getElementById('mira-pigment-canvas') as HTMLCanvasElement;
+    
+    let isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let isPaused = false;
+    let currentPhase = 'geometry';
+
+    // Positions & Physics Lerp
+    let starX = window.innerWidth * 0.5;
+    let starY = 280;
+    let targetX = starX;
+    let targetY = starY;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    // 1. Setup 3D Volumetric Celestial Star Shader
+    let drawVolume: ((time: number) => void) | null = null;
+    function createVolumeShader() {
+      if (!volumeCanvas) return null;
+      const gl = volumeCanvas.getContext('webgl', { alpha: true, antialias: true, powerPreference: 'low-power' });
+      if (!gl) return null;
+
+      const vsSource = `attribute vec2 a_pos; void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+      const fsSource = `precision mediump float;
+        uniform vec2 u_res; uniform float u_time;
+        float hash(vec3 p) { p = fract(p * .3183099 + vec3(.1,.2,.3)); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+        float noise(vec3 x) { vec3 i = floor(x), f = fract(x); f = f*f*(3.0-2.0*f); return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z); }
+        float fbm(vec3 p) { float v = 0.0; float a = .5; for(int i=0;i<4;i++){ v += a*noise(p); p = p*2.05+1.2; a*=.5; } return v; }
+        void main() {
+          vec2 uv = (gl_FragCoord.xy - .5 * u_res) / u_res.y;
+          float d = length(uv); float r = 0.23; float t = u_time * 0.12;
+          float corona = exp(-d * 8.5) * 0.38;
+          vec3 color = vec3(0.84, 0.72, 0.51) * corona;
+          float alpha = corona;
+          if (d < r) {
+            float z = sqrt(max(0.0, 1.0 - dot(uv/r, uv/r)));
+            vec3 n = vec3(uv/r, z);
+            float detail = fbm(n * 6.0 + vec3(t, t * 0.7, 0.0));
+            float light = 0.45 + 0.55 * max(dot(n, normalize(vec3(-0.4, 0.6, 0.8))), 0.0);
+            vec3 starBody = mix(vec3(0.85, 0.55, 0.22), vec3(1.0, 0.94, 0.78), detail);
+            color = starBody * light + vec3(0.35, 0.25, 0.1) * pow(1.0 - z, 2.5);
+            alpha = 1.0;
+          }
+          alpha *= 1.0 - smoothstep(0.42, 0.49, d);
+          gl_FragColor = vec4(color, alpha);
+        }`;
+
+      const vs = gl.createShader(gl.VERTEX_SHADER)!;
+      gl.shaderSource(vs, vsSource); gl.compileShader(vs);
+      const fs = gl.createShader(gl.FRAGMENT_SHADER)!;
+      gl.shaderSource(fs, fsSource); gl.compileShader(fs);
+
+      const prog = gl.createProgram()!;
+      gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+      gl.useProgram(prog);
+
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+      const aPos = gl.getAttribLocation(prog, 'a_pos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      const uRes = gl.getUniformLocation(prog, 'u_res');
+      const uTime = gl.getUniformLocation(prog, 'u_time');
+      gl.viewport(0, 0, volumeCanvas.width, volumeCanvas.height);
+      gl.uniform2f(uRes, volumeCanvas.width, volumeCanvas.height);
+
+      return (timeSec: number) => {
+        gl.uniform1f(uTime, timeSec);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      };
+    }
+
+    // 2. Setup Van Gogh Impressionist Painterly Swirl Canvas
+    let drawPigment: ((time: number) => void) | null = null;
+    function createPigmentRenderer() {
+      if (!pigmentCanvas) return null;
+      const ctx = pigmentCanvas.getContext('2d');
+      if (!ctx) return null;
+
+      const strokes: Array<{
+        angle: number;
+        dist: number;
+        len: number;
+        width: number;
+        color: string;
+        speed: number;
+      }> = [];
+
+      const colors = [
+        '#d6b881', '#f3deaa', '#e2ba75', '#bd8e49', // Van Gogh warm ochres
+        '#2d4263', '#486581', '#1f2e46', '#91b9d5'  // Starry night blues
+      ];
+
+      for (let i = 0; i < 180; i++) {
+        strokes.push({
+          angle: Math.random() * Math.PI * 2,
+          dist: 20 + Math.random() * 140,
+          len: 12 + Math.random() * 26,
+          width: 1.5 + Math.random() * 3.5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speed: (0.006 + Math.random() * 0.012) * (Math.random() > 0.3 ? 1 : -1)
+        });
+      }
+
+      return (timeSec: number) => {
+        ctx.clearRect(0, 0, pigmentCanvas.width, pigmentCanvas.height);
+        const cx = pigmentCanvas.width * 0.5;
+        const cy = pigmentCanvas.height * 0.5;
+
+        // Draw Swirling Short Arc Brushstrokes with Impasto Texture
+        ctx.save();
+        ctx.lineCap = 'round';
+        for (const s of strokes) {
+          s.angle += s.speed;
+          const x = cx + Math.cos(s.angle) * s.dist;
+          const y = cy + Math.sin(s.angle) * (s.dist * 0.72);
+
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = s.width;
+          ctx.beginPath();
+          ctx.arc(cx, cy, s.dist, s.angle, s.angle + (s.len / s.dist), false);
+          ctx.stroke();
+        }
+        ctx.restore();
+      };
+    }
+
+    // Phase management
+    function setPhase(phase: string) {
+      if (!companion) return;
+      currentPhase = phase;
+      companion.dataset.phase = phase;
+    }
+
+    // Target positions update based on scroll
+    function updateAnchor() {
+      const scrollY = window.scrollY;
+      const vw = window.innerWidth;
+      const hero = document.querySelector('.hero-section');
+
+      // Check sections to anchor alongside
+      const pSec = document.getElementById('projects');
+      const rSec = document.getElementById('research');
+      const oSec = document.getElementById('origin');
+
+      if (scrollY < 400 && hero) {
+        // Hero Center Anchor (Right around the central title Astrmira)
+        companion?.classList.remove('is-docked');
+        targetX = vw * 0.5;
+        targetY = 270;
+      } else {
+        // Content Section Anchor (Side guide)
+        companion?.classList.add('is-docked');
+        
+        if (oSec && oSec.getBoundingClientRect().top < 400) {
+          targetX = vw * 0.16;
+          targetY = 240;
+        } else if (rSec && rSec.getBoundingClientRect().top < 400) {
+          targetX = vw * 0.88;
+          targetY = 260;
+        } else if (pSec && pSec.getBoundingClientRect().top < 400) {
+          targetX = vw * 0.12;
+          targetY = 260;
+        } else {
+          targetX = vw * 0.86;
+          targetY = 200;
+        }
+      }
+    }
+
+    // Opening Transformation Timeline (Volume -> Pigment -> Geometry)
+    let startTime = 0;
+    function startTransformation() {
+      if (isReduced) {
+        setPhase('geometry');
+        return;
+      }
+      startTime = performance.now();
+      if (!drawVolume) drawVolume = createVolumeShader();
+      if (!drawPigment) drawPigment = createPigmentRenderer();
+      setPhase('volume');
+    }
+
+    // Main animation loop
+    function loop(now: number) {
+      if (isPaused) return;
+
+      // Update Phase Sequence
+      if (startTime > 0) {
+        const elapsed = (now - startTime) / 1000;
+        if (elapsed < 1.5) {
+          if (currentPhase !== 'volume') setPhase('volume');
+          if (drawVolume) drawVolume(elapsed);
+        } else if (elapsed < 3.2) {
+          if (currentPhase !== 'pigment') setPhase('pigment');
+          if (drawPigment) drawPigment(elapsed);
+        } else if (elapsed < 4.8) {
+          if (currentPhase !== 'geometry') setPhase('geometry');
+        } else {
+          startTime = 0; // Completed intro
+        }
+      }
+
+      // Physics spring interpolation
+      updateAnchor();
+      const currentTargetX = targetX + mouseX;
+      const currentTargetY = targetY + mouseY;
+
+      starX += (currentTargetX - starX) * 0.06;
+      starY += (currentTargetY - starY) * 0.06;
+
+      if (companion) {
+        companion.style.left = `${starX.toFixed(2)}px`;
+        companion.style.top = `${starY.toFixed(2)}px`;
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    // Event listeners
+    window.addEventListener('pointermove', (e) => {
+      if (isReduced || isPaused) return;
+      const normX = (e.clientX / window.innerWidth) - 0.5;
+      const normY = (e.clientY / window.innerHeight) - 0.5;
+      mouseX = normX * 24;
+      mouseY = normY * 18;
+    }, { passive: true });
+
+    window.addEventListener('scroll', updateAnchor, { passive: true });
+    window.addEventListener('resize', updateAnchor, { passive: true });
+
+    // Global hook to replay
+    (window as any).replayAstrmiraIntro = () => {
+      startTransformation();
+    };
+
+    (window as any).toggleAstrmiraMotion = () => {
+      isPaused = !isPaused;
+      if (!isPaused) requestAnimationFrame(loop);
+      return isPaused;
+    };
+
+    // Start
+    updateAnchor();
+    startTransformation();
+    requestAnimationFrame(loop);
+  })();
+</script>
