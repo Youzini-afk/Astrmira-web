@@ -185,7 +185,7 @@
       paused = !paused;
       if (reduced.matches) paused = true;
       try { sessionStorage.setItem('astrmira-motion', paused ? 'paused' : 'active'); } catch (_) {}
-      if (paused) { introStart = 0; setPhase('geometry'); }
+      if (paused) introStart = 0;
       updateMotionButtons(); startLoop(); return;
     }
     if (target.closest('[data-copy-brief]') && brief) {
@@ -270,7 +270,7 @@
   }
   let drawVolume = null;
   const companion = $('.mira-object');
-  let introStart = 0, phase = 'geometry', raf = 0, lastFrame = 0;
+  let introStart = 0, raf = 0, lastFrame = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
   let pointerX = 0, pointerY = 0;
@@ -671,13 +671,6 @@
     sampleTextParticles();
     updateStarTarget();
     paintParticlesAndStars(performance.now());
-  }
-
-  function setPhase(next) {
-    if (!companion) return;
-    phase = next; companion.dataset.phase = next;
-    const label = $('[data-phase-label]');
-    if (label) label.textContent = { volume: '01 / VOLUME', pigment: '02 / PIGMENT', geometry: '03 / GEOMETRY' }[next];
   }
 
   function updateStarTarget() {
@@ -1111,7 +1104,6 @@
       });
     }
     introStart = performance.now();
-    setPhase('pigment');
     placeStar(true, introStart);
     prevStarX = starX;
     prevStarY = starY;
@@ -1121,14 +1113,6 @@
     raf = 0;
     if (now - lastFrame >= 1000 / 60) {
       lastFrame = now;
-      if (introStart) {
-        const elapsed = now - introStart;
-        if (elapsed < 3200) {
-          if (phase !== 'pigment') setPhase('pigment');
-        } else {
-          if (phase !== 'geometry') setPhase('geometry');
-        }
-      }
       placeStar(false, now);
       paintParticlesAndStars(now);
     }
@@ -1188,13 +1172,13 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       if (raf) cancelAnimationFrame(raf); raf = 0;
-      introStart = 0; setPhase('geometry');
+      introStart = 0;
     } else startLoop();
   });
 
   reduced.addEventListener('change', () => {
     paused = reduced.matches;
-    introStart = 0; setPhase('geometry');
+    introStart = 0;
     updateMotionButtons(); startLoop();
   });
 
