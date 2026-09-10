@@ -288,79 +288,166 @@
     };
   }
 
+  const VAN_GOGH_PALETTE = [
+    [214, 184, 129], // #d6b881 warm gold
+    [240, 211, 158], // #f0d39e amber yellow
+    [141, 171, 195], // #8dabc3 sky cyan
+    [82, 123, 159],  // #527b9f deep cobalt
+    [197, 167, 120]  // #c5a778 star trail ochre
+  ];
+
   function sampleTextParticles() {
     const hero = $('.hero');
-    const h1 = $('.hero h1');
-    const sub = $('.hero-subtitle');
-    if (!hero || !h1) { textParticles = []; return; }
+    const copy = $('.hero-copy');
+    if (!hero || !copy) { textParticles = []; return; }
 
-    const h1Rect = h1.getBoundingClientRect();
-    const subRect = sub ? sub.getBoundingClientRect() : null;
+    const heroRect = hero.getBoundingClientRect();
     const points = [];
+    const step = vw < 720 ? 4 : 3;
 
-    function sampleEl(el, text, rect, step, isMain) {
-      if (!rect || rect.width <= 0 || rect.height <= 0) return;
+    function sampleTextLine(text, style, targetCenterX, targetCenterY, targetRgb, isTitle = false, fontStyleOverride = null) {
+      if (!text || text.trim() === '') return;
       const offCanvas = document.createElement('canvas');
-      const pad = 24;
-      const w = Math.ceil(rect.width) + pad * 2;
-      const h = Math.ceil(rect.height) + pad * 2;
-      offCanvas.width = w;
-      offCanvas.height = h;
+      const fontSize = parseFloat(style.fontSize) || 16;
+      const fontFamily = style.fontFamily || 'Georgia, serif';
+      const fontStyle = fontStyleOverride || style.fontStyle || 'normal';
+      const fontWeight = style.fontWeight || '400';
+      const letterSpacing = style.letterSpacing || 'normal';
+
       const ctx = offCanvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) return;
+      ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+      try { ctx.letterSpacing = letterSpacing; } catch (_) {}
 
-      const style = window.getComputedStyle(el);
-      const fontSize = parseFloat(style.fontSize) || (isMain ? 120 : 22);
-      const fontFamily = style.fontFamily || 'Georgia, serif';
-      ctx.font = `${style.fontStyle || 'normal'} ${style.fontWeight || '400'} ${fontSize}px ${fontFamily}`;
+      const metrics = ctx.measureText(text);
+      const textWidth = Math.ceil(metrics.width);
+      const textHeight = Math.ceil(fontSize * 1.35);
+      const pad = 16;
+      const w = textWidth + pad * 2;
+      const h = textHeight + pad * 2;
+      offCanvas.width = w;
+      offCanvas.height = h;
+
+      ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+      try { ctx.letterSpacing = letterSpacing; } catch (_) {}
       ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      try { ctx.letterSpacing = style.letterSpacing; } catch (_) {}
-      ctx.fillText(text, w / 2, h / 2);
+      ctx.textAlign = 'left';
+      ctx.fillText(text, pad, h / 2);
 
       const imgData = ctx.getImageData(0, 0, w, h).data;
-      const offsetX = rect.left - pad;
-      const offsetY = rect.top - pad;
+      const startX = targetCenterX - textWidth / 2 - pad;
+      const startY = targetCenterY - h / 2;
 
-      for (let py = 0; py < h; py += step) {
-        for (let px = 0; px < w; px += step) {
-          const idx = (py * w + px) * 4;
-          if (imgData[idx + 3] > 110) {
-            const homeX = offsetX + px;
-            const homeY = offsetY + py;
+      const isMobile = vw < 720;
+      const lineStep = isTitle ? (isMobile ? 3.6 : 2.7) : (fontSize < 18 ? (isMobile ? 1.8 : 1.35) : (isMobile ? 2.2 : 1.6));
+
+      for (let py = 0; py < h; py += lineStep) {
+        for (let px = 0; px < w; px += lineStep) {
+          const idx = (Math.floor(py) * w + Math.floor(px)) * 4;
+          if (imgData[idx + 3] > 80) {
+            const relX = startX + px;
+            const relY = startY + py;
+
             const angle = Math.random() * Math.PI * 2;
-            const dist = (0.2 + 0.8 * Math.random()) * Math.max(vw, vh) * 0.65;
-            const origX = homeX + Math.cos(angle) * dist;
-            const origY = homeY + Math.sin(angle) * dist;
+            const dist = (0.2 + 0.8 * Math.random()) * Math.max(vw, vh) * 0.7;
+            const origX = heroRect.left + relX + Math.cos(angle) * dist;
+            const origY = heroRect.top + relY + Math.sin(angle) * dist;
 
-            const pVal = Math.random();
-            const color = pVal < 0.52 ? '#d6b881' : pVal < 0.76 ? '#f0d39e' : pVal < 0.90 ? '#8dabc3' : '#527b9f';
-            const radius = isMain ? (0.85 + Math.random() * 1.15) : (0.7 + Math.random() * 0.85);
+            const startColorRgb = VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)];
+            const radius = isTitle ? (0.85 + Math.random() * 0.95) : (fontSize < 18 ? (0.55 + Math.random() * 0.4) : (0.7 + Math.random() * 0.5));
 
             points.push({
-              homeX, homeY,
+              relX, relY,
               origX, origY,
               x: origX, y: origY,
               vx: (Math.random() - 0.5) * 3,
               vy: (Math.random() - 0.5) * 3,
-              color,
+              startColorRgb,
+              targetColorRgb: targetRgb,
               radius,
-              baseAlpha: isMain ? (0.65 + Math.random() * 0.35) : (0.55 + Math.random() * 0.35),
+              baseAlpha: isTitle ? (0.8 + Math.random() * 0.2) : (0.85 + Math.random() * 0.15),
               glow: 0,
               strokeAngle: angle + Math.PI / 2,
-              isMain
+              isTitle
             });
           }
         }
       }
     }
 
-    const sStep = vw < 720 ? 4 : 3;
-    sampleEl(h1, 'Astrmira', h1Rect, sStep, true);
-    if (sub && subRect) {
-      sampleEl(sub, '于未知处求索，向星穹间开拓。', subRect, sStep, false);
+    // 1. Kicker: 幻梦星芒 / ASTR — MIRA
+    const kickerEl = $('.hero-kicker');
+    if (kickerEl) {
+      const r = kickerEl.getBoundingClientRect();
+      const style = window.getComputedStyle(kickerEl);
+      const cx = r.left - heroRect.left + r.width / 2;
+      const cy = r.top - heroRect.top + r.height / 2;
+      sampleTextLine('幻梦星芒 / ASTR — MIRA', style, cx, cy, [205, 192, 168], false);
     }
+
+    // 2. Title: Astrmira (Astr + mira italic)
+    const h1El = $('.hero h1');
+    if (h1El) {
+      const h1Style = window.getComputedStyle(h1El);
+      const fontSize = parseFloat(h1Style.fontSize) || 130;
+      const fontFamily = h1Style.fontFamily || 'Georgia, serif';
+
+      const mCanvas = document.createElement('canvas');
+      const mCtx = mCanvas.getContext('2d');
+      mCtx.font = `normal 400 ${fontSize}px ${fontFamily}`;
+      try { mCtx.letterSpacing = '-0.075em'; } catch (_) {}
+      const wAstr = mCtx.measureText('Astr').width;
+
+      mCtx.font = `italic 400 ${fontSize}px ${fontFamily}`;
+      try { mCtx.letterSpacing = '-0.08em'; } catch (_) {}
+      const wMira = mCtx.measureText('mira').width;
+
+      const overlap = fontSize * 0.045;
+      const totalH1Width = wAstr + wMira - overlap;
+      const rH1 = h1El.getBoundingClientRect();
+      const h1CenterX = (rH1.left - heroRect.left) + rH1.width / 2;
+      const h1CenterY = (rH1.top - heroRect.top) + rH1.height / 2;
+
+      const cxAstr = h1CenterX - totalH1Width / 2 + wAstr / 2;
+      const cxMira = h1CenterX - totalH1Width / 2 + wAstr - overlap + wMira / 2;
+
+      sampleTextLine('Astr', h1Style, cxAstr, h1CenterY, [238, 234, 225], true, 'normal');
+      sampleTextLine('mira', h1Style, cxMira, h1CenterY, [238, 234, 225], true, 'italic');
+    }
+
+    // 3. Subtitle: 于未知处求索，向星穹间开拓。
+    const subEl = $('.hero-subtitle');
+    if (subEl) {
+      const r = subEl.getBoundingClientRect();
+      const style = window.getComputedStyle(subEl);
+      const cx = r.left - heroRect.left + r.width / 2;
+      const cy = r.top - heroRect.top + r.height / 2;
+      sampleTextLine('于未知处求索，向星穹间开拓。', style, cx, cy, [250, 248, 243], false);
+    }
+
+    // 4. English: From first principles to real-world intelligence.
+    const engEl = $('.hero-english');
+    if (engEl) {
+      const r = engEl.getBoundingClientRect();
+      const style = window.getComputedStyle(engEl);
+      const cx = r.left - heroRect.left + r.width / 2;
+      const cy = r.top - heroRect.top + r.height / 2;
+      sampleTextLine('From first principles to real-world intelligence.', style, cx, cy, [172, 179, 193], false, 'italic');
+    }
+
+    // 5. Description: 2 lines
+    const descEl = $('.hero-description');
+    if (descEl) {
+      const r = descEl.getBoundingClientRect();
+      const style = window.getComputedStyle(descEl);
+      const cx = r.left - heroRect.left + r.width / 2;
+      const cy1 = (r.top - heroRect.top) + r.height * 0.28;
+      const cy2 = (r.top - heroRect.top) + r.height * 0.72;
+      sampleTextLine('我们研究数据、计算与智能的底层问题，', style, cx, cy1, [165, 174, 189], false);
+      sampleTextLine('让严谨的理论，成为可用的系统。', style, cx, cy2, [165, 174, 189], false);
+    }
+
     textParticles = points;
   }
 
@@ -456,29 +543,39 @@
     const starVy = starY - prevStarY;
     prevStarX = starX; prevStarY = starY;
 
-    // Coalescence calculation
+    const hero = $('.hero');
+    const heroRect = hero ? hero.getBoundingClientRect() : null;
+    const heroLeft = heroRect ? heroRect.left : 0;
+    const heroTop = heroRect ? heroRect.top : 0;
+
     let coalesceT = 1;
+    let colorT = 1;
     if (introStart) {
       const elapsed = now - introStart;
-      if (elapsed < 420) {
+      if (elapsed < 380) {
         coalesceT = 0;
       } else {
-        const prog = clamp((elapsed - 420) / 1650, 0, 1);
+        const prog = clamp((elapsed - 380) / 1620, 0, 1);
         coalesceT = 1 - Math.pow(1 - prog, 2.8);
       }
-      if (coalesceT >= 0.92) {
+      if (elapsed < 1300) {
+        colorT = 0;
+      } else {
+        const cProg = clamp((elapsed - 1300) / 1200, 0, 1);
+        colorT = cProg * cProg * (3 - 2 * cProg);
+      }
+      if (elapsed >= 2200) {
         const copy = $('.hero-copy');
-        if (copy && !copy.classList.contains('is-revealed')) {
-          copy.classList.add('is-revealed');
-          copy.classList.remove('is-coalescing');
+        if (copy && !copy.classList.contains('is-settled')) {
+          copy.classList.add('is-settled');
         }
       }
     } else {
       coalesceT = 1;
+      colorT = 1;
       const copy = $('.hero-copy');
-      if (copy && !copy.classList.contains('is-revealed')) {
-        copy.classList.add('is-revealed');
-        copy.classList.remove('is-coalescing');
+      if (copy && !copy.classList.contains('is-settled')) {
+        copy.classList.add('is-settled');
       }
     }
 
@@ -523,6 +620,10 @@
     // 2. Paint and perturb typography particles
     if (textParticles.length > 0) {
       for (const p of textParticles) {
+        // Current home position dynamically anchored to hero element
+        const homeX = heroLeft + p.relX;
+        const homeY = heroTop + p.relY;
+
         // Star wake perturbation
         const sDx = p.x - starX, sDy = p.y - starY;
         const sDist = Math.hypot(sDx, sDy);
@@ -546,8 +647,8 @@
         }
 
         // Spring force towards target (interpolating from origX/Y to homeX/Y)
-        const targetPosX = p.origX * (1 - coalesceT) + p.homeX * coalesceT;
-        const targetPosY = p.origY * (1 - coalesceT) + p.homeY * coalesceT;
+        const targetPosX = p.origX * (1 - coalesceT) + homeX * coalesceT;
+        const targetPosY = p.origY * (1 - coalesceT) + homeY * coalesceT;
         const spring = 0.05 + 0.08 * coalesceT;
         p.vx += (targetPosX - p.x) * spring;
         p.vy += (targetPosY - p.y) * spring;
@@ -555,25 +656,34 @@
         p.x += p.vx; p.y += p.vy;
         p.glow *= 0.94;
 
-        // Render particle
-        const alpha = (p.baseAlpha || 0.7) * (1 + p.glow * 0.5);
-        starCtx.fillStyle = p.glow > 0.3 ? '#fff5d8' : p.color;
+        // Color interpolation: Van Gogh palette -> Typography target color
+        const baseColor = colorT === 0 ? p.startColorRgb : colorT === 1 ? p.targetColorRgb : [
+          Math.round(p.startColorRgb[0] + (p.targetColorRgb[0] - p.startColorRgb[0]) * colorT),
+          Math.round(p.startColorRgb[1] + (p.targetColorRgb[1] - p.startColorRgb[1]) * colorT),
+          Math.round(p.startColorRgb[2] + (p.targetColorRgb[2] - p.startColorRgb[2]) * colorT)
+        ];
+
+        const colorStr = p.glow > 0.35 ? '#fff6dd' : `rgb(${baseColor[0]},${baseColor[1]},${baseColor[2]})`;
+        const alpha = (p.baseAlpha || 0.7) * (1 + p.glow * 0.4);
+        starCtx.fillStyle = colorStr;
         starCtx.globalAlpha = clamp(alpha, 0, 1);
         starCtx.beginPath();
-        starCtx.arc(p.x, p.y, p.radius * (1 + p.glow * 0.4), 0, Math.PI * 2);
+        starCtx.arc(p.x, p.y, p.radius * (1 + p.glow * 0.35), 0, Math.PI * 2);
         starCtx.fill();
 
-        // Van Gogh directional streak for higher glow or dispersed phase
-        if (coalesceT < 0.75 || p.glow > 0.25) {
-          const strokeLen = 2.5 + p.glow * 4.5;
-          const cos = Math.cos(p.strokeAngle) * strokeLen;
-          const sin = Math.sin(p.strokeAngle) * strokeLen;
-          starCtx.strokeStyle = p.color;
-          starCtx.lineWidth = p.radius * 0.8;
-          starCtx.beginPath();
-          starCtx.moveTo(p.x - cos, p.y - sin);
-          starCtx.lineTo(p.x + cos, p.y + sin);
-          starCtx.stroke();
+        // Van Gogh directional streak while dispersed or excited
+        if (coalesceT < 0.72 || p.glow > 0.25) {
+          const strokeLen = (2.2 + p.glow * 4) * (1 - coalesceT * 0.6);
+          if (strokeLen > 0.5) {
+            const cos = Math.cos(p.strokeAngle) * strokeLen;
+            const sin = Math.sin(p.strokeAngle) * strokeLen;
+            starCtx.strokeStyle = colorStr;
+            starCtx.lineWidth = p.radius * 0.8;
+            starCtx.beginPath();
+            starCtx.moveTo(p.x - cos, p.y - sin);
+            starCtx.lineTo(p.x + cos, p.y + sin);
+            starCtx.stroke();
+          }
         }
       }
       starCtx.globalAlpha = 1.0;
@@ -584,16 +694,17 @@
     if (paused || reduced.matches || !$('.hero')) return;
     const copy = $('.hero-copy');
     if (copy) {
-      copy.classList.remove('is-revealed');
-      copy.classList.add('is-coalescing');
+      copy.classList.remove('is-settled');
     }
+    const hero = $('.hero');
+    const heroRect = hero ? hero.getBoundingClientRect() : { left: 0, top: 0 };
     // Re-scatter text particles if forced replay
     if (force && textParticles.length > 0) {
       textParticles.forEach(p => {
         const angle = Math.random() * Math.PI * 2;
-        const dist = (0.25 + 0.75 * Math.random()) * Math.max(vw, vh) * 0.65;
-        p.origX = p.homeX + Math.cos(angle) * dist;
-        p.origY = p.homeY + Math.sin(angle) * dist;
+        const dist = (0.25 + 0.75 * Math.random()) * Math.max(vw, vh) * 0.7;
+        p.origX = heroRect.left + p.relX + Math.cos(angle) * dist;
+        p.origY = heroRect.top + p.relY + Math.sin(angle) * dist;
         p.x = p.origX; p.y = p.origY;
         p.vx = (Math.random() - 0.5) * 4;
         p.vy = (Math.random() - 0.5) * 4;
@@ -608,7 +719,7 @@
   }
 
   function tick(now) {
-    raf = 0; if (document.hidden) return;
+    raf = 0;
     if (now - lastFrame >= 1000 / 30) {
       lastFrame = now;
       if (introStart) {
@@ -693,4 +804,10 @@
   placeStar(true);
   startIntro();
   startLoop();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      sampleTextParticles();
+    });
+  }
 })();
