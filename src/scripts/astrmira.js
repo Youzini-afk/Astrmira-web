@@ -27,6 +27,7 @@
     $('.site-nav')?.classList.remove('is-open');
     drawQuant(3); drawAgent(); updateMotionButtons();
     if (focus) main?.focus({ preventScroll: true });
+    prepareHeroTail();
     updateStarTarget();
   }
 
@@ -270,6 +271,7 @@
   }
   let drawVolume = null;
   const companion = $('.mira-object');
+  let heroTail = null;
   let introStart = 0, raf = 0, lastFrame = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
@@ -669,8 +671,48 @@
       });
     }
     sampleTextParticles();
+    prepareHeroTail();
     updateStarTarget();
     paintParticlesAndStars(performance.now());
+  }
+
+  function heroStarAnchor(rect) {
+    return {
+      x: rect.left + rect.width * (vw < 720 ? .81 : .79),
+      y: rect.top + rect.height * (vw < 720 ? .245 : .265)
+    };
+  }
+
+  function prepareHeroTail() {
+    const sky = $('.hero-sky');
+    const group = $('[data-star-tail]', sky || document);
+    const route = $('[data-star-route]', group || document);
+    const hero = $('.hero');
+    const matrix = sky?.getScreenCTM();
+    heroTail = null;
+    if (!hero || !group || !route || !matrix) return;
+    const length = route.getTotalLength();
+    const start = route.getPointAtLength(0);
+    const end = route.getPointAtLength(length);
+    const rect = hero.getBoundingClientRect();
+    const anchor = heroStarAnchor(rect);
+    const inverse = matrix.inverse();
+    const localStart = new DOMPoint(rect.left - 60, rect.top + rect.height * .9).matrixTransform(inverse);
+    const localEnd = new DOMPoint(anchor.x, anchor.y).matrixTransform(inverse);
+    const scaleX = (localEnd.x - localStart.x) / (end.x - start.x);
+    const scaleY = (localEnd.y - localStart.y) / (end.y - start.y);
+    // Fit the original curve between the entry and resting point. This also
+    // keeps the flight visible when the SVG's slice viewport becomes narrow.
+    group.setAttribute('transform', `translate(${localStart.x - start.x * scaleX} ${localStart.y - start.y * scaleY}) scale(${scaleX} ${scaleY})`);
+    $$('path', group).forEach(path => path.setAttribute('pathLength', '1'));
+    heroTail = { group, route, length, progress: null };
+  }
+
+  function revealHeroTail(progress) {
+    if (!heroTail || heroTail.progress === progress) return;
+    heroTail.group.setAttribute('stroke-dashoffset', String(1 - progress));
+    heroTail.group.setAttribute('opacity', progress > 0 ? '1' : '0');
+    heroTail.progress = progress;
   }
 
   function updateStarTarget() {
@@ -678,8 +720,9 @@
     if (hero) {
       const rect = hero.getBoundingClientRect();
       if (rect.bottom > 130) {
-        targetX = vw * (vw < 720 ? .81 : .79);
-        targetY = rect.top + rect.height * (vw < 720 ? .245 : .265);
+        const anchor = heroStarAnchor(rect);
+        targetX = anchor.x;
+        targetY = anchor.y;
         companion?.classList.remove('is-docked');
         return;
       }
@@ -694,21 +737,16 @@
     let x = targetX + (paused ? 0 : pointerX);
     let y = targetY + (paused ? 0 : pointerY);
 
-    if (introStart) {
-      const elapsed = now - introStart;
-      if (elapsed < INTRO_DURATION) {
-        const t = clamp((elapsed - 200) / 3300, 0, 1);
-        const u = smoothstep(t);
-
-        // Trajectory: Bottom-left deep space to title right
-        const P0 = { x: -60, y: vh * 1.06 };
-        const P1 = { x: vw * 0.12, y: vh * 0.60 };
-        const P2 = { x: vw * 0.48, y: vh * 0.16 };
-        const P3 = { x: targetX, y: targetY };
-
-        const inv = 1 - u;
-        x = inv * inv * inv * P0.x + 3 * inv * inv * u * P1.x + 3 * inv * u * u * P2.x + u * u * u * P3.x;
-        y = inv * inv * inv * P0.y + 3 * inv * inv * u * P1.y + 3 * inv * u * u * P2.y + u * u * u * P3.y;
+    const progress = introStart ? smoothstep((now - introStart - 200) / 3300) : 1;
+    revealHeroTail(progress);
+    if (introStart && heroTail) {
+      // Flight position and the drawn tail share the same arc-length progress.
+      const point = heroTail.route.getPointAtLength(heroTail.length * progress);
+      const matrix = heroTail.route.getScreenCTM();
+      if (matrix) {
+        const screenPoint = new DOMPoint(point.x, point.y).matrixTransform(matrix);
+        x = screenPoint.x;
+        y = screenPoint.y;
       }
     }
 
