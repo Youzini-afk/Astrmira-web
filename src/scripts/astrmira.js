@@ -274,7 +274,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
   let drawVolume = null;
   const companion = $('.mira-object');
   let heroTail = null;
-  let heroDeparture = null, heroDepartureRaf = 0;
+  let heroDeparture = null;
   let exitWheelHeld = false, lastExitWheel = -Infinity;
   let heroContentOpacity = 1;
   let cometPath = null, cometParam = null, cometUpdatedAt = null;
@@ -847,8 +847,6 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
   }
 
   function cancelHeroDeparture() {
-    if (heroDepartureRaf) cancelAnimationFrame(heroDepartureRaf);
-    heroDepartureRaf = 0;
     heroDeparture = null;
     exitWheelHeld = false;
   }
@@ -869,19 +867,19 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
     const duration = 920 * Math.min(1, Math.sqrt(distance / Math.max(innerHeight, 1)));
     heroDeparture = { hero, from, destination: from + distance, cometFrom: cometParam, started: performance.now(), duration, progress: 0 };
-    const advance = now => {
-      heroDepartureRaf = 0;
-      const departure = heroDeparture;
-      if (!departure || !departure.hero.isConnected) { cancelHeroDeparture(); return; }
-      const t = clamp((now - departure.started) / departure.duration, 0, 1);
-      // Quintic easing has zero velocity and acceleration at both ends.
-      departure.progress = t * t * t * (t * (t * 6 - 15) + 10);
-      const end = departure.hero.getBoundingClientRect().bottom + window.scrollY;
-      window.scrollTo({ top: departure.from + (end - departure.from) * departure.progress, behavior: 'instant' });
-      if (t < 1) heroDepartureRaf = requestAnimationFrame(advance);
-      else heroDeparture = null;
-    };
-    heroDepartureRaf = requestAnimationFrame(advance);
+  }
+
+  function advanceHeroDeparture(now) {
+    const departure = heroDeparture;
+    if (!departure) return false;
+    if (!departure.hero.isConnected) { cancelHeroDeparture(); return false; }
+    const t = clamp((now - departure.started) / departure.duration, 0, 1);
+    // Scroll before painting in the same frame: the DOM tail and fixed canvas
+    // must use the same scroll position, including frames under rendering load.
+    departure.progress = t * t * t * (t * (t * 6 - 15) + 10);
+    const end = departure.hero.getBoundingClientRect().bottom + window.scrollY;
+    window.scrollTo({ top: departure.from + (end - departure.from) * departure.progress, behavior: 'instant' });
+    return t === 1;
   }
 
   function onHeroWheel(event) {
@@ -938,7 +936,10 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
       return {
         x: point.x - window.scrollX, y: point.y - window.scrollY,
         nx: -(b.y - a.y) / length, ny: (b.x - a.x) / length,
-        spread: Math.pow((cometTrail.distance - point.distance) / cometTrail.maxLength, 1.2),
+        // Every opening filament ends at this same point. Ease their width out
+        // from it instead of starting the continuation with an offset fan.
+        spread: Math.pow((cometTrail.distance - point.distance) / cometTrail.maxLength, 1.2)
+          * smoothstep((point.param - cometPath.heroLength) / Math.min(180, cometTrail.maxLength * .2)),
         distance: point.distance
       };
     });
@@ -1400,10 +1401,12 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
 
   function tick(now) {
     raf = 0;
-    if (now - lastFrame >= 1000 / 60) {
+    if (heroDeparture || now - lastFrame >= 1000 / 60) {
       lastFrame = now;
+      const departed = advanceHeroDeparture(now);
       placeStar(false, now);
       paintParticlesAndStars(now);
+      if (departed) heroDeparture = null;
     }
     if (!paused) raf = requestAnimationFrame(tick);
   }

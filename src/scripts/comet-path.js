@@ -84,15 +84,26 @@ export function recordCometMotion(trail, path, from, to, now) {
     trail.points.push({ ...cometPoint(path, from), distance: trail.distance });
     trail.lastMotion = now;
   }
-  const steps = Math.ceil(Math.abs(to - from) / 8);
-  for (let i = 1; i <= steps; i++) {
-    const point = cometPoint(path, mix(from, to, i / steps));
-    const last = trail.points[trail.points.length - 1];
-    const distance = Math.hypot(point.x - last.x, point.y - last.y);
-    if (distance < .5) continue;
-    trail.distance += distance;
-    trail.points.push({ ...point, distance: trail.distance });
-    trail.lastMotion = now;
+  // Always record the shared endpoints, even when one frame crosses a join.
+  // Both renderers must meet at the exact anchor rather than nearby samples.
+  const joins = [...new Set([path.heroLength, path.join])]
+    .filter(param => param > Math.min(from, to) && param < Math.max(from, to));
+  if (to < from) joins.reverse();
+  const stops = [from, ...joins, to];
+  for (let segment = 1; segment < stops.length; segment++) {
+    const start = stops[segment - 1], end = stops[segment];
+    const steps = Math.ceil(Math.abs(end - start) / 8);
+    for (let i = 1; i <= steps; i++) {
+      const param = i === steps ? end : mix(start, end, i / steps);
+      const point = cometPoint(path, param);
+      const last = trail.points[trail.points.length - 1];
+      const distance = Math.hypot(point.x - last.x, point.y - last.y);
+      if (distance < .5 && param !== path.heroLength && param !== path.join) continue;
+      if (!distance) continue;
+      trail.distance += distance;
+      trail.points.push({ ...point, distance: trail.distance });
+      trail.lastMotion = now;
+    }
   }
   trail.rear = Math.max(trail.rear, trail.distance - trail.maxLength);
   prune(trail);
