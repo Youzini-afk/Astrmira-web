@@ -280,7 +280,7 @@
   const starCtx = starCanvas?.getContext('2d');
   let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
   let stardustSparks = [];
-  const INTRO_DURATION = 2400;
+  const INTRO_DURATION = 2800;
 
   function seeded(n) {
     let value = n >>> 0;
@@ -355,7 +355,8 @@
             const relY = startY + py;
 
             const angle = Math.random() * Math.PI * 2;
-            const dist = (0.2 + 0.8 * Math.random()) * Math.max(vw, vh) * 0.68;
+            // Ethereal stardust constellation around each word (40px - 140px, occasional trailing star up to 210px)
+            const dist = 40 + Math.random() * 100 + (Math.random() < 0.2 ? Math.random() * 70 : 0);
             const origX = heroRect.left + relX + Math.cos(angle) * dist;
             const origY = heroRect.top + relY + Math.sin(angle) * dist;
 
@@ -573,16 +574,31 @@
     const stageRect = textStage ? textStage.getBoundingClientRect() : null;
 
     let gravStrength = 1.0;
+    let introSolidifyT = 0;
     if (introStart) {
       const elapsed = now - introStart;
       if (elapsed < INTRO_DURATION) {
-        const gProg = clamp((elapsed - 280) / 1850, 0, 1);
+        // Celestial gravitational pull: 250ms to 1750ms
+        const gProg = clamp((elapsed - 250) / 1500, 0, 1);
         gravStrength = gProg * gProg * (3 - 2 * gProg);
+
+        // Natural continuous crystallization crossfade: 1900ms to 2750ms
+        if (elapsed >= 1900) {
+          const sProg = clamp((elapsed - 1900) / 800, 0, 1);
+          introSolidifyT = sProg * sProg * (3 - 2 * sProg);
+          if (textStage) {
+            textStage.style.setProperty('--stage-opacity', introSolidifyT.toFixed(3));
+          }
+        }
       } else {
         introStart = 0;
+        introSolidifyT = 1;
         if (copy) {
           if (!copy.classList.contains('is-solidified')) copy.classList.add('is-solidified');
           if (!copy.classList.contains('is-settled')) copy.classList.add('is-settled');
+        }
+        if (textStage) {
+          textStage.style.removeProperty('--stage-opacity');
         }
         for (const p of textParticles) {
           p.x = heroLeft + p.relX;
@@ -598,6 +614,7 @@
         copy.classList.add('is-solidified');
         copy.classList.add('is-settled');
       }
+      if (textStage) textStage.style.removeProperty('--stage-opacity');
     }
     const isSolidified = copy ? copy.classList.contains('is-solidified') : false;
 
@@ -677,17 +694,22 @@
         const distToHome = Math.hypot(toHomeX, toHomeY);
 
         if (!isSolidified) {
-          // Gravitational attraction from celestial star map into letterforms
-          const pull = Math.min(distToHome * 0.088, 9.2) * gravStrength;
-          const swirlDistFactor = clamp((distToHome - 8) / 36, 0, 1);
-          const swirl = Math.min(distToHome * 0.022, 2.6) * (1 - gravStrength * 0.75) * p.swirlDir * swirlDistFactor;
+          // Celestial gravity pulling each particle directly into its glyph slot
+          const pull = Math.min(distToHome * 0.12, 13.0) * (0.18 + 0.82 * gravStrength);
+          const swirlDistFactor = clamp((distToHome - 10) / 32, 0, 1);
+          const swirl = Math.min(distToHome * 0.024, 2.8) * (1 - gravStrength * 0.82) * p.swirlDir * swirlDistFactor;
           if (distToHome > 0.3) {
             p.vx += (toHomeX / distToHome) * pull + (-toHomeY / distToHome) * swirl;
             p.vy += (toHomeY / distToHome) * pull + (toHomeX / distToHome) * swirl;
           }
-          const damp = (distToHome < 12 && gravStrength > 0.65) ? 0.72 : (0.81 + 0.07 * gravStrength);
+          const damp = (distToHome < 14 && gravStrength > 0.65) ? 0.68 : (0.80 + 0.04 * (1 - gravStrength));
           p.vx *= damp; p.vy *= damp;
           p.x += p.vx; p.y += p.vy;
+
+          if (distToHome < 1.4 && gravStrength > 0.85) {
+            p.x = homeX; p.y = homeY;
+            p.vx = 0; p.vy = 0;
+          }
           p.glow *= 0.92;
         } else {
           // Solidified state: interaction and local disintegration
@@ -800,7 +822,7 @@
             Math.round(p.targetColorRgb[2] + (p.vanGoghRgb[2] - p.targetColorRgb[2]) * f)
           ];
         } else {
-          const f = Math.max(0, 1 - gravStrength * 1.1);
+          const f = Math.max(0, 1 - gravStrength * 1.15);
           rgb = [
             Math.round(p.targetColorRgb[0] + (p.vanGoghRgb[0] - p.targetColorRgb[0]) * f),
             Math.round(p.targetColorRgb[1] + (p.vanGoghRgb[1] - p.targetColorRgb[1]) * f),
@@ -809,7 +831,9 @@
         }
 
         const speed = Math.hypot(p.vx, p.vy);
-        const alpha = clamp(p.baseAlpha + p.glow * 0.35, 0.4, 1.0);
+        const introAlphaFactor = introSolidifyT > 0 ? (1 - introSolidifyT) : 1;
+        const alpha = clamp((p.baseAlpha + p.glow * 0.35) * introAlphaFactor, 0, 1.0);
+        if (alpha <= 0.01) continue;
         const renderRadius = p.radius * (1 + p.glow * 0.3);
 
         starCtx.beginPath();
@@ -877,6 +901,7 @@
     const textStage = $('.hero-text-stage');
     if (textStage) {
       textStage.classList.remove('is-dissolving');
+      textStage.style.removeProperty('--stage-opacity');
       textStage.style.removeProperty('--mr');
       textStage.style.removeProperty('--mx');
       textStage.style.removeProperty('--my');
@@ -892,7 +917,7 @@
         p.dislodgedFactor = 0;
         if (force) {
           const angle = Math.random() * Math.PI * 2;
-          const dist = (0.2 + 0.8 * Math.random()) * Math.max(vw, vh) * 0.68;
+          const dist = 40 + Math.random() * 100 + (Math.random() < 0.2 ? Math.random() * 70 : 0);
           p.origX = heroRect.left + p.relX + Math.cos(angle) * dist;
           p.origY = heroRect.top + p.relY + Math.sin(angle) * dist;
         }
@@ -913,7 +938,7 @@
       lastFrame = now;
       if (introStart) {
         const elapsed = now - introStart;
-        if (elapsed < 1850) {
+        if (elapsed < 2100) {
           if (phase !== 'pigment') setPhase('pigment');
         } else {
           if (phase !== 'geometry') setPhase('geometry');
