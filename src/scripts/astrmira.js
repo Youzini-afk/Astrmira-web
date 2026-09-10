@@ -275,6 +275,8 @@
   let heroDeparture = null, heroDepartureRaf = 0;
   let exitWheelHeld = false, lastExitWheel = -Infinity;
   let heroContentOpacity = 1;
+  let orbitPhase = 0, orbitMix = 0, orbitUpdatedAt = null;
+  let scrollTrail = [];
   let introStart = 0, raf = 0, lastFrame = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
@@ -637,6 +639,8 @@
 
   function resizeStars() {
     vw = innerWidth; vh = innerHeight;
+    scrollTrail = [];
+    orbitUpdatedAt = null;
     if (starCanvas && starCtx) {
       const dpr = Math.min(devicePixelRatio || 1, 1.5);
       starCanvas.width = Math.round(vw * dpr);
@@ -675,7 +679,7 @@
     }
     sampleTextParticles();
     prepareHeroTail();
-    updateStarTarget();
+    placeStar(true);
     paintParticlesAndStars(performance.now());
   }
 
@@ -718,35 +722,74 @@
     heroTail.progress = progress;
   }
 
-  function updateStarTarget() {
+  function pageOrbitPoint(turn) {
+    const inset = Math.min(48, Math.min(vw, vh) * .075);
+    const left = inset, right = vw - inset, top = inset, bottom = vh - inset;
+    const radius = Math.min(110, (right - left) * .22, (bottom - top) * .22);
+    const vertical = bottom - top - 2 * radius;
+    const horizontal = right - left - 2 * radius;
+    const corner = Math.PI * radius / 2;
+    const perimeter = 2 * (vertical + horizontal) + 4 * corner;
+    const entry = clamp(vh * .3 - top - radius, 0, vertical);
+    let distance = ((turn * perimeter + entry) % perimeter + perimeter) % perimeter;
+    if (distance < vertical) return { x: right, y: top + radius + distance };
+    distance -= vertical;
+    if (distance < corner) {
+      const angle = distance / radius;
+      return { x: right - radius + radius * Math.cos(angle), y: bottom - radius + radius * Math.sin(angle) };
+    }
+    distance -= corner;
+    if (distance < horizontal) return { x: right - radius - distance, y: bottom };
+    distance -= horizontal;
+    if (distance < corner) {
+      const angle = Math.PI / 2 + distance / radius;
+      return { x: left + radius + radius * Math.cos(angle), y: bottom - radius + radius * Math.sin(angle) };
+    }
+    distance -= corner;
+    if (distance < vertical) return { x: left, y: bottom - radius - distance };
+    distance -= vertical;
+    if (distance < corner) {
+      const angle = Math.PI + distance / radius;
+      return { x: left + radius + radius * Math.cos(angle), y: top + radius + radius * Math.sin(angle) };
+    }
+    distance -= corner;
+    if (distance < horizontal) return { x: left + radius + distance, y: top };
+    const angle = Math.PI * 1.5 + (distance - horizontal) / radius;
+    return { x: right - radius + radius * Math.cos(angle), y: top + radius + radius * Math.sin(angle) };
+  }
+
+  function updateStarTarget(immediate = false, now = performance.now()) {
     const hero = $('.hero');
-    const dockX = vw - (vw < 720 ? 9 : 34);
-    const dockY = Math.min(vh * .3, 240);
+    const desiredPhase = Math.max(0, window.scrollY) / Math.max(1, vh * 3.2);
+    if (immediate || paused || orbitUpdatedAt === null) orbitPhase = desiredPhase;
+    else orbitPhase += (desiredPhase - orbitPhase) * (1 - Math.exp(-Math.max(0, now - orbitUpdatedAt) / 180));
+    orbitUpdatedAt = now;
+    const orbit = pageOrbitPoint(orbitPhase);
+    orbitMix = 1;
+    let progress = 1;
     if (hero) {
       const rect = hero.getBoundingClientRect();
-      const progress = clamp(window.scrollY / Math.max(1, rect.bottom + window.scrollY), 0, 1);
-      const blend = smoothstep(progress);
+      progress = clamp(window.scrollY / Math.max(1, rect.bottom + window.scrollY), 0, 1);
       heroContentOpacity = paused ? 1 : 1 - smoothstep((progress - .08) / .76);
       hero.style.setProperty('--hero-exit-opacity', heroContentOpacity.toFixed(3));
-      if (companion) {
-        companion.classList.add('has-scroll-docking');
-        companion.classList.toggle('is-docked', progress === 1);
-        companion.style.setProperty('--star-dock-opacity', (.9 - .56 * blend).toFixed(3));
-        companion.style.setProperty('--star-dock-scale', (.72 - .32 * blend).toFixed(3));
-      }
       const anchor = heroStarAnchor(rect);
       const fromX = heroDeparture ? heroDeparture.starX : anchor.x;
       const fromY = heroDeparture ? heroDeparture.starY : anchor.y + window.scrollY;
-      const travel = heroDeparture ? heroDeparture.progress : blend;
-      targetX = fromX + (dockX - fromX) * travel;
-      targetY = fromY + (dockY - fromY) * travel;
-      return;
+      orbitMix = smoothstep((heroDeparture ? heroDeparture.progress : progress) / .55);
+      targetX = fromX + (orbit.x - fromX) * orbitMix;
+      targetY = fromY + (orbit.y - fromY) * orbitMix;
+    } else {
+      heroContentOpacity = 1;
+      targetX = orbit.x;
+      targetY = orbit.y;
     }
-    heroContentOpacity = 1;
-    companion?.classList.remove('has-scroll-docking');
-    companion?.classList.add('is-docked');
-    targetX = dockX;
-    targetY = dockY;
+    if (companion) {
+      const blend = smoothstep(progress);
+      companion.classList.add('has-scroll-orbit');
+      companion.classList.remove('is-docked');
+      companion.style.setProperty('--companion-opacity', (.9 - .22 * blend).toFixed(3));
+      companion.style.setProperty('--companion-scale', (.72 + ((vw < 720 ? .4 : .46) - .72) * blend).toFixed(3));
+    }
   }
 
   function cancelHeroDeparture() {
@@ -814,9 +857,10 @@
   }
 
   function placeStar(immediate = false, now = performance.now()) {
-    updateStarTarget();
-    let x = targetX + (paused || heroDeparture ? 0 : pointerX);
-    let y = targetY + (paused || heroDeparture ? 0 : pointerY);
+    updateStarTarget(immediate, now);
+    const parallax = paused || heroDeparture ? 0 : 1 - orbitMix;
+    let x = targetX + pointerX * parallax;
+    let y = targetY + pointerY * parallax;
 
     const progress = introStart ? smoothstep((now - introStart - 200) / 3300) : 1;
     revealHeroTail(progress);
@@ -832,13 +876,57 @@
     }
 
     if (immediate || paused) { starX = x; starY = y; }
-    else if (introStart) { starX = x; starY = y; }
+    else if (introStart || orbitMix === 1) { starX = x; starY = y; }
     else { starX += (x - starX) * 0.12; starY += (y - starY) * 0.12; }
 
     if (companion) {
       companion.style.left = starX.toFixed(2) + 'px';
       companion.style.top = starY.toFixed(2) + 'px';
     }
+    if (immediate) {
+      prevStarX = starX; prevStarY = starY;
+      scrollTrail = [];
+    }
+  }
+
+  function paintScrollTrail(now, velocityX, velocityY) {
+    if (paused || introStart) { scrollTrail = []; return; }
+    const lifetime = 1800;
+    scrollTrail = scrollTrail.filter(point => now - point.at < lifetime);
+    const speed = Math.hypot(velocityX, velocityY);
+    if (orbitMix > 0 && speed > .25) {
+      const energy = clamp(speed / 8, .25, 1);
+      if (!scrollTrail.length) scrollTrail.push({ x: starX - velocityX, y: starY - velocityY, at: now, energy });
+      const last = scrollTrail[scrollTrail.length - 1];
+      if (Math.hypot(starX - last.x, starY - last.y) >= 1) scrollTrail.push({ x: starX, y: starY, at: now, energy });
+    }
+    if (scrollTrail.length < 2) return;
+    starCtx.save();
+    starCtx.lineCap = 'round';
+    // Draw the actual travelled positions, so reversing scroll bends the wake
+    // back along the orbit instead of drawing a line through the page centre.
+    for (let i = 1; i < scrollTrail.length; i++) {
+      const a = scrollTrail[i - 1], b = scrollTrail[i];
+      const distance = Math.hypot(b.x - a.x, b.y - a.y);
+      if (!distance) continue;
+      const nx = -(b.y - a.y) / distance, ny = (b.x - a.x) / distance;
+      const fade = Math.pow(1 - (now - b.at) / lifetime, 1.7) * b.energy;
+      starCtx.beginPath();
+      starCtx.moveTo(a.x, a.y); starCtx.lineTo(b.x, b.y);
+      starCtx.lineWidth = 5;
+      starCtx.strokeStyle = `rgba(139,177,206,${fade * .045})`;
+      starCtx.stroke();
+      for (const strand of [-1, 0, 1]) {
+        const offset = strand * 2.2;
+        starCtx.beginPath();
+        starCtx.moveTo(a.x + nx * offset, a.y + ny * offset);
+        starCtx.lineTo(b.x + nx * offset, b.y + ny * offset);
+        starCtx.lineWidth = strand === 0 ? 1.1 : .55;
+        starCtx.strokeStyle = strand === 0 ? `rgba(214,184,129,${fade * .4})` : `rgba(139,177,206,${fade * .2})`;
+        starCtx.stroke();
+      }
+    }
+    starCtx.restore();
   }
 
   function paintParticlesAndStars(now) {
@@ -969,20 +1057,24 @@
       }
     }
 
-    // Mira star cometary stardust wake trail
-    if (!paused && starMovingSpeed > 0.6 && (introStart || !companion?.classList.contains('is-docked'))) {
+    paintScrollTrail(now, starVx, starVy);
+
+    // The opening and the scrolling orbit both shed a small dust wake.
+    if (!paused && starMovingSpeed > 0.6) {
+      const orbiting = !introStart && orbitMix > 0;
       const sparkCount = Math.min(3, Math.floor(starMovingSpeed * 0.55) + 1);
       for (let k = 0; k < sparkCount; k++) {
         const spAngle = Math.random() * Math.PI * 2;
-        const spDist = Math.random() * 22;
+        const spDist = Math.random() * (orbiting ? 5 : 22);
+        const alongWake = orbiting ? (k + Math.random()) / sparkCount : 0;
         stardustSparks.push({
-          x: starX + Math.cos(spAngle) * spDist,
-          y: starY + Math.sin(spAngle) * spDist,
-          vx: -starVx * 0.25 + (Math.random() - 0.5) * 2.2,
-          vy: -starVy * 0.25 + (Math.random() - 0.5) * 2.2,
-          size: 0.8 + Math.random() * 1.3,
+          x: starX - starVx * alongWake + Math.cos(spAngle) * spDist,
+          y: starY - starVy * alongWake + Math.sin(spAngle) * spDist,
+          vx: -starVx * (orbiting ? .06 : .25) + (Math.random() - 0.5) * (orbiting ? .8 : 2.2),
+          vy: -starVy * (orbiting ? .06 : .25) + (Math.random() - 0.5) * (orbiting ? .8 : 2.2),
+          size: orbiting ? .45 + Math.random() * .8 : .8 + Math.random() * 1.3,
           life: 1.0,
-          decay: 0.022 + Math.random() * 0.022,
+          decay: orbiting ? .014 + Math.random() * .014 : .022 + Math.random() * .022,
           rgb: VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)]
         });
       }
@@ -1201,6 +1293,7 @@
     }
     maskRadius = 0; targetMaskRadius = 0;
     stardustSparks = [];
+    scrollTrail = [];
     for (const layer of glyphLayers) {
       layer.cells.forEach(cell => { cell.alpha = 0; });
       layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
@@ -1299,6 +1392,8 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelHeroDeparture();
+      scrollTrail = [];
+      orbitUpdatedAt = null;
       if (raf) cancelAnimationFrame(raf); raf = 0;
       introStart = 0;
     } else startLoop();

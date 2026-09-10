@@ -31,8 +31,8 @@
   opacity: var(--hero-exit-opacity, 1);
 }
 .hero .hero-sky { opacity: calc(.85 * var(--hero-exit-opacity, 1)); }
-.mira-object.has-scroll-docking { opacity: var(--star-dock-opacity, .9); }
-.mira-object.has-scroll-docking > .geometry {
-  transform: scale(var(--star-dock-scale, .72));
+.mira-object.has-scroll-orbit { opacity: var(--companion-opacity, .9); }
+.mira-object.has-scroll-orbit > .geometry {
+  transform: scale(var(--companion-scale, .72));
   transition: none;
 }
