@@ -1,0 +1,142 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PiariumArtwork from '../../components/PiariumArtwork.astro';
+
+const repository = 'https://github.com/Youzini-afk/Piarium';
+const capabilities = [
+  {
+    label: 'CONTEXT & MEMORY',
+    title: '让长任务保持连续',
+    body: '分层组织稳定指令、会话轨迹与动态工作状态，用记忆块承接计划、决策和已确认知识。上下文压缩结合来源与覆盖检查，为后续执行保留恢复依据。'
+  },
+  {
+    label: 'CODE INTELLIGENCE',
+    title: '从问题找到相关实现',
+    body: '结合精确搜索、符号关系、语义召回与模型选段，获取带出处的代码原文。检索也能读取发起窗口中尚未保存的草稿，让理解建立在当前工作内容上。'
+  },
+  {
+    label: 'TOOL ENVIRONMENT',
+    title: '让工具支撑完整执行',
+    body: '将终端、文件编辑、语言诊断与网络工具接入统一执行环境。长命令可以转入后台继续运行，输出按需读取，用户也能接入同一终端跟进。'
+  },
+  {
+    label: 'MULTI-AGENT',
+    title: '把并行工作组织起来',
+    body: '按任务选择角色与模型，派发持久工作线程，追踪执行状态和结果。并行修改通过独立工作分支、固定结果与合并预览协调，集中完成整合。'
+  },
+  {
+    label: 'VERIFICATION & REVIEW',
+    title: '让交付有据可查',
+    body: '将执行记录、测试与构建命令的结果关联到具体任务和成果修订，并接入诊断反馈与自动审阅，为后续修改、检查和整合提供可追溯依据。'
+  },
+  {
+    label: 'WORKSPACE RECOVERY',
+    title: '让修改可审阅、可恢复',
+    body: '通过检查点、回滚与撤销管理受跟踪的文件改动，按修订协调编辑器草稿与 Agent 结果。会话、工作状态和成果记录共同支持继续执行与恢复。'
+  }
+];
+---
+
+<Layout
+  title="Piarium · 面向复杂工程的 Agent Harness — Astrmira 幻梦星芒"
+  description="Piarium 是面向复杂工程任务的完整 Agent Harness，整合代码检索、上下文与长期记忆、工具执行、多 Agent 协作、结果验证与工作区恢复。"
+  route="projects/piarium"
+>
+  <div class="wrap">
+    <section class="page-title">
+      <div class="breadcrumb">
+        <a href="/" data-route="home">首页</a><span>/</span>
+        <a href="/projects/" data-route="projects">Projects</a><span>/</span>
+        <span>Piarium</span>
+      </div>
+      <p class="eyebrow">PIARIUM / AGENT HARNESS</p>
+      <h1>Piarium</h1>
+      <p class="product-tagline">把模型能力，<br>变成完整执行力。</p>
+      <p>为复杂软件工程而构建的 Agent Harness：将代码理解、上下文与记忆、工具环境、多 Agent 协作和验证恢复贯通，让任务从理解问题、并行实施，一直推进到审阅与交付。</p>
+      <div class="product-actions">
+        <a class="button button-primary" href={repository} target="_blank" rel="noopener noreferrer">
+          在 GitHub 查看 <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="text-link" href={repository + '/blob/main/docs/agent-harness.md'} target="_blank" rel="noopener noreferrer">
+          阅读 Harness 架构 <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <article class="article-layout">
+      <aside class="article-aside">
+        <p class="eyebrow">AGENT ENGINEERING</p>
+        <p>完整 Agent Harness<br>AGPL-3.0 开源许可</p>
+        <div class="topic-list">
+          <span class="tag">Code Intelligence</span><span class="tag">Multi-Agent</span>
+          <span class="tag">Desktop</span><span class="tag">Web</span>
+        </div>
+      </aside>
+
+      <div class="article-content">
+        <h2>为模型提供一套能把工作做完的系统。</h2>
+        <p>Harness 连接模型与真实工作环境，决定它如何获取材料、使用工具、维护上下文和检验结果。Piarium 将这套执行系统与工作区深度结合：当前代码、编辑器草稿、终端状态、任务分支和检查结果，都能成为后续行动的依据。</p>
+
+        <figure class="piarium-model">
+          <PiariumArtwork decorative={false} />
+          <figcaption>理解上下文，组织执行，把验证反馈带回下一步行动。</figcaption>
+        </figure>
+
+        <h2>贯穿任务全程的工程能力。</h2>
+        <div class="product-features">
+          {capabilities.map(({ label, title, body }) => <section>
+            <p class="eyebrow">{label}</p>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </section>)}
+        </div>
+
+        <h2>让工作状态，比单轮对话走得更远。</h2>
+        <p>计划、任务线程、执行输出、持久知识与工作区修订拥有各自的记录。Piarium 在下一轮组织相关材料，保留成果与验证的对应关系，让长任务可以被继续、检查和接手。</p>
+        <p>底层以 <a class="inline-project-link" href="/projects/data-systems/" data-route="projects/data-systems">TriviumDB</a> 承载嵌入式知识与检索数据，连接项目知识、代码材料和持续积累的工作经验。</p>
+
+        <section class="product-workbench">
+          <p class="eyebrow">A WORKBENCH THAT FITS THE WORK</p>
+          <h2>执行系统之上，是可重组的工作台。</h2>
+          <p>以会话和任务为中心的 Agent 工作区，与以编辑器、Git、终端和调试为中心的 IDE 工作台，共用文档与运行状态。用户可以按工作方式选择布局，也可以通过扩展替换整个工作台或局部组件。</p>
+          <p>桌面、Web、远程主机和移动客户端提供不同的接入方式；模型、角色与工具能力按任务配置，让工作环境围绕目标组织。</p>
+        </section>
+
+        <div class="product-links">
+          <a class="button" href={repository + '/releases'} target="_blank" rel="noopener noreferrer">
+            查看发行版本 <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="text-link" href="/collaborate/" data-route="collaborate">
+            讨论应用与合作 <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .page-title .product-tagline { margin-top: 28px; color: var(--text); font-size: clamp(21px, 2.3vw, 30px); line-height: 1.6; }
+  .product-tagline + p { margin-top: 18px; }
+  .product-actions, .product-links { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 32px; margin-top: 30px; }
+  .piarium-model { margin: 34px 0 48px; padding: 20px 24px 24px; border: 1px solid var(--line); background: #10162080; }
+  .piarium-model :global(svg) { width: min(100%, 490px); margin-inline: auto; }
+  .piarium-model figcaption { color: var(--muted); font-size: 12px; text-align: center; margin-top: 12px; }
+  .product-features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; margin: 24px 0 42px; }
+  .product-features section { padding: 24px 0; border-top: 1px solid var(--line); }
+  .product-features .eyebrow, .product-workbench .eyebrow { color: var(--gold); font-size: 9px; }
+  .product-features h3 { margin: 12px 0 10px; font-size: 18px; }
+  .product-features p { margin: 0; }
+  .inline-project-link { color: var(--gold); border-bottom: 1px solid var(--line); }
+  .product-workbench { margin-top: 36px; padding: 28px; border: 1px solid var(--line); background: #10162080; }
+  .product-workbench h2 { margin-top: 12px; }
+  .product-links { padding-top: 24px; border-top: 1px solid var(--line); }
+  .product-links .button { margin-top: 0; }
+  @media(max-width: 720px) {
+    .product-features { grid-template-columns: 1fr; }
+    .piarium-model { padding: 12px 14px 20px; }
+    .piarium-model figcaption { font-size: 11px; }
+    .product-workbench { padding: 22px; }
+    .product-workbench h2 { font-size: 21px; }
+  }
+</style>

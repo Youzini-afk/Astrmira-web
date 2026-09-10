@@ -1,0 +1,33 @@
+---
+interface Props { decorative?: boolean; }
+const { decorative = true } = Astro.props;
+const branches = [77, 125, 173];
+---
+
+<svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : 'Piarium 将上下文送入执行环境，分派并行任务，汇集验证结果，并把反馈带回后续执行。'}>
+  <g stroke="#91b9d5" stroke-width=".7">
+    <path d="M22 224H358M190 30V225" stroke-opacity=".1" />
+    <path d="M42 99L66 87L90 99L66 111ZM42 111L66 123L90 111M42 123L66 135L90 123M42 135L66 147L90 135M42 147L66 159L90 147" stroke-opacity=".55" />
+    <path d="M91 125H123" stroke-opacity=".55" />
+    {branches.map(y => <path d={`M167 125C189 125 186 ${y} 216 ${y}M230 ${y}C263 ${y} 268 125 292 125`} stroke-opacity={y === 125 ? .65 : .35} />)}
+  </g>
+  <circle cx="145" cy="125" r="28" stroke="#d6b881" stroke-opacity=".15" stroke-width=".7" />
+  <path d="M145 101L166 113V137L145 149L124 137V113Z" fill="#d6b881" fill-opacity=".06" stroke="#d6b881" stroke-opacity=".7" stroke-width=".8" />
+  <path d="M140 116L150 125L140 134M152 136H160" stroke="#d6b881" stroke-opacity=".8" stroke-width="1" />
+  {branches.map(y => <g>
+    <circle cx="223" cy={y} r="7" fill="#0d131d" stroke="#91b9d5" stroke-opacity=".65" stroke-width=".7" />
+    <circle cx="223" cy={y} r="2" fill={y === 125 ? '#d6b881' : '#91b9d5'} opacity=".8" />
+  </g>)}
+  <path d="M312 104L333 125L312 146L291 125Z" fill="#d6b881" fill-opacity=".035" stroke="#d6b881" stroke-opacity=".6" stroke-width=".8" />
+  <path d="M303 125L310 132L322 117" stroke="#d6b881" stroke-opacity=".85" stroke-width="1" />
+  <path d="M312 152C312 211 89 225 66 169" stroke="#d6b881" stroke-opacity=".3" stroke-width=".8" />
+  <path d="M63 177L66 169L73 174" stroke="#d6b881" stroke-opacity=".5" stroke-width=".8" />
+  {!decorative && <g fill="#91a5b9" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle">
+    <text x="66" y="60">CONTEXT</text>
+    <text x="190" y="49">EXECUTION</text>
+    <text x="309" y="60">VERIFY</text>
+    <text x="190" y="230">FEEDBACK</text>
+  </g>}
+</svg>
