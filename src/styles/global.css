@@ -43,5 +43,7 @@
 
 .coordinates{position:absolute;top:50px;right:var(--pad);font-size:10px;line-height:1.8;color:var(--muted);text-align:right;letter-spacing:.12em;font-family:var(--mono)}
 .coordinates .coord-star{color:var(--gold);display:block;font-size:13px;margin-bottom:7px;letter-spacing:.2em}
+.coordinates .coord-line{display:block}
+.coordinates.hero-particle-mode [data-coordinate-line]{visibility:hidden}
 @media(min-width:1800px){.coordinates{right:calc((100vw - 1280px)/2)}}
 @media(max-width:720px){.coordinates{top:28px;font-size:8px}.coordinates .coord-star{font-size:10px;margin-bottom:4px}}

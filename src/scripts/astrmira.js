@@ -498,7 +498,7 @@ import { createParticleGrid } from './particle-grid.js';
     textOriginY = heroRect.top;
     const points = [];
 
-    function sampleTextLine(text, style, targetCenterX, targetCenterY, targetRgb, isTitle = false, fontStyleOverride = null) {
+    function sampleTextLine(text, style, targetX, targetCenterY, targetRgb, isTitle = false, fontStyleOverride = null, alignment = 'center') {
       if (!text || text.trim() === '') return;
       const offCanvas = document.createElement('canvas');
       const fontSize = parseFloat(style.fontSize) || 16;
@@ -533,7 +533,7 @@ import { createParticleGrid } from './particle-grid.js';
       ctx.fillText(text, pad, h / 2);
 
       const imgData = ctx.getImageData(0, 0, offCanvas.width, offCanvas.height).data;
-      const startX = targetCenterX - textWidth / 2 - pad;
+      const startX = targetX - textWidth * (alignment === 'right' ? 1 : .5) - pad;
       const startY = targetCenterY - h / 2;
       const glyphLayer = createGlyphLayer(hero, offCanvas, startX, startY, w, h, dpr, isTitle, isAlreadySolidified && !introStart);
 
@@ -667,6 +667,16 @@ import { createParticleGrid } from './particle-grid.js';
       const cy2 = (r.top - heroRect.top) + r.height * 0.72;
       sampleTextLine('我们研究数据、计算与智能的底层问题，', style, cx, cy1, [165, 174, 189], false);
       sampleTextLine('让严谨的理论，成为可用的系统。', style, cx, cy2, [165, 174, 189], false);
+    }
+
+    // The Mira annotation joins the same star gathering and cached glyphs.
+    // Measure each line separately to preserve its right edge and typography.
+    for (const line of $$('[data-coordinate-line]', hero)) {
+      const rect = line.getBoundingClientRect();
+      const style = window.getComputedStyle(line);
+      const rgb = style.color.match(/[\d.]+/g)?.slice(0, 3).map(Number) || [155, 165, 182];
+      sampleTextLine(line.textContent.trim(), style, rect.right - heroRect.left,
+        rect.top - heroRect.top + rect.height / 2, rgb, false, null, 'right');
     }
 
     textParticles = points;
