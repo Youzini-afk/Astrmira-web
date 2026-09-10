@@ -1,3 +1,5 @@
+import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrail } from './comet-path.js';
+
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
   'use strict';
@@ -275,11 +277,15 @@
   let heroDeparture = null, heroDepartureRaf = 0;
   let exitWheelHeld = false, lastExitWheel = -Infinity;
   let heroContentOpacity = 1;
-  let orbitPhase = 0, orbitMix = 0, orbitUpdatedAt = null;
-  let scrollTrail = [];
+  let cometPath = null, cometParam = null, cometUpdatedAt = null;
+  let cometHasDeparted = false;
+  let cometStrands = [];
+  let cometTrail = createCometTrail(Math.hypot(innerWidth, innerHeight) * .82);
   let introStart = 0, raf = 0, lastFrame = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
+  let cometWorld = { x: starX, y: starY, depth: 1 };
+  let prevCometX = starX, prevCometY = starY;
   let pointerX = 0, pointerY = 0;
   let mouseX = -9999, mouseY = -9999, mouseVx = 0, mouseVy = 0, lastMouseX = -9999, lastMouseY = -9999;
   let maskRadius = 0, targetMaskRadius = 0, maskX = -9999, maskY = -9999, targetMaskX = -9999, targetMaskY = -9999;
@@ -639,12 +645,11 @@
 
   function resizeStars() {
     vw = innerWidth; vh = innerHeight;
-    scrollTrail = [];
-    orbitUpdatedAt = null;
     if (starCanvas && starCtx) {
       const dpr = Math.min(devicePixelRatio || 1, 1.5);
-      starCanvas.width = Math.round(vw * dpr);
-      starCanvas.height = Math.round(vh * dpr);
+      const bounds = starCanvas.getBoundingClientRect();
+      starCanvas.width = Math.round(bounds.width * dpr);
+      starCanvas.height = Math.round(bounds.height * dpr);
       starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const rand = seeded(7261);
       // Uneven density, mostly faint stars, and a few brighter nearby stars.
@@ -695,100 +700,149 @@
     const group = $('[data-star-tail]', sky || document);
     const route = $('[data-star-route]', group || document);
     const hero = $('.hero');
+    const rect = hero?.getBoundingClientRect();
     const matrix = sky?.getScreenCTM();
+    const opening = [];
+    cometStrands = [];
     heroTail = null;
-    if (!hero || !group || !route || !matrix) return;
-    const length = route.getTotalLength();
-    const start = route.getPointAtLength(0);
-    const end = route.getPointAtLength(length);
-    const rect = hero.getBoundingClientRect();
-    const anchor = heroStarAnchor(rect);
-    const inverse = matrix.inverse();
-    const localStart = new DOMPoint(rect.left - 60, rect.top + rect.height * .9).matrixTransform(inverse);
-    const localEnd = new DOMPoint(anchor.x, anchor.y).matrixTransform(inverse);
-    const scaleX = (localEnd.x - localStart.x) / (end.x - start.x);
-    const scaleY = (localEnd.y - localStart.y) / (end.y - start.y);
-    // Fit the original curve between the entry and resting point. This also
-    // keeps the flight visible when the SVG's slice viewport becomes narrow.
-    group.setAttribute('transform', `translate(${localStart.x - start.x * scaleX} ${localStart.y - start.y * scaleY}) scale(${scaleX} ${scaleY})`);
-    $$('path', group).forEach(path => path.setAttribute('pathLength', '1'));
-    heroTail = { group, route, length, progress: null };
+    if (rect && group && route && matrix) {
+      const length = route.getTotalLength();
+      const start = route.getPointAtLength(0), end = route.getPointAtLength(length);
+      const anchor = heroStarAnchor(rect);
+      const inverse = matrix.inverse();
+      const localStart = new DOMPoint(rect.left - 60, rect.top + rect.height * .9).matrixTransform(inverse);
+      const localEnd = new DOMPoint(anchor.x, anchor.y).matrixTransform(inverse);
+      const scaleX = (localEnd.x - localStart.x) / (end.x - start.x);
+      const scaleY = (localEnd.y - localStart.y) / (end.y - start.y);
+      group.setAttribute('transform', `translate(${localStart.x - start.x * scaleX} ${localStart.y - start.y * scaleY}) scale(${scaleX} ${scaleY})`);
+      $$('path', group).forEach(path => path.setAttribute('pathLength', '1'));
+      const routeMatrix = route.getScreenCTM();
+      const steps = Math.ceil(length / 8);
+      for (let i = 0; i <= steps; i++) {
+        const p = route.getPointAtLength(length * i / steps);
+        const screen = new DOMPoint(p.x, p.y).matrixTransform(routeMatrix);
+        opening.push({ x: screen.x + window.scrollX, y: screen.y + window.scrollY, u: i / steps });
+      }
+      const dx = opening[1].x - opening[0].x, dy = opening[1].y - opening[0].y;
+      const tangent = Math.hypot(dx, dy);
+      const strokeScale = Math.sqrt(Math.abs(routeMatrix.a * routeMatrix.d - routeMatrix.b * routeMatrix.c));
+      cometStrands = $$('path', group).map(path => {
+        const p = path.getPointAtLength(0);
+        const origin = new DOMPoint(p.x, p.y).matrixTransform(routeMatrix);
+        return {
+          offset: ((origin.x + window.scrollX - opening[0].x) * -dy + (origin.y + window.scrollY - opening[0].y) * dx) / tangent,
+          color: path.getAttribute('stroke'),
+          alpha: Number(path.getAttribute('stroke-opacity')),
+          width: Number(path.getAttribute('stroke-width')) * strokeScale
+        };
+      });
+
+      // The old SVG fan is the first segment of the same tail. A feathered
+      // moving rear trims it along the curve instead of fading the whole SVG.
+      const ns = 'http://www.w3.org/2000/svg';
+      const defs = $('defs', sky);
+      $$('[data-comet-mask]', defs).forEach(node => node.remove());
+      const gradient = document.createElementNS(ns, 'linearGradient');
+      gradient.id = 'comet-tail-feather';
+      gradient.dataset.cometMask = '';
+      gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
+      for (const [offset, opacity] of [[0, 0], [1, 1]]) {
+        const stop = document.createElementNS(ns, 'stop');
+        stop.setAttribute('offset', String(offset));
+        stop.setAttribute('stop-color', 'white');
+        stop.setAttribute('stop-opacity', String(opacity));
+        gradient.append(stop);
+      }
+      const mask = document.createElementNS(ns, 'mask');
+      mask.id = 'comet-tail-mask';
+      mask.dataset.cometMask = '';
+      mask.setAttribute('maskUnits', 'userSpaceOnUse');
+      const bounds = group.getBBox();
+      const fill = document.createElementNS(ns, 'rect');
+      for (const [name, value] of Object.entries({ x: bounds.x - 2, y: bounds.y - 2, width: bounds.width + 4, height: bounds.height + 4 })) {
+        mask.setAttribute(name, String(value));
+        fill.setAttribute(name, String(value));
+      }
+      fill.setAttribute('fill', 'url(#comet-tail-feather)');
+      mask.append(fill); defs.append(gradient, mask);
+      group.setAttribute('mask', 'url(#comet-tail-mask)');
+      heroTail = { group, route, length, gradient, state: null };
+    } else if (rect) {
+      const anchor = heroStarAnchor(rect);
+      opening.push({ x: anchor.x, y: anchor.y + window.scrollY, u: 1 });
+    }
+    if (!cometStrands.length) {
+      const random = seeded(7261);
+      cometStrands = Array.from({ length: 72 }, (_, i) => ({
+        offset: (i / 71 - .5) * Math.min(vw * .18, 180),
+        color: ['#c5ab81', '#719dc4', '#9dbbd6'][Math.floor(random() * 3)],
+        alpha: .025 + random() * .075,
+        width: .3 + random() * 1.2
+      }));
+    }
+    cometPath = createCometPath(opening, { width: document.documentElement.clientWidth, height: vh, heroBottom: rect ? rect.bottom + window.scrollY : 0 });
+    cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
+    cometParam = null;
+    cometUpdatedAt = null;
+    cometHasDeparted = window.scrollY > 0;
   }
 
-  function revealHeroTail(progress) {
-    if (!heroTail || heroTail.progress === progress) return;
-    heroTail.group.setAttribute('stroke-dashoffset', String(1 - progress));
-    heroTail.group.setAttribute('opacity', progress > 0 ? '1' : '0');
-    heroTail.progress = progress;
-  }
-
-  function pageOrbitPoint(turn) {
-    const inset = Math.min(48, Math.min(vw, vh) * .075);
-    const left = inset, right = vw - inset, top = inset, bottom = vh - inset;
-    const radius = Math.min(110, (right - left) * .22, (bottom - top) * .22);
-    const vertical = bottom - top - 2 * radius;
-    const horizontal = right - left - 2 * radius;
-    const corner = Math.PI * radius / 2;
-    const perimeter = 2 * (vertical + horizontal) + 4 * corner;
-    const entry = clamp(vh * .3 - top - radius, 0, vertical);
-    let distance = ((turn * perimeter + entry) % perimeter + perimeter) % perimeter;
-    if (distance < vertical) return { x: right, y: top + radius + distance };
-    distance -= vertical;
-    if (distance < corner) {
-      const angle = distance / radius;
-      return { x: right - radius + radius * Math.cos(angle), y: bottom - radius + radius * Math.sin(angle) };
-    }
-    distance -= corner;
-    if (distance < horizontal) return { x: right - radius - distance, y: bottom };
-    distance -= horizontal;
-    if (distance < corner) {
-      const angle = Math.PI / 2 + distance / radius;
-      return { x: left + radius + radius * Math.cos(angle), y: bottom - radius + radius * Math.sin(angle) };
-    }
-    distance -= corner;
-    if (distance < vertical) return { x: left, y: bottom - radius - distance };
-    distance -= vertical;
-    if (distance < corner) {
-      const angle = Math.PI + distance / radius;
-      return { x: left + radius + radius * Math.cos(angle), y: top + radius + radius * Math.sin(angle) };
-    }
-    distance -= corner;
-    if (distance < horizontal) return { x: left + radius + distance, y: top };
-    const angle = Math.PI * 1.5 + (distance - horizontal) / radius;
-    return { x: right - radius + radius * Math.cos(angle), y: top + radius + radius * Math.sin(angle) };
+  function revealHeroTail(points, feather) {
+    if (!heroTail) return;
+    const opening = points.filter(p => p.param <= cometPath.heroLength);
+    if (opening.length < 2) { heroTail.group.setAttribute('opacity', '0'); heroTail.state = null; return; }
+    const first = opening[0], last = opening[opening.length - 1];
+    const rear = cometPoint(cometPath, first.param).u;
+    const front = cometPoint(cometPath, last.param).u;
+    const fadeEnd = opening.find(p => p.distance >= cometTrail.rear + feather) || last;
+    const opacity = smoothstep((last.distance - cometTrail.rear) / feather);
+    const state = `${rear}:${front}:${fadeEnd.param}:${opacity}`;
+    if (state === heroTail.state) return;
+    const from = heroTail.route.getPointAtLength(heroTail.length * rear);
+    const to = heroTail.route.getPointAtLength(heroTail.length * cometPoint(cometPath, fadeEnd.param).u);
+    heroTail.gradient.setAttribute('x1', String(from.x));
+    heroTail.gradient.setAttribute('x2', String(Math.max(from.x + .001, to.x)));
+    heroTail.group.setAttribute('stroke-dasharray', `${front - rear} 1`);
+    heroTail.group.setAttribute('stroke-dashoffset', String(-rear));
+    heroTail.group.setAttribute('opacity', String(opacity));
+    heroTail.state = state;
   }
 
   function updateStarTarget(immediate = false, now = performance.now()) {
+    if (!cometPath) return;
     const hero = $('.hero');
-    const desiredPhase = Math.max(0, window.scrollY) / Math.max(1, vh * 3.2);
-    if (immediate || paused || orbitUpdatedAt === null) orbitPhase = desiredPhase;
-    else orbitPhase += (desiredPhase - orbitPhase) * (1 - Math.exp(-Math.max(0, now - orbitUpdatedAt) / 180));
-    orbitUpdatedAt = now;
-    const orbit = pageOrbitPoint(orbitPhase);
-    orbitMix = 1;
+    const previous = cometParam;
+    const desired = cometPath.heroLength + Math.max(0, window.scrollY);
+    if (introStart) cometParam = cometPath.heroLength * smoothstep((now - introStart - 200) / 3300);
+    else if (heroDeparture) cometParam = heroDeparture.cometFrom + (cometPath.heroLength + heroDeparture.destination - heroDeparture.cometFrom) * heroDeparture.progress;
+    else if (immediate || paused || cometUpdatedAt === null) cometParam = desired;
+    else cometParam += (desired - cometParam) * (1 - Math.exp(-Math.max(0, now - cometUpdatedAt) / 110));
+    cometUpdatedAt = now;
+    cometWorld = cometPoint(cometPath, cometParam);
+    targetX = cometWorld.x - window.scrollX;
+    targetY = cometWorld.y - window.scrollY;
+    if (previous === null || immediate) {
+      cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
+      recordCometMotion(cometTrail, cometPath, Math.max(0, cometParam - cometTrail.maxLength), cometParam, now);
+    } else recordCometMotion(cometTrail, cometPath, previous, cometParam, now);
+    if (!introStart && window.scrollY > 0) cometHasDeparted = true;
     let progress = 1;
     if (hero) {
       const rect = hero.getBoundingClientRect();
       progress = clamp(window.scrollY / Math.max(1, rect.bottom + window.scrollY), 0, 1);
       heroContentOpacity = paused ? 1 : 1 - smoothstep((progress - .08) / .76);
       hero.style.setProperty('--hero-exit-opacity', heroContentOpacity.toFixed(3));
-      const anchor = heroStarAnchor(rect);
-      const fromX = heroDeparture ? heroDeparture.starX : anchor.x;
-      const fromY = heroDeparture ? heroDeparture.starY : anchor.y + window.scrollY;
-      orbitMix = smoothstep((heroDeparture ? heroDeparture.progress : progress) / .55);
-      targetX = fromX + (orbit.x - fromX) * orbitMix;
-      targetY = fromY + (orbit.y - fromY) * orbitMix;
     } else {
       heroContentOpacity = 1;
-      targetX = orbit.x;
-      targetY = orbit.y;
     }
     if (companion) {
       const blend = smoothstep(progress);
-      companion.classList.add('has-scroll-orbit');
+      const depth = (cometWorld.depth + 1) / 2;
+      const scale = (vw < 720 ? .35 : .4) + depth * .15;
+      companion.classList.add('has-comet-motion');
       companion.classList.remove('is-docked');
-      companion.style.setProperty('--companion-opacity', (.9 - .22 * blend).toFixed(3));
-      companion.style.setProperty('--companion-scale', (.72 + ((vw < 720 ? .4 : .46) - .72) * blend).toFixed(3));
+      companion.style.setProperty('--companion-opacity', (.9 + (.42 + depth * .38 - .9) * blend).toFixed(3));
+      companion.style.setProperty('--companion-scale', (.72 + (scale - .72) * blend).toFixed(3));
     }
   }
 
@@ -814,7 +868,7 @@
       return;
     }
     const duration = 920 * Math.min(1, Math.sqrt(distance / Math.max(innerHeight, 1)));
-    heroDeparture = { hero, from, started: performance.now(), duration, progress: 0, starX, starY };
+    heroDeparture = { hero, from, destination: from + distance, cometFrom: cometParam, started: performance.now(), duration, progress: 0 };
     const advance = now => {
       heroDepartureRaf = 0;
       const departure = heroDeparture;
@@ -858,71 +912,85 @@
 
   function placeStar(immediate = false, now = performance.now()) {
     updateStarTarget(immediate, now);
-    const parallax = paused || heroDeparture ? 0 : 1 - orbitMix;
-    let x = targetX + pointerX * parallax;
-    let y = targetY + pointerY * parallax;
-
-    const progress = introStart ? smoothstep((now - introStart - 200) / 3300) : 1;
-    revealHeroTail(progress);
-    if (introStart && heroTail) {
-      // Flight position and the drawn tail share the same arc-length progress.
-      const point = heroTail.route.getPointAtLength(heroTail.length * progress);
-      const matrix = heroTail.route.getScreenCTM();
-      if (matrix) {
-        const screenPoint = new DOMPoint(point.x, point.y).matrixTransform(matrix);
-        x = screenPoint.x;
-        y = screenPoint.y;
-      }
-    }
-
-    if (immediate || paused) { starX = x; starY = y; }
-    else if (introStart || orbitMix === 1) { starX = x; starY = y; }
-    else { starX += (x - starX) * 0.12; starY += (y - starY) * 0.12; }
-
+    starX = targetX;
+    starY = targetY;
     if (companion) {
       companion.style.left = starX.toFixed(2) + 'px';
       companion.style.top = starY.toFixed(2) + 'px';
     }
     if (immediate) {
       prevStarX = starX; prevStarY = starY;
-      scrollTrail = [];
+      prevCometX = cometWorld.x; prevCometY = cometWorld.y;
     }
   }
 
-  function paintScrollTrail(now, velocityX, velocityY) {
-    if (paused || introStart) { scrollTrail = []; return; }
-    const lifetime = 1800;
-    scrollTrail = scrollTrail.filter(point => now - point.at < lifetime);
-    const speed = Math.hypot(velocityX, velocityY);
-    if (orbitMix > 0 && speed > .25) {
-      const energy = clamp(speed / 8, .25, 1);
-      if (!scrollTrail.length) scrollTrail.push({ x: starX - velocityX, y: starY - velocityY, at: now, energy });
-      const last = scrollTrail[scrollTrail.length - 1];
-      if (Math.hypot(starX - last.x, starY - last.y) >= 1) scrollTrail.push({ x: starX, y: starY, at: now, energy });
+  function paintCometTrail(now) {
+    fadeCometTrail(cometTrail, now, !paused && !introStart && cometHasDeparted);
+    const points = visibleCometTrail(cometTrail);
+    const feather = Math.max(1, Math.min(cometTrail.maxLength * .3, (cometTrail.distance - cometTrail.rear) * .65));
+    revealHeroTail(points, feather);
+    if (points.length < 2) return;
+    const first = points.findIndex(point => point.param > cometPath.heroLength);
+    if (first < 0) return;
+    const nodes = points.slice(Math.max(0, first - 1)).map((point, i, list) => {
+      const a = list[Math.max(0, i - 1)], b = list[Math.min(list.length - 1, i + 1)];
+      const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      return {
+        x: point.x - window.scrollX, y: point.y - window.scrollY,
+        nx: -(b.y - a.y) / length, ny: (b.x - a.x) / length,
+        spread: Math.pow((cometTrail.distance - point.distance) / cometTrail.maxLength, 1.2),
+        distance: point.distance
+      };
+    });
+    // Only the feather needs short gradient spans. The rest of each fine
+    // filament is one path, matching the opening fan without a bright core.
+    const chunks = [];
+    let chunk = [nodes[0]];
+    const step = feather / 8, fadeEnd = cometTrail.rear + feather;
+    let boundary = cometTrail.rear + (Math.floor((nodes[0].distance - cometTrail.rear) / step) + 1) * step;
+    for (let i = 1; i < nodes.length; i++) {
+      let a = nodes[i - 1];
+      const b = nodes[i];
+      while (boundary <= fadeEnd && boundary <= b.distance) {
+        const t = (boundary - a.distance) / (b.distance - a.distance);
+        const split = {};
+        for (const key of ['x', 'y', 'nx', 'ny', 'spread']) split[key] = a[key] + (b[key] - a[key]) * t;
+        split.distance = boundary;
+        chunk.push(split); chunks.push(chunk); chunk = [split];
+        a = split; boundary += step;
+      }
+      if (b.distance > a.distance) chunk.push(b);
     }
-    if (scrollTrail.length < 2) return;
+    if (chunk.length > 1) chunks.push(chunk);
     starCtx.save();
     starCtx.lineCap = 'round';
-    // Draw the actual travelled positions, so reversing scroll bends the wake
-    // back along the orbit instead of drawing a line through the page centre.
-    for (let i = 1; i < scrollTrail.length; i++) {
-      const a = scrollTrail[i - 1], b = scrollTrail[i];
-      const distance = Math.hypot(b.x - a.x, b.y - a.y);
-      if (!distance) continue;
-      const nx = -(b.y - a.y) / distance, ny = (b.x - a.x) / distance;
-      const fade = Math.pow(1 - (now - b.at) / lifetime, 1.7) * b.energy;
-      starCtx.beginPath();
-      starCtx.moveTo(a.x, a.y); starCtx.lineTo(b.x, b.y);
-      starCtx.lineWidth = 5;
-      starCtx.strokeStyle = `rgba(139,177,206,${fade * .045})`;
-      starCtx.stroke();
-      for (const strand of [-1, 0, 1]) {
-        const offset = strand * 2.2;
+    starCtx.lineJoin = 'round';
+    for (const part of chunks) {
+      const a = part[0], b = part[part.length - 1];
+      const fromAlpha = smoothstep((a.distance - cometTrail.rear) / feather);
+      const toAlpha = smoothstep((b.distance - cometTrail.rear) / feather);
+      const gradients = new Map();
+      for (const strand of cometStrands) {
+        let color = strand.color;
+        if (fromAlpha < 1) {
+          if (!gradients.has(color)) {
+            const gradient = starCtx.createLinearGradient(a.x, a.y, b.x, b.y);
+            const rgb = [1, 3, 5].map(index => parseInt(color.slice(index, index + 2), 16));
+            gradient.addColorStop(0, `rgba(${rgb},${fromAlpha})`);
+            gradient.addColorStop(1, `rgba(${rgb},${toAlpha})`);
+            gradients.set(color, gradient);
+          }
+          color = gradients.get(color);
+        }
         starCtx.beginPath();
-        starCtx.moveTo(a.x + nx * offset, a.y + ny * offset);
-        starCtx.lineTo(b.x + nx * offset, b.y + ny * offset);
-        starCtx.lineWidth = strand === 0 ? 1.1 : .55;
-        starCtx.strokeStyle = strand === 0 ? `rgba(214,184,129,${fade * .4})` : `rgba(139,177,206,${fade * .2})`;
+        part.forEach((point, i) => {
+          const x = point.x + point.nx * strand.offset * point.spread;
+          const y = point.y + point.ny * strand.offset * point.spread;
+          if (i) starCtx.lineTo(x, y); else starCtx.moveTo(x, y);
+        });
+        starCtx.lineWidth = strand.width;
+        starCtx.globalAlpha = strand.alpha;
+        starCtx.strokeStyle = color;
         starCtx.stroke();
       }
     }
@@ -938,6 +1006,9 @@
     const starVx = starX - prevStarX;
     const starVy = starY - prevStarY;
     prevStarX = starX; prevStarY = starY;
+    const cometVx = cometWorld.x - prevCometX, cometVy = cometWorld.y - prevCometY;
+    const cometMovingSpeed = Math.hypot(cometVx, cometVy);
+    prevCometX = cometWorld.x; prevCometY = cometWorld.y;
 
     const hero = $('.hero');
     const heroRect = hero ? hero.getBoundingClientRect() : null;
@@ -1057,24 +1128,26 @@
       }
     }
 
-    paintScrollTrail(now, starVx, starVy);
+    paintCometTrail(now);
 
-    // The opening and the scrolling orbit both shed a small dust wake.
-    if (!paused && starMovingSpeed > 0.6) {
-      const orbiting = !introStart && orbitMix > 0;
-      const sparkCount = Math.min(3, Math.floor(starMovingSpeed * 0.55) + 1);
+    // Dust shares the trail's document coordinates, so scrolling cannot drag
+    // already emitted particles along with the viewport.
+    if (!paused && cometMovingSpeed > 0.6) {
+      const travelling = !introStart && cometHasDeparted;
+      const sparkCount = Math.min(3, Math.floor(cometMovingSpeed * 0.55) + 1);
       for (let k = 0; k < sparkCount; k++) {
         const spAngle = Math.random() * Math.PI * 2;
-        const spDist = Math.random() * (orbiting ? 5 : 22);
-        const alongWake = orbiting ? (k + Math.random()) / sparkCount : 0;
+        const spDist = Math.random() * (travelling ? 5 : 22);
+        const alongWake = travelling ? (k + Math.random()) / sparkCount : 0;
         stardustSparks.push({
-          x: starX - starVx * alongWake + Math.cos(spAngle) * spDist,
-          y: starY - starVy * alongWake + Math.sin(spAngle) * spDist,
-          vx: -starVx * (orbiting ? .06 : .25) + (Math.random() - 0.5) * (orbiting ? .8 : 2.2),
-          vy: -starVy * (orbiting ? .06 : .25) + (Math.random() - 0.5) * (orbiting ? .8 : 2.2),
-          size: orbiting ? .45 + Math.random() * .8 : .8 + Math.random() * 1.3,
+          x: cometWorld.x - cometVx * alongWake + Math.cos(spAngle) * spDist,
+          y: cometWorld.y - cometVy * alongWake + Math.sin(spAngle) * spDist,
+          world: true,
+          vx: -cometVx * (travelling ? .06 : .25) + (Math.random() - 0.5) * (travelling ? .8 : 2.2),
+          vy: -cometVy * (travelling ? .06 : .25) + (Math.random() - 0.5) * (travelling ? .8 : 2.2),
+          size: travelling ? .45 + Math.random() * .8 : .8 + Math.random() * 1.3,
           life: 1.0,
-          decay: orbiting ? .014 + Math.random() * .014 : .022 + Math.random() * .022,
+          decay: travelling ? .006 + Math.random() * .006 : .022 + Math.random() * .022,
           rgb: VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)]
         });
       }
@@ -1265,7 +1338,7 @@
           continue;
         }
         starCtx.beginPath();
-        starCtx.arc(sp.x, sp.y, sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
+        starCtx.arc(sp.x - (sp.world ? window.scrollX : 0), sp.y - (sp.world ? window.scrollY : 0), sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
         starCtx.fillStyle = `rgba(${sp.rgb[0]},${sp.rgb[1]},${sp.rgb[2]},${clamp(sp.life * 0.9, 0, 1)})`;
         starCtx.fill();
       }
@@ -1293,7 +1366,10 @@
     }
     maskRadius = 0; targetMaskRadius = 0;
     stardustSparks = [];
-    scrollTrail = [];
+    cometParam = 0;
+    cometUpdatedAt = null;
+    cometHasDeparted = false;
+    cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
     for (const layer of glyphLayers) {
       layer.cells.forEach(cell => { cell.alpha = 0; });
       layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
@@ -1392,8 +1468,7 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       cancelHeroDeparture();
-      scrollTrail = [];
-      orbitUpdatedAt = null;
+      cometUpdatedAt = null;
       if (raf) cancelAnimationFrame(raf); raf = 0;
       introStart = 0;
     } else startLoop();

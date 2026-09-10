@@ -30,9 +30,9 @@
 .hero .hero-bottom {
   opacity: var(--hero-exit-opacity, 1);
 }
-.hero .hero-sky { opacity: calc(.85 * var(--hero-exit-opacity, 1)); }
-.mira-object.has-scroll-orbit { opacity: var(--companion-opacity, .9); }
-.mira-object.has-scroll-orbit > .geometry {
+.hero .hero-sky { opacity: .85; }
+.mira-object.has-comet-motion { opacity: var(--companion-opacity, .9); }
+.mira-object.has-comet-motion > .geometry {
   transform: scale(var(--companion-scale, .72));
   transition: none;
 }
