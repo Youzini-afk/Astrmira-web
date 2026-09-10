@@ -36,19 +36,26 @@
   transition: none;
 }
 
-/* Breathe around the fixed centre so the comet's tail stays attached. */
-.mira-object[data-phase="geometry"] > .geometry {
+/* Independent orbit motion stays legible even when the companion is small. */
+.mira-object .mira-orbit,
+.mira-object .mira-core {
+  transform-box: view-box;
   transform-origin: 50% 50%;
-  animation: mira-breathe 8s ease-in-out infinite;
 }
-.is-paused .mira-object > .geometry { animation-play-state: paused; }
+.mira-object .mira-orbit { animation: mira-orbit-turn 42s linear infinite; }
+.mira-object .mira-core { animation: mira-breathe 6s ease-in-out infinite; }
+.is-paused .mira-object .mira-orbit,
+.is-paused .mira-object .mira-core { animation-play-state: paused; }
+@keyframes mira-orbit-turn {
+  to { transform: rotate(360deg); }
+}
 @keyframes mira-breathe {
   0%, 100% {
-    transform: scale(calc(var(--companion-scale, .72) * .99)) rotate(-1.2deg);
-    opacity: .92;
+    transform: scale(.98) rotate(-2deg);
+    opacity: .9;
   }
   50% {
-    transform: scale(calc(var(--companion-scale, .72) * 1.02)) rotate(1.2deg);
+    transform: scale(1.04) rotate(2deg);
     opacity: 1;
   }
 }
