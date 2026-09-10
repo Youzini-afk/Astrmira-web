@@ -112,7 +112,7 @@ import { createParticleGrid } from './particle-grid.js';
     }
     svg.innerHTML = `${grid}<path d="M42 35V263H522" stroke="#a1b7cf" stroke-opacity=".25" stroke-width=".7"/><path d="${original}" fill="none" stroke="#90acc9" stroke-opacity=".6" stroke-width="1.2"/><path d="${quantized}" fill="none" stroke="#d6b881" stroke-width="1.4"/><text x="44" y="24" fill="#8797ac" font-size="9" font-family="monospace">VALUE</text><text x="470" y="285" fill="#8797ac" font-size="9" font-family="monospace">SAMPLE</text><text x="399" y="30" fill="#d6b881" font-size="11" font-family="monospace">${levels} LEVELS / ${bits} BIT</text>`;
     const output = $('[data-bits-output]'); if (output) output.textContent = bits + ' bit';
-    const feedback = $('[data-quant-feedback]'); if (feedback) feedback.textContent = `${levels} 个表示等级 · 仅为标量量化示意`;
+    const feedback = $('[data-quant-feedback]'); if (feedback) feedback.textContent = `${levels} 个表示等级`;
   }
 
   const stages = ['理解任务', '制定计划', '调用工具', '检查结果', '交付结果'];
@@ -134,9 +134,9 @@ import { createParticleGrid } from './particle-grid.js';
     if (feedback) feedback.textContent = [
       '理解任务：明确目标、约束与可用上下文。',
       '制定计划：把目标拆解为可检查的步骤。',
-      '调用工具：关键操作需确认。演示不会执行真实操作。',
+      '调用工具：在明确权限后执行，关键操作需确认。',
       '检查结果：验证输出；必要时回到计划阶段。',
-      '交付结果：整理输出与执行记录。概念演示结束。'
+      '交付结果：整理输出与执行记录。'
     ][agentStage];
     const step = $('[data-agent-step]'); if (step) step.textContent = agentStage === 4 ? '再看一次 ↺' : agentStage === 2 ? '模拟确认并继续 →' : '下一步 →';
   }
@@ -237,7 +237,7 @@ import { createParticleGrid } from './particle-grid.js';
     const form=e.target;if(!form.matches?.('[data-brief-form]'))return;
     e.preventDefault(); if(!form.reportValidity())return;
     const data=new FormData(form);
-    brief=`Astrmira · 合作简报\n\n称呼：${String(data.get('name')||'未填写').trim()}\n组织 / 团队：${String(data.get('organization')||'未填写').trim()}\n合作方向：${data.get('area')}\n\n问题与目标：\n${String(data.get('problem')||'').trim()}\n\n——\n此简报由网站原型在本地生成，尚未发送。`;
+    brief=`Astrmira · 合作简报\n\n称呼：${String(data.get('name')||'未填写').trim()}\n组织 / 团队：${String(data.get('organization')||'未填写').trim()}\n合作方向：${data.get('area')}\n\n问题与目标：\n${String(data.get('problem')||'').trim()}\n\n——\n此简报在当前浏览器中生成，尚未发送。`;
     $('[data-brief-text]').textContent=brief;
     $('[data-brief-result]').hidden=false;
     $('[data-brief-status]').textContent='简报已在本地生成，尚未发送。';
