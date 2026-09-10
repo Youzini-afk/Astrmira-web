@@ -279,6 +279,7 @@
   const starCanvas = $('#starfield');
   const starCtx = starCanvas?.getContext('2d');
   let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
+  let stardustSparks = [];
   const INTRO_DURATION = 2400;
 
   function seeded(n) {
@@ -290,11 +291,13 @@
   }
 
   const VAN_GOGH_PALETTE = [
-    [214, 184, 129], // #d6b881 warm gold
-    [240, 211, 158], // #f0d39e amber yellow
-    [141, 171, 195], // #8dabc3 sky cyan
-    [82, 123, 159],  // #527b9f deep cobalt
-    [197, 167, 120]  // #c5a778 star trail ochre
+    [226, 192, 133], // warm luminous gold (#e2c085)
+    [248, 220, 160], // amber yellow (#f8dca0)
+    [142, 184, 216], // celestial sky cyan (#8eb8d8)
+    [72, 122, 168],  // deep impressionist cobalt (#487aa8)
+    [206, 172, 120], // star trail ochre (#ceac78)
+    [252, 206, 116], // radiant solar flame (#fcce74)
+    [108, 156, 196]  // cerulean brushstroke (#6c9cc4)
   ];
 
   function sampleTextParticles() {
@@ -304,7 +307,6 @@
 
     const heroRect = hero.getBoundingClientRect();
     const points = [];
-    const step = vw < 720 ? 4 : 3;
 
     function sampleTextLine(text, style, targetCenterX, targetCenterY, targetRgb, isTitle = false, fontStyleOverride = null) {
       if (!text || text.trim() === '') return;
@@ -341,7 +343,8 @@
       const startY = targetCenterY - h / 2;
 
       const isMobile = vw < 720;
-      const lineStep = isTitle ? (isMobile ? 3.6 : 2.7) : (fontSize < 18 ? (isMobile ? 1.8 : 1.35) : (isMobile ? 2.2 : 1.6));
+      // High-density sampling so disintegrating letters burst into a rich swarm of stars and brushstrokes
+      const lineStep = isTitle ? (isMobile ? 2.4 : 1.75) : (fontSize < 18 ? (isMobile ? 1.4 : 1.05) : (isMobile ? 1.65 : 1.22));
 
       for (let py = 0; py < h; py += lineStep) {
         for (let px = 0; px < w; px += lineStep) {
@@ -355,8 +358,8 @@
             const origX = heroRect.left + relX + Math.cos(angle) * dist;
             const origY = heroRect.top + relY + Math.sin(angle) * dist;
 
-            const startColorRgb = VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)];
-            const radius = isTitle ? (0.85 + Math.random() * 0.95) : (fontSize < 18 ? (0.55 + Math.random() * 0.4) : (0.7 + Math.random() * 0.5));
+            const vanGoghRgb = VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)];
+            const radius = isTitle ? (0.8 + Math.random() * 0.9) : (fontSize < 18 ? (0.55 + Math.random() * 0.4) : (0.65 + Math.random() * 0.45));
 
             points.push({
               relX, relY,
@@ -364,13 +367,17 @@
               x: origX, y: origY,
               vx: (Math.random() - 0.5) * 3,
               vy: (Math.random() - 0.5) * 3,
-              startColorRgb,
+              startColorRgb: vanGoghRgb,
+              vanGoghRgb,
               targetColorRgb: targetRgb,
               radius,
-              baseAlpha: isTitle ? (0.8 + Math.random() * 0.2) : (0.85 + Math.random() * 0.15),
+              baseAlpha: isTitle ? (0.85 + Math.random() * 0.15) : (0.9 + Math.random() * 0.1),
               glow: 0,
               strokeAngle: angle + Math.PI / 2,
-              isTitle
+              brushLen: 3 + Math.random() * 6,
+              isTitle,
+              dislodged: false,
+              dislodgedFactor: 0
             });
           }
         }
@@ -550,63 +557,65 @@
     const heroTop = heroRect ? heroRect.top : 0;
 
     let coalesceT = 1;
-    let colorT = 1;
-    let introFade = 1.0;
+    let isCrystallizing = false;
+    let waveX = -9999;
     const copy = $('.hero-copy');
     const textStage = $('.hero-text-stage');
+    const stageRect = textStage ? textStage.getBoundingClientRect() : null;
+    const stageLeft = stageRect ? stageRect.left : (heroLeft + 22);
+    const stageWidth = stageRect ? stageRect.width : (vw * 0.9);
 
     if (introStart) {
       const elapsed = now - introStart;
-      if (elapsed < 380) {
+      if (elapsed < 320) {
         coalesceT = 0;
       } else {
-        const prog = clamp((elapsed - 380) / 1620, 0, 1);
-        coalesceT = 1 - Math.pow(1 - prog, 2.8);
+        const prog = clamp((elapsed - 320) / 1280, 0, 1);
+        coalesceT = 1 - Math.pow(1 - prog, 2.6);
       }
-      if (elapsed < 1200) {
-        colorT = 0;
-      } else {
-        const cProg = clamp((elapsed - 1200) / 1000, 0, 1);
-        colorT = cProg * cProg * (3 - 2 * cProg);
-      }
-      if (elapsed >= 2200) {
-        if (copy && !copy.classList.contains('is-solidified')) {
-          copy.classList.add('is-solidified');
+
+      // Crystallization wave triggers as star passes across the title (t = 1500ms to 2400ms)
+      if (elapsed >= 1500 && elapsed < 2400) {
+        isCrystallizing = true;
+        const cProg = clamp((elapsed - 1500) / 900, 0, 1);
+        const waveEased = cProg * cProg * (3 - 2 * cProg);
+        waveX = waveEased * (stageWidth + 120) - 60;
+
+        if (copy && !copy.classList.contains('is-crystallizing')) {
+          copy.classList.add('is-crystallizing');
         }
-        // Smoothly crossfade particles into the crisp solid HTML text
-        introFade = clamp(1 - (elapsed - 2200) / 600, 0, 1);
-      }
-      if (elapsed >= 2800) {
-        if (copy && !copy.classList.contains('is-settled')) {
-          copy.classList.add('is-settled');
+        if (textStage) {
+          textStage.style.setProperty('--reveal-x', `${waveX.toFixed(1)}px`);
+        }
+      } else if (elapsed >= 2400) {
+        if (copy) {
+          copy.classList.remove('is-crystallizing');
+          if (!copy.classList.contains('is-solidified')) copy.classList.add('is-solidified');
+          if (!copy.classList.contains('is-settled')) copy.classList.add('is-settled');
         }
         introStart = 0;
-        introFade = 0;
       }
     } else {
       coalesceT = 1;
-      colorT = 1;
-      introFade = 0;
-      if (copy && !copy.classList.contains('is-settled')) {
-        copy.classList.add('is-settled');
-      }
-      if (copy && !copy.classList.contains('is-solidified')) {
-        copy.classList.add('is-solidified');
+      if (copy) {
+        copy.classList.remove('is-crystallizing');
+        if (!copy.classList.contains('is-solidified')) copy.classList.add('is-solidified');
+        if (!copy.classList.contains('is-settled')) copy.classList.add('is-settled');
       }
     }
     const isSolidified = copy ? copy.classList.contains('is-solidified') : false;
 
+    // Local Proximity Disintegration Mask Tracking
     if (textStage && isSolidified) {
-      const stageRect = textStage.getBoundingClientRect();
       const isNear = (
-        mouseX >= stageRect.left - 45 &&
-        mouseX <= stageRect.right + 45 &&
-        mouseY >= stageRect.top - 35 &&
-        mouseY <= stageRect.bottom + 35
+        mouseX >= stageRect.left - 40 &&
+        mouseX <= stageRect.right + 40 &&
+        mouseY >= stageRect.top - 30 &&
+        mouseY <= stageRect.bottom + 30
       );
 
       if (isNear) {
-        targetMaskRadius = 95;
+        targetMaskRadius = 96;
         maskX = mouseX - stageRect.left;
         maskY = mouseY - stageRect.top;
       } else {
@@ -631,7 +640,6 @@
 
     // 1. Paint and perturb ambient background stars
     for (const s of stars) {
-      // Star companion wake perturbation
       const sDx = s.x - starX, sDy = s.y - starY;
       const sDist = Math.hypot(sDx, sDy);
       if (sDist < 200 && sDist > 1) {
@@ -641,7 +649,6 @@
         s.glow = Math.min(1.0, s.glow + f * 1.6);
       }
 
-      // Mouse perturbation
       if (mouseX > -1000) {
         const mDx = s.x - mouseX, mDy = s.y - mouseY;
         const mDist = Math.hypot(mDx, mDy);
@@ -653,7 +660,6 @@
         }
       }
 
-      // Spring back to resting origin
       s.vx += (s.origX - s.x) * 0.04;
       s.vy += (s.origY - s.y) * 0.04;
       s.vx *= 0.85; s.vy *= 0.85;
@@ -670,13 +676,12 @@
     // 2. Paint and perturb typography particles
     if (textParticles.length > 0) {
       for (const p of textParticles) {
-        // Current home position dynamically anchored to hero element
         const homeX = heroLeft + p.relX;
         const homeY = heroTop + p.relY;
         const distToHome = Math.hypot(p.x - homeX, p.y - homeY);
 
         // Star wake perturbation during flight
-        if (introStart && introFade > 0) {
+        if (introStart) {
           const sDx = p.x - starX, sDy = p.y - starY;
           const sDist = Math.hypot(sDx, sDy);
           if (sDist < 180 && sDist > 1) {
@@ -689,82 +694,163 @@
 
         // Mouse perturbation and local proximity disintegration
         let mDist = 9999;
+        const mDx = p.x - mouseX;
+        const mDy = p.y - mouseY;
         if (mouseX > -1000) {
-          const mDx = p.x - mouseX, mDy = p.y - mouseY;
           mDist = Math.hypot(mDx, mDy);
-          const effectiveRadius = isSolidified ? Math.max(maskRadius + 18, 85) : 120;
+          const effectiveRadius = isSolidified ? Math.max(maskRadius + 22, 50) : 110;
           if (mDist < effectiveRadius && mDist > 0.5) {
             const mFactor = 1 - mDist / effectiveRadius;
-            const push = isSolidified ? mFactor * 9.5 : mFactor * 8;
-            const swirl = isSolidified ? mFactor * 6.0 : 0;
-            p.vx += (mDx / mDist) * push + (-mDy / mDist) * swirl + mouseVx * 0.22;
-            p.vy += (mDy / mDist) * push + (mDx / mDist) * swirl + mouseVy * 0.22;
-            p.glow = Math.min(1.0, p.glow + mFactor * 0.85 + Math.hypot(mouseVx, mouseVy) * 0.05);
+            const push = isSolidified ? mFactor * 10.5 : mFactor * 7.5;
+            const swirl = isSolidified ? mFactor * 8.5 : 0;
+            p.vx += (mDx / mDist) * push + (-mDy / mDist) * swirl + mouseVx * 0.28;
+            p.vy += (mDy / mDist) * push + (mDx / mDist) * swirl + mouseVy * 0.28;
+            p.glow = Math.min(1.0, p.glow + mFactor * 0.9 + Math.hypot(mouseVx, mouseVy) * 0.04);
           }
         }
 
         // Spring force towards target (interpolating from origX/Y to homeX/Y)
-        const targetPosX = p.origX * (1 - coalesceT) + homeX * coalesceT;
-        const targetPosY = p.origY * (1 - coalesceT) + homeY * coalesceT;
-        const spring = isSolidified ? 0.08 : (0.06 + 0.10 * coalesceT);
-        p.vx += (targetPosX - p.x) * spring;
-        p.vy += (targetPosY - p.y) * spring;
-        p.vx *= 0.80; p.vy *= 0.80;
-        p.x += p.vx; p.y += p.vy;
-        p.glow *= 0.92;
+        if (!isSolidified) {
+          const targetPosX = p.origX * (1 - coalesceT) + homeX * coalesceT;
+          const targetPosY = p.origY * (1 - coalesceT) + homeY * coalesceT;
+          const spring = 0.06 + 0.10 * coalesceT;
+          p.vx += (targetPosX - p.x) * spring;
+          p.vy += (targetPosY - p.y) * spring;
+          p.vx *= 0.81; p.vy *= 0.81;
+          p.x += p.vx; p.y += p.vy;
+          p.glow *= 0.92;
+        } else {
+          // Curved spiral return towards home
+          const toHomeX = homeX - p.x;
+          const toHomeY = homeY - p.y;
+          const dist = Math.hypot(toHomeX, toHomeY);
+          if (dist > 0.5) {
+            const springForce = Math.min(dist * 0.085, 7.0);
+            const curlForce = Math.min(dist * 0.035, 2.8);
+            p.vx += (toHomeX / dist) * springForce + (-toHomeY / dist) * curlForce;
+            p.vy += (toHomeY / dist) * springForce + (toHomeX / dist) * curlForce;
+          }
+          p.vx *= 0.81; p.vy *= 0.81;
+          p.x += p.vx; p.y += p.vy;
+          p.glow *= 0.91;
+        }
 
-        // When solidified: Resting particles hidden under crisp HTML text.
-        // Render ONLY when dislodged near cursor or returning home!
-        if (isSolidified && introFade === 0) {
-          if (mDist < (maskRadius + 18) && maskRadius > 1) {
+        // Crystallization phase handling (Intro)
+        if (isCrystallizing) {
+          const pStageX = p.x - stageLeft;
+          const distToWave = pStageX - waveX;
+          if (distToWave < -36) {
+            // Absorbed into solid text behind wave
+            continue;
+          } else if (Math.abs(distToWave) <= 45) {
+            // At the crystallization wavefront: ignite with fusion stardust flare
+            p.glow = Math.max(p.glow, 1.0 - Math.abs(distToWave) / 45);
+          }
+        }
+
+        // Solidified phase handling (Disintegration)
+        if (isSolidified) {
+          const effectiveRadius = Math.max(maskRadius + 22, 50);
+          if (mDist < effectiveRadius && maskRadius > 1.5) {
             p.dislodged = true;
-          } else if (distToHome < 1.2 && mDist > (maskRadius + 28)) {
+            p.dislodgedFactor = Math.min(1.0, p.dislodgedFactor + 0.22);
+          } else if (distToHome < 1.0 && mDist > (effectiveRadius + 28)) {
             p.dislodged = false;
+            p.dislodgedFactor = 0;
           }
           if (!p.dislodged) {
+            // Resting particle is invisible under crisp solid text
             continue;
           }
         }
 
-        // Color interpolation: Van Gogh palette -> Typography target color
-        const baseColor = colorT === 0 ? p.startColorRgb : colorT === 1 ? p.targetColorRgb : [
-          Math.round(p.startColorRgb[0] + (p.targetColorRgb[0] - p.startColorRgb[0]) * colorT),
-          Math.round(p.startColorRgb[1] + (p.targetColorRgb[1] - p.startColorRgb[1]) * colorT),
-          Math.round(p.startColorRgb[2] + (p.targetColorRgb[2] - p.startColorRgb[2]) * colorT)
-        ];
+        // Determine particle color:
+        // During intro: Van Gogh palette.
+        // When dislodged: Lerp to pure Van Gogh palette as dislodgedFactor -> 1.0!
+        const rgb = isSolidified ? [
+          Math.round(p.targetColorRgb[0] + (p.vanGoghRgb[0] - p.targetColorRgb[0]) * p.dislodgedFactor),
+          Math.round(p.targetColorRgb[1] + (p.vanGoghRgb[1] - p.targetColorRgb[1]) * p.dislodgedFactor),
+          Math.round(p.targetColorRgb[2] + (p.vanGoghRgb[2] - p.targetColorRgb[2]) * p.dislodgedFactor)
+        ] : p.vanGoghRgb;
 
-        let alpha = (p.baseAlpha || 0.7) * (1 + p.glow * 0.4);
-        if (isSolidified && introFade === 0) {
-          const holeAlpha = maskRadius > 1 && mDist < maskRadius + 20 ? clamp(1 - mDist / (maskRadius + 20), 0, 1) : 0;
-          const motionAlpha = clamp(distToHome / 8, 0, 1);
-          alpha = clamp(Math.max(holeAlpha, motionAlpha, p.glow) * (0.85 + p.glow * 0.35), 0, 1);
-        } else if (introFade < 1.0) {
-          alpha *= introFade;
-        }
+        // Alpha & Painterly impressionist brushstroke rendering
+        const speed = Math.hypot(p.vx, p.vy);
+        const strokeAngle = speed > 0.25 ? Math.atan2(p.vy, p.vx) : p.strokeAngle;
+        const strokeLen = Math.min(18, p.radius * 2.2 + speed * 2.8);
+        const alpha = clamp((0.88 + p.glow * 0.3) * (isSolidified ? clamp(distToHome / 4 + 0.45, 0, 1) : 1), 0, 1);
 
-        const colorStr = p.glow > 0.35 ? '#fff6dd' : `rgb(${baseColor[0]},${baseColor[1]},${baseColor[2]})`;
-        starCtx.fillStyle = colorStr;
-        starCtx.globalAlpha = clamp(alpha, 0, 1);
+        starCtx.save();
+        starCtx.translate(p.x, p.y);
+        starCtx.rotate(strokeAngle);
+
+        // 1. Van Gogh oil paint brushstroke
         starCtx.beginPath();
-        starCtx.arc(p.x, p.y, p.radius * (1 + p.glow * 0.35), 0, Math.PI * 2);
-        starCtx.fill();
+        starCtx.moveTo(-strokeLen * 0.5, 0);
+        starCtx.lineTo(strokeLen * 0.5, 0);
+        starCtx.lineWidth = p.radius * (1.8 + p.glow * 0.8);
+        starCtx.lineCap = 'round';
+        starCtx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+        starCtx.stroke();
 
-        // Van Gogh directional streak while dispersed or excited
-        if (!isSolidified ? (coalesceT < 0.72 || p.glow > 0.25) : (p.glow > 0.15 || distToHome > 3)) {
-          const strokeLen = (2.2 + p.glow * 4) * (!isSolidified ? (1 - coalesceT * 0.6) : 1.1);
-          if (strokeLen > 0.5) {
-            const cos = Math.cos(p.strokeAngle) * strokeLen;
-            const sin = Math.sin(p.strokeAngle) * strokeLen;
-            starCtx.strokeStyle = colorStr;
-            starCtx.lineWidth = p.radius * 0.8;
-            starCtx.beginPath();
-            starCtx.moveTo(p.x - cos, p.y - sin);
-            starCtx.lineTo(p.x + cos, p.y + sin);
-            starCtx.stroke();
-          }
+        // 2. Luminous inner core for glowing / energetic particles
+        if (p.glow > 0.25 || speed > 1.2) {
+          starCtx.beginPath();
+          starCtx.moveTo(-strokeLen * 0.32, 0);
+          starCtx.lineTo(strokeLen * 0.32, 0);
+          starCtx.lineWidth = Math.max(0.7, p.radius * 0.7);
+          starCtx.lineCap = 'round';
+          starCtx.strokeStyle = `rgba(255, 250, 230, ${clamp(alpha * (0.65 + p.glow * 0.35), 0, 1)})`;
+          starCtx.stroke();
         }
+        starCtx.restore();
       }
       starCtx.globalAlpha = 1.0;
+    }
+
+    // 3. Stardust emission & rendering on disintegration
+    if (isSolidified && maskRadius > 8) {
+      const mSpeed = Math.hypot(mouseVx, mouseVy);
+      if (mSpeed > 0.6) {
+        const count = Math.min(3, Math.floor(mSpeed * 0.6) + 1);
+        for (let k = 0; k < count; k++) {
+          const spA = Math.random() * Math.PI * 2;
+          const spD = Math.random() * (maskRadius * 0.75);
+          const spRgb = VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)];
+          stardustSparks.push({
+            x: mouseX + Math.cos(spA) * spD,
+            y: mouseY + Math.sin(spA) * spD,
+            vx: mouseVx * 0.22 + (Math.random() - 0.5) * 3 + (-Math.sin(spA) * 2.2),
+            vy: mouseVy * 0.22 + (Math.random() - 0.5) * 3 + (Math.cos(spA) * 2.2),
+            life: 1.0,
+            decay: 0.024 + Math.random() * 0.032,
+            size: 0.75 + Math.random() * 1.1,
+            rgb: spRgb
+          });
+        }
+      }
+    }
+
+    if (stardustSparks.length > 0) {
+      for (let i = stardustSparks.length - 1; i >= 0; i--) {
+        const sp = stardustSparks[i];
+        sp.x += sp.vx; sp.y += sp.vy;
+        sp.vx *= 0.91; sp.vy *= 0.91;
+        sp.life -= sp.decay;
+        if (sp.life <= 0) {
+          stardustSparks.splice(i, 1);
+          continue;
+        }
+        starCtx.beginPath();
+        starCtx.arc(sp.x, sp.y, sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
+        starCtx.fillStyle = `rgba(${sp.rgb[0]},${sp.rgb[1]},${sp.rgb[2]},${clamp(sp.life * 0.92, 0, 1)})`;
+        starCtx.fill();
+        if (sp.life > 0.35) {
+          starCtx.beginPath();
+          starCtx.arc(sp.x, sp.y, sp.size * 0.35, 0, Math.PI * 2);
+          starCtx.fillStyle = `rgba(255, 255, 240, ${clamp(sp.life, 0, 1)})`;
+          starCtx.fill();
+        }
+      }
     }
   }
 
@@ -774,18 +860,21 @@
     if (copy) {
       copy.classList.remove('is-settled');
       copy.classList.remove('is-solidified');
+      copy.classList.remove('is-crystallizing');
     }
     const textStage = $('.hero-text-stage');
     if (textStage) {
       textStage.classList.remove('is-dissolving');
+      textStage.style.removeProperty('--reveal-x');
     }
     maskRadius = 0; targetMaskRadius = 0;
+    stardustSparks = [];
     const hero = $('.hero');
     const heroRect = hero ? hero.getBoundingClientRect() : { left: 0, top: 0 };
-    // Re-scatter text particles if forced replay
     if (textParticles.length > 0) {
       textParticles.forEach(p => {
         p.dislodged = false;
+        p.dislodgedFactor = 0;
         if (force) {
           const angle = Math.random() * Math.PI * 2;
           const dist = (0.25 + 0.75 * Math.random()) * Math.max(vw, vh) * 0.7;
@@ -805,7 +894,7 @@
 
   function tick(now) {
     raf = 0;
-    if (now - lastFrame >= 1000 / 30) {
+    if (now - lastFrame >= 1000 / 60) {
       lastFrame = now;
       if (introStart) {
         const elapsed = now - introStart;
