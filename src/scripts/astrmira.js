@@ -2,6 +2,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
 import { createMotionQuality, nextFrameTime } from './motion-quality.js';
 import { createParticleGrid } from './particle-grid.js';
 import { mountArticleTocs } from './article-toc.js';
+import { mountPaperCarousels } from './paper-carousel.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -21,10 +22,13 @@ import { mountArticleTocs } from './article-toc.js';
   let paused = reduced.matches;
   try { paused = reduced.matches || sessionStorage.getItem('astrmira-motion') === 'paused'; } catch (_) { /* Sandboxed browsers may disable storage. */ }
   let disposeArticleTocs = () => {};
+  let disposePaperCarousels = () => {};
 
   function initPage({ focus = false } = {}) {
     disposeArticleTocs();
     disposeArticleTocs = mountArticleTocs(main, () => paused || reduced.matches);
+    disposePaperCarousels();
+    disposePaperCarousels = mountPaperCarousels(main, () => paused || reduced.matches);
     heroElement = $('.hero');
     heroCopy = $('.hero-copy');
     filterResearch = 'all'; queryY = 154; agentStage = 0; brief = '';
@@ -157,14 +161,14 @@ import { mountArticleTocs } from './article-toc.js';
   function filterResearchItems() {
     let count = 0;
     const term = ($('[data-research-search]')?.value || '').trim().toLocaleLowerCase();
-    $$('[data-research-directory] .research-item').forEach(item => {
-      const matchFilter = filterResearch === 'all' || item.dataset.theme === filterResearch;
+    $$('[data-research-directory] [data-research-item]').forEach(item => {
+      const matchFilter = filterResearch === 'all' || (item.dataset.theme || '').split(' ').includes(filterResearch);
       const matchSearch = (item.dataset.search || '').toLocaleLowerCase().includes(term);
       item.hidden = !(matchFilter && matchSearch); if (!item.hidden) count++;
     });
     $$('[data-research-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.researchFilter === filterResearch)));
     const empty = $('[data-empty-search]'); if (empty) empty.hidden = count > 0;
-    const output = $('[data-research-count]'); if (output) output.textContent = `${count} 个研究方向`;
+    const output = $('[data-research-count]'); if (output) output.textContent = `${count} 篇论文`;
   }
 
   // One delegated listener remains valid after single-file preview navigation.

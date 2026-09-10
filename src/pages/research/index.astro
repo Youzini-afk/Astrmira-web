@@ -1,10 +1,72 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import PaperCard from '../../components/PaperCard.astro';
+import ResearchLab from '../../components/ResearchLab.astro';
+import { papers } from '../../data/papers';
+const fields = [
+  ['databases', '数据库'], ['retrieval', '检索'], ['vectors', '向量'],
+  ['quantization', '量化'], ['post-training', '后训练'], ['mathematics', '数学'],
+];
 ---
 
-<Layout
-  title="Research · 研究方向 — Astrmira 幻梦星芒"
-  route="research"
->
-<div class="wrap"><section class="page-title"><p class="eyebrow">RESEARCH / FIELDS OF INQUIRY</p><h1>Questions<br><em>worth pursuing.</em></h1><p>在数据库、检索、向量、量化、后训练与数学之间，寻找值得认真回答的问题。</p></section><section class="directory-content" data-research-directory><div class="directory-toolbar"><div class="filters" aria-label="筛选研究方向"><button class="filter-button" data-research-filter="all" aria-pressed="true">全部</button><button class="filter-button" data-research-filter="systems" aria-pressed="false">数据与系统</button><button class="filter-button" data-research-filter="learning" aria-pressed="false">模型与计算</button><button class="filter-button" data-research-filter="theory" aria-pressed="false">数学基础</button></div><label><span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">搜索研究方向</span><input class="research-search" data-research-search placeholder="搜索研究方向…" type="search" aria-label="搜索研究方向"/></label></div><div class="research-grid"><a href="/research/databases/" data-route="research/databases" class="research-item" data-theme="systems" data-search="数据库 DATA SYSTEMS 关注数据组织、查询执行与系统设计，连接底层方法和真实工作负载。"><p class="eyebrow">DATA SYSTEMS</p><h2>数据库</h2><p>关注数据组织、查询执行与系统设计，连接底层方法和真实工作负载。</p><span class="arrow" aria-hidden="true">↗</span></a><a href="/research/retrieval/" data-route="research/retrieval" class="research-item" data-theme="systems" data-search="检索 INFORMATION RETRIEVAL 研究信息如何被发现、筛选与排序，让相关内容在合适的时刻可达。"><p class="eyebrow">INFORMATION RETRIEVAL</p><h2>检索</h2><p>研究信息如何被发现、筛选与排序，让相关内容在合适的时刻可达。</p><span class="arrow" aria-hidden="true">↗</span></a><a href="/research/vectors/" data-route="research/vectors" class="research-item" data-theme="systems" data-search="向量 VECTOR REPRESENTATIONS 围绕向量表示、相似性与搜索结构，探索数据空间中的可计算关系。"><p class="eyebrow">VECTOR REPRESENTATIONS</p><h2>向量</h2><p>围绕向量表示、相似性与搜索结构，探索数据空间中的可计算关系。</p><span class="arrow" aria-hidden="true">↗</span></a><a href="/research/quantization/" data-route="research/quantization" class="research-item" data-theme="learning" data-search="量化 QUANTIZATION 关注离散表示与资源约束下的计算，思考紧凑表达与信息保留。"><p class="eyebrow">QUANTIZATION</p><h2>量化</h2><p>关注离散表示与资源约束下的计算，思考紧凑表达与信息保留。</p><span class="arrow" aria-hidden="true">↗</span></a><a href="/research/post-training/" data-route="research/post-training" class="research-item" data-theme="learning" data-search="后训练 POST-TRAINING 围绕模型的后训练方法与评估，研究能力、行为与目标之间的联系。"><p class="eyebrow">POST-TRAINING</p><h2>后训练</h2><p>围绕模型的后训练方法与评估，研究能力、行为与目标之间的联系。</p><span class="arrow" aria-hidden="true">↗</span></a><a href="/research/mathematics/" data-route="research/mathematics" class="research-item" data-theme="theory" data-search="数学 MATHEMATICAL FOUNDATIONS 从定义、结构与推导出发，为研究中的问题寻找更清晰的表达。"><p class="eyebrow">MATHEMATICAL FOUNDATIONS</p><h2>数学</h2><p>从定义、结构与推导出发，为研究中的问题寻找更清晰的表达。</p><span class="arrow" aria-hidden="true">↗</span></a></div><p class="empty-search" data-empty-search hidden>没有匹配的研究方向。请尝试更简短的关键词。</p><p class="tiny-note" data-research-count style="margin-top:20px" aria-live="polite">6 个研究方向</p></section></div><section class="wrap"><div class="collaborate-block"><div><p class="eyebrow" style="margin-bottom:18px">LET’S ASK THE NEXT QUESTION</p><h2>下一个值得研究的问题，<br>也许来自你。</h2><p>数据库与智能系统 · 科研合作 · 高校联合研究<br>从一个真实的问题，开始一次有意义的合作。</p></div><a href="/collaborate/" data-route="collaborate" class="button button-primary" >开启一次对话 <span class="arrow">↗</span></a></div></section>
+<Layout title="Research · 研究与论文 — Astrmira 幻梦星芒" description="探索向量检索、表示几何与大模型量化。阅读 Astrmira 的研究论文、核心发现与开放原文。" route="research">
+  <div class="wrap">
+    <section class="page-title">
+      <p class="eyebrow">RESEARCH / PUBLICATIONS</p>
+      <h1>Questions.<br /><em>Evidence. Progress.</em></h1>
+      <p>从紧凑的搜索图，到表示背后的几何，再到大模型的离散优化。以论文记录问题、方法与发现，让研究可以被理解、检验与继续推进。</p>
+    </section>
+
+    <section class="directory-content" data-research-directory aria-label="研究论文">
+      <div class="directory-toolbar">
+        <div class="filters" aria-label="筛选论文">
+          <button class="filter-button" data-research-filter="all" aria-pressed="true">全部论文</button>
+          <button class="filter-button" data-research-filter="vectors" aria-pressed="false">向量检索</button>
+          <button class="filter-button" data-research-filter="llms" aria-pressed="false">大模型量化</button>
+          <button class="filter-button" data-research-filter="theory" aria-pressed="false">表示与理论</button>
+        </div>
+        <input class="research-search" data-research-search placeholder="搜索论文、作者或关键词…" type="search" aria-label="搜索论文、作者或关键词" />
+      </div>
+      <div class="publication-grid">
+        {papers.map(paper => <PaperCard paper={paper} headingLevel="h2" />)}
+      </div>
+      <p class="empty-search" data-empty-search hidden>没有找到匹配的论文，试试其他关键词或研究方向。</p>
+      <p class="publication-count" data-research-count aria-live="polite">{papers.length} 篇论文</p>
+    </section>
+
+    <section class="research-exploration" aria-labelledby="exploration-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">EXPLORE THE PRINCIPLES</p>
+          <h2 id="exploration-title">让原理，变得可见。</h2>
+          <p class="sub">移动一个查询点，改变表示位数，或跟随一次任务的执行。由动手探索，走近研究中的基本问题。</p>
+        </div>
+      </div>
+      <ResearchLab />
+      <nav class="research-fields topic-list" aria-label="浏览研究方向">
+        {fields.map(([slug, label]) => <a class="tag" href={`/research/${slug}/`} data-route={`research/${slug}`}>{label} <span aria-hidden="true">↗</span></a>)}
+      </nav>
+    </section>
+    <section class="research-contact">
+      <p>有值得一起追问的问题？</p>
+      <a href="/collaborate/" data-route="collaborate" class="text-link">与我们交流 <span class="arrow" aria-hidden="true">↗</span></a>
+    </section>
+  </div>
 </Layout>
+
+<style>
+  .publication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
+  .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
+  .research-exploration { padding: 70px 0; border-top: 1px solid var(--line); }
+  .research-fields { margin-top: 28px; }
+  .research-fields .tag:hover { color: var(--gold); border-color: var(--gold); }
+  .research-fields .tag span { margin-left: 8px; }
+  .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
+  .research-contact .text-link { margin-top: 0; }
+  @media (max-width: 720px) {
+    .publication-grid { grid-template-columns: 1fr; gap: 22px; }
+    .research-exploration { padding: 50px 0; }
+    .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; }
+  }
+</style>

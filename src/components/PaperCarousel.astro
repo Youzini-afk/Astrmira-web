@@ -1,0 +1,39 @@
+---
+import PaperCard from './PaperCard.astro';
+import { papers } from '../data/papers';
+---
+
+<div class="paper-carousel" data-paper-carousel>
+  <div id="home-paper-track" class="paper-track" data-paper-track role="region" aria-label="研究论文，可左右翻阅" tabindex="0">
+    {papers.map(paper => <PaperCard paper={paper} />)}
+  </div>
+  <div class="paper-carousel-bottom">
+    <span class="paper-carousel-note">向量检索 · 表示几何 · 大模型量化</span>
+    <div class="paper-carousel-controls" data-paper-controls hidden>
+      <span aria-hidden="true">左右翻阅</span>
+      <button type="button" data-paper-prev aria-label="查看前面的论文" aria-controls="home-paper-track" disabled>←</button>
+      <button type="button" data-paper-next aria-label="查看后面的论文" aria-controls="home-paper-track">→</button>
+    </div>
+  </div>
+  <p class="paper-carousel-status" data-paper-status aria-live="polite" aria-atomic="true"></p>
+</div>
+
+<style>
+  .paper-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 40px) / 3); gap: 20px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding-bottom: 12px; }
+  .paper-track :global(.paper-card) { scroll-snap-align: start; }
+  .paper-track:focus-visible { outline: 1px solid var(--gold); outline-offset: 5px; }
+  .paper-carousel-bottom { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .paper-carousel-note, .paper-carousel-controls > span { color: var(--faint); font-size: 11px; letter-spacing: .03em; }
+  .paper-carousel-controls { display: flex; align-items: center; gap: 9px; }
+  .paper-carousel-controls > span { margin-right: 9px; }
+  .paper-carousel-controls button { display: grid; place-items: center; width: 42px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--gold); cursor: pointer; font-size: 20px; transition: border-color .2s, background-color .2s; }
+  .paper-carousel-controls button:hover:enabled { border-color: var(--gold); background: #d6b8810a; }
+  .paper-carousel-controls button:disabled { opacity: .28; cursor: default; }
+  .paper-carousel-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  @media (max-width: 1050px) { .paper-track { grid-auto-columns: calc((100% - 20px) / 2); } }
+  @media (max-width: 720px) {
+    .paper-track { grid-auto-columns: 88%; gap: 16px; }
+    .paper-carousel-note { font-size: 10px; max-width: 150px; line-height: 1.8; }
+    .paper-carousel-controls > span { display: none; }
+  }
+</style>

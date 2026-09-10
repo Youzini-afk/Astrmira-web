@@ -1,0 +1,103 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PaperArtwork from '../../../components/PaperArtwork.astro';
+import { papers, arxivUrl, paperUrl, type Paper } from '../../../data/papers';
+
+export function getStaticPaths() {
+  return papers.map(paper => ({ params: { slug: paper.slug }, props: { paper } }));
+}
+
+interface Props { paper: Paper }
+const { paper } = Astro.props;
+const related = paper.related.map(slug => papers.find(item => item.slug === slug)!);
+const pdfUrl = `https://arxiv.org/pdf/${paper.arxiv}${paper.version}`;
+const fullTextUrl = `https://arxiv.org/html/${paper.arxiv}${paper.version}`;
+---
+
+<Layout title={`${paper.title} — Astrmira Research`} description={paper.summary} route={`research/papers/${paper.slug}`}>
+  <div class="wrap">
+    <section class="page-title paper-page-title">
+      <a href="/research/" data-route="research" class="paper-back">← 全部研究</a>
+      <p class="eyebrow">RESEARCH / {paper.category}</p>
+      <h1 class="zh-title">{paper.heading}</h1>
+      <p class="paper-full-title" lang="en">{paper.title}</p>
+      <p>{paper.summary}</p>
+      <div class="paper-actions">
+        <a class="button" href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer">arXiv 原文 <span aria-hidden="true">↗</span></a>
+        <a class="button button-quiet" href={pdfUrl} target="_blank" rel="noopener noreferrer">阅读 PDF <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <div class="article-layout">
+      <aside class="article-aside">
+        <p class="eyebrow">PAPER / {paper.version.toUpperCase()}</p>
+        <dl class="paper-metadata">
+          <div><dt>作者</dt><dd lang="en">{paper.authors.map(author => <span>{author}</span>)}</dd></div>
+          <div><dt>首次提交</dt><dd><time datetime={paper.submitted}>{paper.submitted.replaceAll('-', '.')}</time></dd></div>
+          {paper.updated !== paper.submitted && <div><dt>最近修订</dt><dd><time datetime={paper.updated}>{paper.updated.replaceAll('-', '.')}</time></dd></div>}
+          <div><dt>公开版本</dt><dd><a href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer">arXiv:{paper.arxiv} ↗</a><span>预印本</span></dd></div>
+        </dl>
+        <div class="topic-list">{paper.tags.map(tag => <span class="tag">{tag}</span>)}</div>
+      </aside>
+      <article class="article-content">
+        {paper.sections.map((section, index) => <>
+          <section>
+            <h2>{section.title}</h2>
+            {section.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+          </section>
+          {index === 0 && <figure class="article-visual paper-diagram">
+            <PaperArtwork kind={paper.artwork} />
+            <figcaption>{paper.caption}</figcaption>
+          </figure>}
+        </>)}
+        <section class="paper-source">
+          <h2>阅读与引用</h2>
+          <p>完整推导、实验设置和结果见论文原文。</p>
+          <div class="paper-source-links">
+            <a href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer">摘要与版本记录 ↗</a>
+            <a href={fullTextUrl} target="_blank" rel="noopener noreferrer">HTML 全文 ↗</a>
+            <a href={pdfUrl} target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          </div>
+          <p class="paper-citation" lang="en">{paper.authors.join(', ')}. {paper.title}. arXiv:{paper.arxiv}, 2026.</p>
+          {paper.slug === 'quiver' && <a href="/projects/data-systems/" data-route="projects/data-systems" class="text-link">走近相关系统：TriviumDB <span class="arrow" aria-hidden="true">↗</span></a>}
+        </section>
+        <nav class="related-papers" aria-label="相关论文">
+          <p class="eyebrow">CONTINUE READING</p>
+          {related.map(item => <a href={paperUrl(item)} data-route={`research/papers/${item.slug}`}><span>{item.heading}</span><span aria-hidden="true">↗</span></a>)}
+        </nav>
+      </article>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .paper-page-title { max-width: 1080px; }
+  .paper-back { display: inline-block; margin-bottom: 35px; color: var(--muted); font-size: 12px; }
+  .paper-back:hover { color: var(--gold); }
+  .paper-page-title .zh-title { font-size: clamp(30px, 4vw, 52px); line-height: 1.45; }
+  .paper-page-title .paper-full-title { max-width: 980px; font: 20px/1.6 var(--serif); color: #c1c8d2; }
+  .paper-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .paper-metadata { font-size: 12px; color: var(--muted); margin: 22px 0; }
+  .paper-metadata > div { margin-bottom: 17px; }
+  .paper-metadata dt { color: var(--faint); font-size: 10px; margin-bottom: 5px; }
+  .paper-metadata dd { margin: 0; line-height: 1.9; }
+  .paper-metadata dd span { display: block; }
+  .paper-metadata a:hover { color: var(--gold); }
+  .article-content > section + section { margin-top: 48px; }
+  .paper-diagram :global(svg) { height: 295px; }
+  .paper-diagram figcaption { text-align: center; font-size: 12px; line-height: 1.9; margin: 10px auto; max-width: 500px; }
+  .paper-source { padding-top: 10px; }
+  .paper-source-links { display: flex; gap: 24px; flex-wrap: wrap; color: var(--gold); font-size: 12px; }
+  .paper-citation { margin-top: 25px; padding: 22px; border-left: 1px solid var(--gold); background: #d6b88106; font-size: 12px; overflow-wrap: anywhere; }
+  .related-papers { margin-top: 55px; border-top: 1px solid var(--line); padding-top: 25px; }
+  .related-papers a { display: flex; justify-content: space-between; gap: 25px; padding: 15px 0; border-bottom: 1px solid var(--line); color: var(--text); }
+  .related-papers a:hover { color: var(--gold); }
+  @media (max-width: 720px) {
+    .paper-page-title .paper-full-title { font-size: 17px; }
+    .paper-back { margin-bottom: 25px; }
+    .paper-metadata { display: flex; flex-wrap: wrap; gap: 10px 25px; }
+    .paper-metadata > div { margin-bottom: 5px; }
+    .paper-diagram :global(svg) { height: 230px; }
+    .paper-diagram figcaption { font-size: 11px; }
+  }
+</style>
