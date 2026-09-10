@@ -300,6 +300,35 @@
     [108, 156, 196]  // cerulean brushstroke (#6c9cc4)
   ];
 
+  function calcTextParticleOrigPos(heroRect, relX, relY) {
+    const u = Math.random();
+    let ox, oy;
+    const heroLeft = heroRect ? heroRect.left : 0;
+    const heroTop = heroRect ? heroRect.top : 0;
+    const heroH = heroRect ? heroRect.height : vh;
+    if (u < 0.60) {
+      // Broad cosmic scatter across the full viewport from edge to edge
+      ox = Math.random() * vw;
+      oy = Math.random() * Math.max(vh, heroH);
+    } else if (u < 0.88) {
+      // Deep celestial orbit (120px to 450px out)
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 120 + Math.random() * 330;
+      ox = heroLeft + relX + Math.cos(angle) * dist;
+      oy = heroTop + relY + Math.sin(angle) * dist;
+    } else {
+      // Mid celestial field (60px to 160px)
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 60 + Math.random() * 100;
+      ox = heroLeft + relX + Math.cos(angle) * dist;
+      oy = heroTop + relY + Math.sin(angle) * dist;
+    }
+    return {
+      origX: clamp(ox, -40, vw + 40),
+      origY: clamp(oy, -30, vh + 30)
+    };
+  }
+
   function sampleTextParticles() {
     const hero = $('.hero');
     const copy = $('.hero-copy');
@@ -356,31 +385,28 @@
             const relX = startX + px;
             const relY = startY + py;
 
-            const angle = Math.random() * Math.PI * 2;
-            // Ethereal stardust constellation around each word (40px - 140px)
-            const dist = 40 + Math.random() * 95 + (Math.random() < 0.2 ? Math.random() * 65 : 0);
-            const origX = heroRect.left + relX + Math.cos(angle) * dist;
-            const origY = heroRect.top + relY + Math.sin(angle) * dist;
-
+            const { origX, origY } = calcTextParticleOrigPos(heroRect, relX, relY);
             const vanGoghRgb = VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)];
             // Guide stars vs secondary refining micro-particles
             const isPrimary = (points.length % 5 === 0) || (isTitle && (points.length % 3 === 0));
             const targetRadius = isTitle ? 1.0 : (isSmall ? 0.65 : 0.82);
+            // Coherent galactic swirl: based on initial position relative to hero center
+            const swirlDir = (origX < (heroRect.left + heroRect.width / 2)) ? 1 : -1;
 
             points.push({
               relX, relY,
               origX, origY,
-              x: isAlreadySolidified ? (heroRect.left + relX) : (isPrimary ? origX : (heroRect.left + relX + (origX - (heroRect.left + relX)) * 0.45)),
-              y: isAlreadySolidified ? (heroRect.top + relY) : (isPrimary ? origY : (heroRect.top + relY + (origY - (heroRect.top + relY)) * 0.45)),
+              x: isAlreadySolidified ? (heroRect.left + relX) : origX,
+              y: isAlreadySolidified ? (heroRect.top + relY) : origY,
               vx: isAlreadySolidified ? 0 : (Math.random() - 0.5) * 1.5,
               vy: isAlreadySolidified ? 0 : (Math.random() - 0.5) * 1.5,
               vanGoghRgb,
               targetColorRgb: targetRgb,
               targetAlpha: pixelAlpha,
               radius: targetRadius,
-              swirlDir: Math.random() < 0.5 ? 1 : -1,
+              swirlDir,
               baseAlpha: pixelAlpha,
-              glow: isPrimary ? 0.8 : 0,
+              glow: 0.5 + Math.random() * 0.4,
               isTitle,
               isSmall,
               isPrimary,
@@ -477,7 +503,7 @@
       starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const rand = seeded(7261);
       // Rich, deep celestial starfield across the entire background
-      const count = Math.min(420, Math.max(240, Math.round(vw * vh / 4200)));
+      const count = Math.min(480, Math.max(280, Math.round(vw * vh / 3600)));
       stars = Array.from({ length: count }, () => {
         const ox = rand() * vw, oy = rand() * vh;
         const depth = rand();
@@ -497,6 +523,9 @@
           vx: 0, vy: 0,
           r, o,
           p: rand() * 6.28,
+          wanderSpeed: 0.01 + rand() * 0.016,
+          wanderRadiusX: 4 + rand() * 8,
+          wanderRadiusY: 3 + rand() * 7,
           glow: 0,
           depth,
           isGold
@@ -555,6 +584,7 @@
     }
 
     if (immediate || paused) { starX = x; starY = y; }
+    else if (introStart) { starX = x; starY = y; }
     else { starX += (x - starX) * 0.12; starY += (y - starY) * 0.12; }
 
     if (companion) {
@@ -585,12 +615,12 @@
     if (introStart) {
       const elapsed = now - introStart;
       if (elapsed < INTRO_DURATION) {
-        // Celestial gravitational pull: 200ms to 1700ms
-        const gProg = clamp((elapsed - 200) / 1500, 0, 1);
+        // Celestial gravitational pull: 200ms to 2300ms
+        const gProg = clamp((elapsed - 200) / 2100, 0, 1);
         gravStrength = gProg * gProg * (3 - 2 * gProg);
 
-        // Progressive particle refinement & densification: 380ms to 2100ms
-        const rProg = clamp((elapsed - 380) / 1720, 0, 1);
+        // Progressive particle refinement & densification: 300ms to 2400ms
+        const rProg = clamp((elapsed - 300) / 2100, 0, 1);
         refineStrength = rProg * rProg * (3 - 2 * rProg);
       } else {
         introStart = 0;
@@ -629,46 +659,78 @@
       }
     }
 
-    // 1. Paint and perturb ambient background stars
+    // 1. Paint and perturb ambient background stars (living, drifting, disturbed by Mira star and cursor)
+    const starMovingSpeed = Math.hypot(starVx, starVy);
     for (const s of stars) {
-      const sDx = s.x - starX, sDy = s.y - starY;
-      const sDist = Math.hypot(sDx, sDy);
-      if (sDist < 190 && sDist > 1) {
-        const f = 1 - sDist / 190;
-        s.vx += (sDx / sDist) * f * 5.5 + (-sDy / sDist) * f * 3.5 + starVx * 0.14;
-        s.vy += (sDy / sDist) * f * 5.5 + (sDx / sDist) * f * 3.5 + starVy * 0.14;
-        s.glow = Math.min(1.0, s.glow + f * 1.5);
+      // Living subtle wander / micro-drift ("留在地方上，或者轻微运动，或者随机动动这样")
+      if (!paused) {
+        s.p += s.wanderSpeed || 0.014;
+        const targetWanderX = s.origX + Math.cos(s.p) * (s.wanderRadiusX || 6);
+        const targetWanderY = s.origY + Math.sin(s.p * 0.82 + s.depth) * (s.wanderRadiusY || 5);
+        s.vx += (targetWanderX - s.x) * 0.022;
+        s.vy += (targetWanderY - s.y) * 0.022;
       }
 
+      // Dynamic perturbation by the passing Mira star ("那个星星扰动其他星星的效果")
+      const sDx = s.x - starX, sDy = s.y - starY;
+      const sDist = Math.hypot(sDx, sDy);
+      const miraRepelDist = 260;
+      if (sDist < miraRepelDist && sDist > 1) {
+        const f = Math.pow(1 - sDist / miraRepelDist, 1.6);
+        const push = f * (9.0 + starMovingSpeed * 0.45);
+        const swirl = f * 7.0;
+        s.vx += (sDx / sDist) * push + (-sDy / sDist) * swirl + starVx * f * 0.42;
+        s.vy += (sDy / sDist) * push + (sDx / sDist) * swirl + starVy * f * 0.42;
+        s.glow = Math.min(1.0, s.glow + f * 1.8);
+      }
+
+      // Cursor perturbation
       if (mouseX > -1000) {
         const mDx = s.x - mouseX, mDy = s.y - mouseY;
         const mDist = Math.hypot(mDx, mDy);
-        if (mDist < 100 && mDist > 1) {
-          const mf = 1 - mDist / 100;
-          s.vx += (mDx / mDist) * mf * 4 + mouseVx * 0.1;
-          s.vy += (mDy / mDist) * mf * 4 + mouseVy * 0.1;
-          s.glow = Math.min(1.0, s.glow + mf * 0.4);
+        if (mDist < 120 && mDist > 1) {
+          const mf = Math.pow(1 - mDist / 120, 1.5);
+          s.vx += (mDx / mDist) * mf * 5.5 + mouseVx * 0.16;
+          s.vy += (mDy / mDist) * mf * 5.5 + mouseVy * 0.16;
+          s.glow = Math.min(1.0, s.glow + mf * 0.5);
         }
       }
 
-      s.vx += (s.origX - s.x) * 0.035;
-      s.vy += (s.origY - s.y) * 0.035;
-      s.vx *= 0.86; s.vy *= 0.86;
+      s.vx *= 0.91; s.vy *= 0.91;
       s.x += s.vx; s.y += s.vy;
-      s.glow *= 0.94;
+      s.glow *= 0.93;
 
       const twinkle = paused ? 1 : (0.76 + 0.24 * Math.sin(now / (2600 + s.p * 300) + s.p)) + s.glow * 0.4;
       const alpha = clamp(s.o * twinkle, 0, 1);
       starCtx.beginPath();
-      starCtx.arc(s.x + pointerX * (0.05 + s.depth * 0.1), s.y + pointerY * (0.05 + s.depth * 0.1), s.r * (1 + s.glow * 0.3), 0, Math.PI * 2);
+      starCtx.arc(s.x + pointerX * (0.05 + s.depth * 0.1), s.y + pointerY * (0.05 + s.depth * 0.1), s.r * (1 + s.glow * 0.35), 0, Math.PI * 2);
       starCtx.fillStyle = s.isGold ? `rgba(238, 215, 172, ${alpha})` : `rgba(176, 202, 230, ${alpha})`;
       starCtx.fill();
 
-      if (s.glow > 0.4 || (s.depth > 0.92 && alpha > 0.6)) {
+      if (s.glow > 0.35 || (s.depth > 0.90 && alpha > 0.6)) {
         starCtx.beginPath();
-        starCtx.arc(s.x, s.y, s.r * 0.4, 0, Math.PI * 2);
-        starCtx.fillStyle = `rgba(255, 252, 240, ${clamp(alpha * 0.9, 0, 1)})`;
+        starCtx.arc(s.x, s.y, s.r * 0.45, 0, Math.PI * 2);
+        starCtx.fillStyle = `rgba(255, 252, 240, ${clamp(alpha * 0.95, 0, 1)})`;
         starCtx.fill();
+      }
+    }
+
+    // Mira star cometary stardust wake trail
+    if (starMovingSpeed > 0.6 && (introStart || !companion?.classList.contains('is-docked'))) {
+      const sparkCount = Math.min(3, Math.floor(starMovingSpeed * 0.55) + 1);
+      for (let k = 0; k < sparkCount; k++) {
+        const spAngle = Math.random() * Math.PI * 2;
+        const spDist = Math.random() * 22;
+        stardustSparks.push({
+          x: starX + Math.cos(spAngle) * spDist,
+          y: starY + Math.sin(spAngle) * spDist,
+          vx: -starVx * 0.25 + (Math.random() - 0.5) * 2.2,
+          vy: -starVy * 0.25 + (Math.random() - 0.5) * 2.2,
+          size: 0.8 + Math.random() * 1.3,
+          life: 1.0,
+          decay: 0.022 + Math.random() * 0.022,
+          rgb: VAN_GOGH_PALETTE[Math.floor(Math.random() * VAN_GOGH_PALETTE.length)]
+        });
       }
     }
 
@@ -681,8 +743,6 @@
     );
 
     let dislodgedCount = 0;
-    let maxDislodgedDist = 0;
-    let sumDislodgedX = 0, sumDislodgedY = 0;
 
     if (textParticles.length > 0) {
       for (const p of textParticles) {
@@ -693,10 +753,20 @@
         const distToHome = Math.hypot(toHomeX, toHomeY);
 
         if (!isSolidified) {
-          // Celestial gravity pulling each particle directly into its glyph slot
-          const pull = Math.min(distToHome * 0.12, 13.0) * (0.18 + 0.82 * gravStrength);
-          const swirlDistFactor = clamp((distToHome - 10) / 32, 0, 1);
-          const swirl = Math.min(distToHome * 0.024, 2.8) * (1 - gravStrength * 0.82) * p.swirlDir * swirlDistFactor;
+          // Dynamic wake disturbance by the passing Mira star on text particles!
+          const pStarDx = p.x - starX, pStarDy = p.y - starY;
+          const pStarDist = Math.hypot(pStarDx, pStarDy);
+          if (pStarDist < 240 && pStarDist > 1) {
+            const pf = Math.pow(1 - pStarDist / 240, 1.5);
+            p.vx += (pStarDx / pStarDist) * pf * 9.0 + (-pStarDy / pStarDist) * pf * 5.5 + starVx * pf * 0.38;
+            p.vy += (pStarDy / pStarDist) * pf * 9.0 + (pStarDx / pStarDist) * pf * 5.5 + starVy * pf * 0.38;
+            p.glow = Math.min(1.0, p.glow + pf * 1.6);
+          }
+
+          // Celestial gravity pulling each particle from across the whole cosmos into its glyph slot
+          const pull = Math.min(distToHome * 0.088, 14.0) * (0.15 + 0.85 * gravStrength);
+          const swirlDistFactor = clamp((distToHome - 12) / 36, 0, 1);
+          const swirl = Math.min(distToHome * 0.022, 3.0) * (1 - gravStrength * 0.78) * p.swirlDir * swirlDistFactor;
           if (distToHome > 0.3) {
             p.vx += (toHomeX / distToHome) * pull + (-toHomeY / distToHome) * swirl;
             p.vy += (toHomeY / distToHome) * pull + (toHomeX / distToHome) * swirl;
@@ -705,9 +775,10 @@
           p.vx *= damp; p.vy *= damp;
           p.x += p.vx; p.y += p.vy;
 
-          if (distToHome < 1.4 && gravStrength > 0.85) {
+          if (distToHome < 1.2 && gravStrength > 0.85) {
             p.x = homeX; p.y = homeY;
             p.vx = 0; p.vy = 0;
+            p.settled = true;
           }
           p.glow *= 0.92;
         } else {
@@ -770,9 +841,6 @@
     // 3. Render Typography Particles (Direct Native Particle Rendering)
     if (textParticles.length > 0) {
       for (const p of textParticles) {
-        // If intro is ongoing and secondary particle hasn't emerged yet, skip
-        if (introStart && !p.isPrimary && refineStrength <= 0.04) continue;
-
         // 1. Color transformation (Van Gogh -> Typography color)
         let rgb;
         if (isSolidified) {
@@ -794,11 +862,10 @@
         // 2. Progressive alpha
         let alpha = p.targetAlpha || 1.0;
         if (introStart) {
-          if (!p.isPrimary) {
-            const elapsed = now - introStart;
-            const secAlpha = clamp((elapsed - 380) / 950, 0, 1);
-            alpha *= secAlpha;
-          }
+          // Twinkle naturally in deep celestial space; smoothly condense into font antialiasing alpha
+          const twinkle = 0.72 + 0.28 * Math.sin(now / 1600 + p.origX);
+          const starAlpha = clamp((0.36 + p.targetAlpha * 0.64) * twinkle, 0, 1.0);
+          alpha = starAlpha + (p.targetAlpha - starAlpha) * gravStrength;
           alpha = clamp(alpha + p.glow * 0.35, 0, 1.0);
         } else if (p.dislodged) {
           alpha = clamp(alpha + p.glow * 0.35, 0, 1.0);
@@ -900,26 +967,23 @@
         p.dislodged = false;
         p.dislodgedFactor = 0;
         if (force) {
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 40 + Math.random() * 95 + (Math.random() < 0.2 ? Math.random() * 65 : 0);
-          p.origX = heroRect.left + p.relX + Math.cos(angle) * dist;
-          p.origY = heroRect.top + p.relY + Math.sin(angle) * dist;
+          const { origX, origY } = calcTextParticleOrigPos(heroRect, p.relX, p.relY);
+          p.origX = origX;
+          p.origY = origY;
+          p.swirlDir = (origX < (heroRect.left + heroRect.width / 2)) ? 1 : -1;
         }
-        if (p.isPrimary) {
-          p.x = p.origX;
-          p.y = p.origY;
-        } else {
-          p.x = heroRect.left + p.relX + (p.origX - (heroRect.left + p.relX)) * 0.45;
-          p.y = heroRect.top + p.relY + (p.origY - (heroRect.top + p.relY)) * 0.45;
-        }
+        p.x = p.origX;
+        p.y = p.origY;
         p.vx = (Math.random() - 0.5) * 1.5;
         p.vy = (Math.random() - 0.5) * 1.5;
-        p.glow = p.isPrimary ? 0.8 : 0;
+        p.glow = 0.5 + Math.random() * 0.4;
       });
     }
     introStart = performance.now();
     setPhase('pigment');
     placeStar(true, introStart);
+    prevStarX = starX;
+    prevStarY = starY;
   }
 
   function tick(now) {
@@ -1009,7 +1073,7 @@
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
-      sampleTextParticles();
+      if (!introStart) sampleTextParticles();
     });
   }
 })();
