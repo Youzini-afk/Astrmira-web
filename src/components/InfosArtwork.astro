@@ -1,0 +1,37 @@
+---
+interface Props { decorative?: boolean; }
+const { decorative = true } = Astro.props;
+const resources = [
+  { x: 67, y: 73, label: 'IDENTITY', labelY: 48 },
+  { x: 313, y: 73, label: 'MEMORY', labelY: 48 },
+  { x: 67, y: 193, label: 'CONTEXT', labelY: 224 },
+  { x: 313, y: 193, label: 'TOOLS', labelY: 224 }
+];
+---
+
+<svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : 'infOS 运行时连接人格、长期记忆、上下文与工具能力。'}>
+  <g stroke="#91b9d5" stroke-width=".7">
+    <path d="M22 225H358M190 30V225" stroke-opacity=".1" />
+    <ellipse cx="190" cy="134" rx="135" ry="70" stroke-opacity=".16" stroke-dasharray="2 7" />
+    <path d="M77 77L107 92M303 77L273 92M77 189L107 174M303 189L273 174" stroke-opacity=".45" />
+    <rect x="105" y="70" width="170" height="126" rx="5" stroke-opacity=".36" />
+    <path d="M105 89H275" stroke-opacity=".24" />
+    <path d="M151 184H229" stroke-opacity=".18" />
+  </g>
+  <g fill="#91b9d5" opacity=".45">
+    <circle cx="117" cy="80" r="1.3" /><circle cx="125" cy="80" r="1.3" /><circle cx="133" cy="80" r="1.3" />
+  </g>
+  <path d="M190 132C170 102 138 99 124 120C103 151 152 173 190 132C228 91 277 113 256 144C242 165 210 162 190 132Z"
+    stroke="#d6b881" stroke-opacity=".75" stroke-width="1" />
+  <path d="M190 127C168 102 144 107 132 122C116 147 152 158 190 127C228 96 264 107 248 132C236 150 213 152 190 127Z"
+    stroke="#91b9d5" stroke-opacity=".18" stroke-width=".7" />
+  <circle cx="190" cy="132" r="3" fill="#d6b881" />
+  {resources.map(({ x, y, label, labelY }, i) => <g>
+    <circle cx={x} cy={y} r="9" fill="#0d131d" stroke="#91b9d5" stroke-opacity=".5" stroke-width=".7" />
+    <circle cx={x} cy={y} r={i === 1 ? 2.8 : 1.8} fill={i === 1 ? '#d6b881' : '#91b9d5'} opacity=".8" />
+    {!decorative && <text x={x} y={labelY} text-anchor="middle" fill="#91a5b9" font-family="monospace" font-size="8" letter-spacing="1">{label}</text>}
+  </g>)}
+  <text x="190" y="180" text-anchor="middle" fill="#d6b881" font-family="monospace" font-size="11" letter-spacing="1.5">infOS</text>
+</svg>
