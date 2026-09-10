@@ -1,4 +1,4 @@
-import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrail } from './comet-path.js';
+import { createCometPath, setCometDock, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrail } from './comet-path.js';
 import { createMotionQuality, nextFrameTime } from './motion-quality.js';
 import { createParticleGrid } from './particle-grid.js';
 import { mountArticleTocs } from './article-toc.js';
@@ -42,6 +42,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
     drawQuant(3); drawAgent(); updateMotionButtons();
     if (focus) main?.focus({ preventScroll: true });
     prepareHeroTail();
+    observeCometDock();
     updateStarTarget();
   }
 
@@ -290,6 +291,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
   let exitWheelHeld = false, lastExitWheel = -Infinity;
   let heroContentOpacity = 1;
   let cometPath = null, cometParam = null, cometUpdatedAt = null;
+  let cometDockElement = null, cometDockSurface = null, cometDockObserver = null;
   let cometHasDeparted = false;
   let cometStrands = [];
   let cometTrail = createCometTrail(Math.hypot(innerWidth, innerHeight) * .82);
@@ -848,10 +850,43 @@ import { mountPaperCarousels } from './paper-carousel.js';
     }
     renderStrands = cometStrands.filter((_, i) => i % quality.strandStep === 0);
     cometPath = createCometPath(opening, { width: document.documentElement.clientWidth, height: vh, heroBottom: rect ? rect.bottom + window.scrollY : 0 });
+    cometDockElement = $('[data-comet-dock]');
+    cometDockSurface = cometDockElement?.closest('.origin-art');
+    refreshCometDock();
     cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
     cometParam = null;
     cometUpdatedAt = null;
     cometHasDeparted = window.scrollY > 0;
+  }
+
+  function refreshCometDock() {
+    if (!cometPath || !cometDockElement) return false;
+    const rect = cometDockElement.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+    const destination = {
+      x: rect.left + rect.width / 2 + window.scrollX,
+      y: rect.top + rect.height / 2 + window.scrollY,
+      // The companion core has radius 66 in its 400-unit SVG viewBox.
+      scale: rect.width / 2 / ((companion?.offsetWidth || 370) * 66 / 400)
+    };
+    const previous = cometPath.dock;
+    if (previous && Math.abs(previous.x - destination.x) < .1 && Math.abs(previous.y - destination.y) < .1 && Math.abs(previous.scale - destination.scale) < .001) return false;
+    setCometDock(cometPath, destination);
+    return true;
+  }
+
+  function observeCometDock() {
+    cometDockObserver?.disconnect();
+    if (!cometDockElement) return;
+    // Remeasure only when content or the illustration changes size, not on
+    // every animation frame. This also covers fonts and responsive reflow.
+    cometDockObserver = new ResizeObserver(() => {
+      if (!refreshCometDock()) return;
+      cometParam = cometUpdatedAt = null;
+      if (paused) { placeStar(true); paintParticlesAndStars(performance.now()); }
+    });
+    cometDockObserver.observe(main);
+    cometDockObserver.observe(cometDockElement.ownerSVGElement);
   }
 
   function revealHeroTail(points, feather) {
@@ -880,18 +915,20 @@ import { mountPaperCarousels } from './paper-carousel.js';
     const hero = heroElement;
     frameHeroRect = hero?.getBoundingClientRect() || null;
     const previous = cometParam;
-    const desired = cometPath.heroLength + Math.max(0, window.scrollY);
+    const desired = Math.min(cometPath.dock?.end ?? Infinity, cometPath.heroLength + Math.max(0, window.scrollY));
     if (introStart) cometParam = cometPath.heroLength * smoothstep((now - introStart - 200) / 3300);
     else if (heroDeparture) cometParam = heroDeparture.cometFrom + (cometPath.heroLength + heroDeparture.destination - heroDeparture.cometFrom) * heroDeparture.progress;
     else if (immediate || paused || cometUpdatedAt === null) cometParam = desired;
     else cometParam += (desired - cometParam) * (1 - Math.exp(-Math.max(0, now - cometUpdatedAt) / 110));
+    if (desired === cometPath.dock?.end && Math.abs(desired - cometParam) < .05) cometParam = desired;
     cometUpdatedAt = now;
     cometWorld = cometPoint(cometPath, cometParam);
     targetX = cometWorld.x - window.scrollX;
     targetY = cometWorld.y - window.scrollY;
     if (previous === null || immediate) {
       cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
-      recordCometMotion(cometTrail, cometPath, Math.max(0, cometParam - cometTrail.maxLength), cometParam, now);
+      const from = cometWorld.docking === 1 ? cometParam : Math.max(0, cometParam - cometTrail.maxLength);
+      recordCometMotion(cometTrail, cometPath, from, cometParam, now);
     } else recordCometMotion(cometTrail, cometPath, previous, cometParam, now);
     if (!introStart && window.scrollY > 0) cometHasDeparted = true;
     let progress = 1;
@@ -907,10 +944,15 @@ import { mountPaperCarousels } from './paper-carousel.js';
       const blend = smoothstep(progress);
       const depth = (cometWorld.depth + 1) / 2;
       const scale = (vw < 720 ? .35 : .4) + depth * .15;
+      const docking = cometWorld.docking || 0;
+      const flyingScale = .72 + (scale - .72) * blend;
+      const flyingOpacity = .9 + (.42 + depth * .38 - .9) * blend;
       companion.classList.add('has-comet-motion');
-      companion.classList.remove('is-docked');
-      companion.style.setProperty('--companion-opacity', (.9 + (.42 + depth * .38 - .9) * blend).toFixed(3));
-      companion.style.setProperty('--companion-scale', (.72 + (scale - .72) * blend).toFixed(3));
+      companion.classList.toggle('is-docked', docking === 1);
+      companion.style.setProperty('--companion-opacity', (flyingOpacity + (.95 - flyingOpacity) * docking).toFixed(3));
+      companion.style.setProperty('--companion-scale', (flyingScale + ((cometPath.dock?.scale ?? flyingScale) - flyingScale) * docking).toFixed(3));
+      companion.style.setProperty('--companion-dock', docking.toFixed(3));
+      cometDockSurface?.style.setProperty('--comet-dock', docking.toFixed(3));
     }
   }
 

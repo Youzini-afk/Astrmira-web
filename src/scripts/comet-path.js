@@ -1,5 +1,6 @@
 const mix = (a, b, t) => a + (b - a) * t;
 const smooth = t => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
+const smoother = t => t * t * t * (t * (t * 6 - 15) + 10);
 
 function between(a, b, t) {
   return {
@@ -23,7 +24,7 @@ function sample(points, param) {
 
 // All positions are document coordinates. After the opening, the parameter
 // advances vertically with the page rather than counting viewport revolutions.
-export function createCometPath(opening, { width, height, heroBottom = 0 }) {
+export function createCometPath(opening, { width, height, heroBottom = 0, dock = null }) {
   const margin = Math.max(30, width * .065);
   const right = width - margin;
   let length = 0;
@@ -51,21 +52,39 @@ export function createCometPath(opening, { width, height, heroBottom = 0 }) {
       bridge.push({ x, y, param: length + y - anchor.y, depth: 1 - smooth(t) });
     }
   }
-  return {
+  const path = {
     entry, bridge, heroLength: length, join: length + heroBottom,
     focusY: anchor.y, centerX: width / 2, radius: width / 2 - margin,
-    pitch: height * 2.6
+    pitch: height * 2.6, height
   };
+  setCometDock(path, dock);
+  return path;
+}
+
+export function setCometDock(path, destination) {
+  path.dock = null;
+  if (!destination) return;
+  // Start steering before the destination enters view, and arrive near the
+  // reading area before its title passes the screen centre. The destination
+  // itself stays in document space.
+  const end = path.heroLength + destination.y - path.height * .62;
+  const start = Math.max(path.join, end - path.height * 1.15);
+  if (end > start) path.dock = { ...destination, start, end };
 }
 
 export function cometPoint(path, param) {
   if (param <= path.heroLength) return sample(path.entry, param);
   if (param <= path.join) return sample(path.bridge, param);
+  const dock = path.dock;
+  if (dock && param >= dock.end) return { x: dock.x, y: dock.y, depth: 1, param: dock.end, docking: 1 };
   const angle = (param - path.join) / path.pitch * Math.PI * 2;
+  // A quintic blend preserves position, tangent and curvature at entry, then
+  // brings document-space velocity to zero. Reverse scrolling retraces it.
+  const docking = dock && param > dock.start ? smoother((param - dock.start) / (dock.end - dock.start)) : 0;
   return {
-    x: path.centerX + path.radius * Math.cos(angle),
-    y: path.focusY + param - path.heroLength,
-    depth: Math.sin(angle), param
+    x: mix(path.centerX + path.radius * Math.cos(angle), dock?.x ?? 0, docking),
+    y: mix(path.focusY + param - path.heroLength, dock?.y ?? 0, docking),
+    depth: mix(Math.sin(angle), 1, docking), param, docking
   };
 }
 
@@ -80,13 +99,17 @@ function prune(trail) {
 }
 
 export function recordCometMotion(trail, path, from, to, now) {
+  // Scrolling past the destination is not new motion: don't create stationary
+  // trail samples or reset the fade clock while the star is parked.
+  if (path.dock) { from = Math.min(from, path.dock.end); to = Math.min(to, path.dock.end); }
   if (!trail.points.length) {
     trail.points.push({ ...cometPoint(path, from), distance: trail.distance });
     trail.lastMotion = now;
   }
   // Always record the shared endpoints, even when one frame crosses a join.
   // Both renderers must meet at the exact anchor rather than nearby samples.
-  const joins = [...new Set([path.heroLength, path.join])]
+  const anchors = [...new Set([path.heroLength, path.join, ...(path.dock ? [path.dock.start, path.dock.end] : [])])];
+  const joins = anchors
     .filter(param => param > Math.min(from, to) && param < Math.max(from, to));
   if (to < from) joins.reverse();
   const stops = [from, ...joins, to];
@@ -98,7 +121,7 @@ export function recordCometMotion(trail, path, from, to, now) {
       const point = cometPoint(path, param);
       const last = trail.points[trail.points.length - 1];
       const distance = Math.hypot(point.x - last.x, point.y - last.y);
-      if (distance < .5 && param !== path.heroLength && param !== path.join) continue;
+      if (distance < .5 && !anchors.includes(param)) continue;
       if (!distance) continue;
       trail.distance += distance;
       trail.points.push({ ...point, distance: trail.distance });
