@@ -1,6 +1,7 @@
 import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrail } from './comet-path.js';
 import { createMotionQuality, nextFrameTime } from './motion-quality.js';
 import { createParticleGrid } from './particle-grid.js';
+import { mountArticleTocs } from './article-toc.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -19,8 +20,11 @@ import { createParticleGrid } from './particle-grid.js';
   let copiedTimer;
   let paused = reduced.matches;
   try { paused = reduced.matches || sessionStorage.getItem('astrmira-motion') === 'paused'; } catch (_) { /* Sandboxed browsers may disable storage. */ }
+  let disposeArticleTocs = () => {};
 
   function initPage({ focus = false } = {}) {
+    disposeArticleTocs();
+    disposeArticleTocs = mountArticleTocs(main, () => paused || reduced.matches);
     heroElement = $('.hero');
     heroCopy = $('.hero-copy');
     filterResearch = 'all'; queryY = 154; agentStage = 0; brief = '';
