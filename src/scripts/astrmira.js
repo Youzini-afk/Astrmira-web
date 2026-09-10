@@ -279,6 +279,7 @@
   const starCanvas = $('#starfield');
   const starCtx = starCanvas?.getContext('2d');
   let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
+  let textOriginX = 0, textOriginY = 0;
   let stardustSparks = [];
   const INTRO_DURATION = 2800;
 
@@ -336,6 +337,8 @@
 
     const isAlreadySolidified = copy.classList.contains('is-solidified');
     const heroRect = hero.getBoundingClientRect();
+    textOriginX = heroRect.left;
+    textOriginY = heroRect.top;
     const points = [];
 
     function sampleTextLine(text, style, targetCenterX, targetCenterY, targetRgb, isTitle = false, fontStyleOverride = null) {
@@ -606,6 +609,17 @@
     const heroLeft = heroRect ? heroRect.left : 0;
     const heroTop = heroRect ? heroRect.top : 0;
 
+    // The canvas is fixed to the viewport; carry text with its hero on scroll,
+    // including particles currently displaced by the pointer or intro.
+    const textShiftX = heroLeft - textOriginX;
+    const textShiftY = heroTop - textOriginY;
+    for (const p of textParticles) {
+      p.x += textShiftX;
+      p.y += textShiftY;
+    }
+    textOriginX = heroLeft;
+    textOriginY = heroTop;
+
     const copy = $('.hero-copy');
     const textStage = $('.hero-text-stage');
     const stageRect = textStage ? textStage.getBoundingClientRect() : null;
@@ -650,10 +664,13 @@
     // Guaranteed settled state when page is solidified and not in intro
     if (isSolidified && !introStart) {
       for (const p of textParticles) {
-        if (!p.dislodged && !p.settled) {
+        if (paused || (!p.dislodged && !p.settled)) {
           p.x = heroLeft + p.relX;
           p.y = heroTop + p.relY;
           p.settled = true;
+          p.dislodged = false;
+          p.dislodgedFactor = 0;
+          p.glow = 0;
           p.vx = 0; p.vy = 0;
         }
       }
@@ -675,7 +692,7 @@
       const sDx = s.x - starX, sDy = s.y - starY;
       const sDist = Math.hypot(sDx, sDy);
       const miraRepelDist = 260;
-      if (sDist < miraRepelDist && sDist > 1) {
+      if (!paused && sDist < miraRepelDist && sDist > 1) {
         const f = Math.pow(1 - sDist / miraRepelDist, 1.6);
         const push = f * (9.0 + starMovingSpeed * 0.45);
         const swirl = f * 7.0;
@@ -685,7 +702,7 @@
       }
 
       // Cursor perturbation
-      if (mouseX > -1000) {
+      if (!paused && mouseX > -1000) {
         const mDx = s.x - mouseX, mDy = s.y - mouseY;
         const mDist = Math.hypot(mDx, mDy);
         if (mDist < 120 && mDist > 1) {
@@ -696,9 +713,11 @@
         }
       }
 
-      s.vx *= 0.91; s.vy *= 0.91;
-      s.x += s.vx; s.y += s.vy;
-      s.glow *= 0.93;
+      if (!paused) {
+        s.vx *= 0.91; s.vy *= 0.91;
+        s.x += s.vx; s.y += s.vy;
+        s.glow *= 0.93;
+      }
 
       const twinkle = paused ? 1 : (0.76 + 0.24 * Math.sin(now / (2600 + s.p * 300) + s.p)) + s.glow * 0.4;
       const alpha = clamp(s.o * twinkle, 0, 1);
@@ -716,7 +735,7 @@
     }
 
     // Mira star cometary stardust wake trail
-    if (starMovingSpeed > 0.6 && (introStart || !companion?.classList.contains('is-docked'))) {
+    if (!paused && starMovingSpeed > 0.6 && (introStart || !companion?.classList.contains('is-docked'))) {
       const sparkCount = Math.min(3, Math.floor(starMovingSpeed * 0.55) + 1);
       for (let k = 0; k < sparkCount; k++) {
         const spAngle = Math.random() * Math.PI * 2;
@@ -784,7 +803,7 @@
         } else {
           // Solidified state: direct particle interaction and local disintegration
           let mDist = 9999;
-          if (mouseX > -1000) {
+          if (!paused && mouseX > -1000) {
             const mDx = p.x - mouseX;
             const mDy = p.y - mouseY;
             mDist = Math.hypot(mDx, mDy);
@@ -902,7 +921,7 @@
     }
 
     // 4. Stardust emission & rendering on disintegration
-    if (isSolidified && dislodgedCount > 0) {
+    if (!paused && isSolidified && dislodgedCount > 0) {
       const mSpeed = Math.hypot(mouseVx, mouseVy);
       if (mSpeed > 0.6) {
         const count = Math.min(2, Math.floor(mSpeed * 0.5) + 1);
@@ -927,9 +946,11 @@
     if (stardustSparks.length > 0) {
       for (let i = stardustSparks.length - 1; i >= 0; i--) {
         const sp = stardustSparks[i];
-        sp.x += sp.vx; sp.y += sp.vy;
-        sp.vx *= 0.91; sp.vy *= 0.91;
-        sp.life -= sp.decay;
+        if (!paused) {
+          sp.x += sp.vx; sp.y += sp.vy;
+          sp.vx *= 0.91; sp.vy *= 0.91;
+          sp.life -= sp.decay;
+        }
         if (sp.life <= 0) {
           stardustSparks.splice(i, 1);
           continue;
@@ -961,6 +982,8 @@
     stardustSparks = [];
     const hero = $('.hero');
     const heroRect = hero ? hero.getBoundingClientRect() : { left: 0, top: 0 };
+    textOriginX = heroRect.left;
+    textOriginY = heroRect.top;
     if (textParticles.length > 0) {
       textParticles.forEach(p => {
         p.settled = false;
@@ -1007,7 +1030,7 @@
   function startLoop() {
     if (raf) cancelAnimationFrame(raf); raf = 0;
     if (!document.hidden) {
-      if (paused) { paintParticlesAndStars(performance.now()); placeStar(true); }
+      if (paused) { placeStar(true); paintParticlesAndStars(performance.now()); }
       else raf = requestAnimationFrame(tick);
     }
   }
@@ -1042,7 +1065,10 @@
   });
 
   window.addEventListener('scroll', () => {
-    if (paused) placeStar(true);
+    if (paused) {
+      placeStar(true);
+      paintParticlesAndStars(performance.now());
+    }
   }, { passive: true });
 
   let resizeTimer;
