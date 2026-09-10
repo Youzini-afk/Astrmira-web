@@ -272,6 +272,9 @@
   let drawVolume = null;
   const companion = $('.mira-object');
   let heroTail = null;
+  let heroDeparture = null, heroDepartureRaf = 0;
+  let exitWheelHeld = false, lastExitWheel = -Infinity;
+  let heroContentOpacity = 1;
   let introStart = 0, raf = 0, lastFrame = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
@@ -717,25 +720,103 @@
 
   function updateStarTarget() {
     const hero = $('.hero');
+    const dockX = vw - (vw < 720 ? 9 : 34);
+    const dockY = Math.min(vh * .3, 240);
     if (hero) {
       const rect = hero.getBoundingClientRect();
-      if (rect.bottom > 130) {
-        const anchor = heroStarAnchor(rect);
-        targetX = anchor.x;
-        targetY = anchor.y;
-        companion?.classList.remove('is-docked');
-        return;
+      const progress = clamp(window.scrollY / Math.max(1, rect.bottom + window.scrollY), 0, 1);
+      const blend = smoothstep(progress);
+      heroContentOpacity = paused ? 1 : 1 - smoothstep((progress - .08) / .76);
+      hero.style.setProperty('--hero-exit-opacity', heroContentOpacity.toFixed(3));
+      if (companion) {
+        companion.classList.add('has-scroll-docking');
+        companion.classList.toggle('is-docked', progress === 1);
+        companion.style.setProperty('--star-dock-opacity', (.9 - .56 * blend).toFixed(3));
+        companion.style.setProperty('--star-dock-scale', (.72 - .32 * blend).toFixed(3));
       }
+      const anchor = heroStarAnchor(rect);
+      const fromX = heroDeparture ? heroDeparture.starX : anchor.x;
+      const fromY = heroDeparture ? heroDeparture.starY : anchor.y + window.scrollY;
+      const travel = heroDeparture ? heroDeparture.progress : blend;
+      targetX = fromX + (dockX - fromX) * travel;
+      targetY = fromY + (dockY - fromY) * travel;
+      return;
     }
+    heroContentOpacity = 1;
+    companion?.classList.remove('has-scroll-docking');
     companion?.classList.add('is-docked');
-    targetX = vw - (vw < 720 ? 9 : 34);
-    targetY = Math.min(vh * .3, 240);
+    targetX = dockX;
+    targetY = dockY;
+  }
+
+  function cancelHeroDeparture() {
+    if (heroDepartureRaf) cancelAnimationFrame(heroDepartureRaf);
+    heroDepartureRaf = 0;
+    heroDeparture = null;
+    exitWheelHeld = false;
+  }
+
+  function beginHeroDeparture(hero) {
+    const from = window.scrollY;
+    const distance = hero.getBoundingClientRect().bottom;
+    // Yield the opening to the visitor's navigation intent. The glyph masks
+    // still blend into their settled state while the whole hero fades away.
+    introStart = 0;
+    mouseX = mouseY = lastMouseX = lastMouseY = -9999;
+    mouseVx = mouseVy = 0;
+    if (paused || reduced.matches) {
+      window.scrollTo({ top: from + distance, behavior: 'instant' });
+      placeStar(true);
+      paintParticlesAndStars(performance.now());
+      return;
+    }
+    const duration = 920 * Math.min(1, Math.sqrt(distance / Math.max(innerHeight, 1)));
+    heroDeparture = { hero, from, started: performance.now(), duration, progress: 0, starX, starY };
+    const advance = now => {
+      heroDepartureRaf = 0;
+      const departure = heroDeparture;
+      if (!departure || !departure.hero.isConnected) { cancelHeroDeparture(); return; }
+      const t = clamp((now - departure.started) / departure.duration, 0, 1);
+      // Quintic easing has zero velocity and acceleration at both ends.
+      departure.progress = t * t * t * (t * (t * 6 - 15) + 10);
+      const end = departure.hero.getBoundingClientRect().bottom + window.scrollY;
+      window.scrollTo({ top: departure.from + (end - departure.from) * departure.progress, behavior: 'instant' });
+      if (t < 1) heroDepartureRaf = requestAnimationFrame(advance);
+      else heroDeparture = null;
+    };
+    heroDepartureRaf = requestAnimationFrame(advance);
+  }
+
+  function onHeroWheel(event) {
+    if (event.defaultPrevented) return;
+    if (event.ctrlKey || event.deltaY < 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+      cancelHeroDeparture();
+      return;
+    }
+    if (event.deltaY <= 0 || !event.cancelable) return;
+    const now = performance.now();
+    // A brief quiet interval separates a fresh wheel gesture from the tail of
+    // the gesture that launched the transition, preventing landing overshoot.
+    if (heroDeparture || (exitWheelHeld && now - lastExitWheel < 160)) {
+      event.preventDefault();
+      lastExitWheel = now;
+      return;
+    }
+    exitWheelHeld = false;
+    const hero = $('.hero');
+    if (!hero) return;
+    const rect = hero.getBoundingClientRect();
+    if (rect.bottom <= 1 || rect.top >= innerHeight) return;
+    event.preventDefault();
+    exitWheelHeld = true;
+    lastExitWheel = now;
+    beginHeroDeparture(hero);
   }
 
   function placeStar(immediate = false, now = performance.now()) {
     updateStarTarget();
-    let x = targetX + (paused ? 0 : pointerX);
-    let y = targetY + (paused ? 0 : pointerY);
+    let x = targetX + (paused || heroDeparture ? 0 : pointerX);
+    let y = targetY + (paused || heroDeparture ? 0 : pointerY);
 
     const progress = introStart ? smoothstep((now - introStart - 200) / 3300) : 1;
     revealHeroTail(progress);
@@ -936,7 +1017,7 @@
         } else {
           // Solidified state: direct particle interaction and local disintegration
           let mDist = 9999;
-          if (!paused && mouseX > -1000) {
+          if (!paused && !heroDeparture && mouseX > -1000) {
             const mDx = p.x - mouseX;
             const mDy = p.y - mouseY;
             mDist = Math.hypot(mDx, mDy);
@@ -1011,6 +1092,7 @@
           alpha = clamp(alpha + p.glow * 0.35, 0, 1);
         }
         if (p.glyphCell) alpha *= 1 - p.glyphBlend;
+        alpha *= heroContentOpacity;
         if (alpha <= 0.01) continue;
 
         let rgb;
@@ -1175,6 +1257,12 @@
     $$('[data-replay]').forEach(button => button.disabled = reduced.matches);
   }
 
+  window.addEventListener('wheel', onHeroWheel, { passive: false });
+  window.addEventListener('pointerdown', cancelHeroDeparture, { passive: true });
+  window.addEventListener('keydown', event => {
+    if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ', 'Escape', 'Tab'].includes(event.key)) cancelHeroDeparture();
+  });
+
   window.addEventListener('pointermove', e => {
     if (!finePointer.matches || paused) return;
     pointerX = (e.clientX / vw - .5) * 16;
@@ -1203,18 +1291,23 @@
 
   let resizeTimer;
   window.addEventListener('resize', () => {
+    cancelHeroDeparture();
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resizeStars, 100);
   }, { passive: true });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+      cancelHeroDeparture();
       if (raf) cancelAnimationFrame(raf); raf = 0;
       introStart = 0;
     } else startLoop();
   });
 
   reduced.addEventListener('change', () => {
+    const destination = heroDeparture ? heroDeparture.hero.getBoundingClientRect().bottom + window.scrollY : null;
+    cancelHeroDeparture();
+    if (reduced.matches && destination !== null) window.scrollTo({ top: destination, behavior: 'instant' });
     paused = reduced.matches;
     introStart = 0;
     updateMotionButtons(); startLoop();

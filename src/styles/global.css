@@ -21,3 +21,18 @@
 @media(prefers-reduced-motion:reduce){.mira-object>.volume-fallback{opacity:0!important}}
 
 @media(max-width:720px){.section-heading{flex-direction:column;gap:16px}.section-heading>.text-link{margin-top:0;padding-bottom:0}.section-heading h2{font-size:clamp(24px,6.8vw,27px)}}
+
+/* The scroll position drives the same fade for cached glyphs and live particles. */
+.hero .hero-copy,
+.hero .hero-glyph-surface,
+.hero .hero-side-label,
+.hero .coordinates,
+.hero .hero-bottom {
+  opacity: var(--hero-exit-opacity, 1);
+}
+.hero .hero-sky { opacity: calc(.85 * var(--hero-exit-opacity, 1)); }
+.mira-object.has-scroll-docking { opacity: var(--star-dock-opacity, .9); }
+.mira-object.has-scroll-docking > .geometry {
+  transform: scale(var(--star-dock-scale, .72));
+  transition: none;
+}
