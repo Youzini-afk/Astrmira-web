@@ -1,4 +1,6 @@
 import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrail } from './comet-path.js';
+import { createMotionQuality, nextFrameTime } from './motion-quality.js';
+import { createParticleGrid } from './particle-grid.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -19,6 +21,8 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
   try { paused = reduced.matches || sessionStorage.getItem('astrmira-motion') === 'paused'; } catch (_) { /* Sandboxed browsers may disable storage. */ }
 
   function initPage({ focus = false } = {}) {
+    heroElement = $('.hero');
+    heroCopy = $('.hero-copy');
     filterResearch = 'all'; queryY = 154; agentStage = 0; brief = '';
     const route = main?.dataset.route || 'home';
     $$('.site-nav [data-route]').forEach(a => {
@@ -293,6 +297,12 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
   const starCtx = starCanvas?.getContext('2d');
   let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
   let glyphLayers = [];
+  let heroElement = $('.hero'), heroCopy = $('.hero-copy'), frameHeroRect = null;
+  let particleGrid = createParticleGrid([]), activeTextParticles = new Set();
+  const motionQuality = createMotionQuality({ cores: navigator.hardwareConcurrency, memory: navigator.deviceMemory });
+  let quality = motionQuality.current, sampledTextDensity = quality.text;
+  let renderStars = [], renderStrands = [], cometSparkBudget = 0, textSparkBudget = 0;
+  let sceneBusy = false, pendingQuality = null;
   let textOriginX = 0, textOriginY = 0;
   let stardustSparks = [];
   let lastPaint = 0;
@@ -390,7 +400,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
     const layer = {
       canvas, ctx, glyph, mask, maskCtx, image, dpr, cellSize, columns, rows,
-      particles: [], needsPaint: true,
+      particles: [], needsPaint: true, active: true,
       cells: Array.from({ length: columns * rows }, (_, i) => ({
         x: i % columns, y: Math.floor(i / columns),
         count: 0, sum: 0, alpha: visible ? 1 : 0, source: null
@@ -402,24 +412,33 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
   }
 
   function finishGlyphLayer(layer) {
-    const occupied = layer.cells.filter(cell => cell.count);
-    // Empty mask cells inherit the nearest stroke, preserving antialiased
-    // edges without exposing them before their particles arrive.
-    for (const cell of layer.cells) {
-      if (cell.count) continue;
-      let distance = Infinity;
-      for (const candidate of occupied) {
-        const d = (candidate.x - cell.x) ** 2 + (candidate.y - cell.y) ** 2;
-        if (d < distance) { distance = d; cell.source = candidate; }
+    // Grow neighbouring stroke coverage through empty cells in one grid pass,
+    // rather than comparing every empty cell with every occupied cell.
+    const queue = [];
+    layer.cells.forEach((cell, i) => { if (cell.count) queue.push(i); });
+    for (let head = 0; head < queue.length; head++) {
+      const index = queue[head], cell = layer.cells[index];
+      const neighbours = [];
+      if (cell.x > 0) neighbours.push(index - 1);
+      if (cell.x + 1 < layer.columns) neighbours.push(index + 1);
+      if (cell.y > 0) neighbours.push(index - layer.columns);
+      if (cell.y + 1 < layer.rows) neighbours.push(index + layer.columns);
+      for (const next of neighbours) {
+        const target = layer.cells[next];
+        if (target.count || target.source) continue;
+        target.source = cell.count ? cell : cell.source;
+        queue.push(next);
       }
     }
   }
 
   function updateGlyphLayers(heroLeft, heroTop, frameStep) {
     for (const layer of glyphLayers) {
+      if (!introStart && !layer.active && !layer.needsPaint) continue;
+      let changing = false;
       for (const cell of layer.cells) cell.sum = 0;
       for (const p of layer.particles) {
-        const distance = Math.hypot(p.x - heroLeft - p.relX, p.y - heroTop - p.relY);
+        const distance = p.settled ? 0 : Math.hypot(p.x - heroLeft - p.relX, p.y - heroTop - p.relY);
         const arrival = introStart ? smoothstep((p.introProgress - 0.72) / 0.28) : 1;
         p.glyphCell.sum += arrival * (1 - smoothstep((distance - 1) / 9));
       }
@@ -429,6 +448,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
         const blend = 1 - Math.exp(-frameStep / (target < cell.alpha ? 4 : 7));
         cell.alpha = paused ? target : cell.alpha + (target - cell.alpha) * blend;
         if (Math.abs(target - cell.alpha) < 0.002) cell.alpha = target;
+        if (cell.alpha !== target || target < 1) changing = true;
       }
       let changed = layer.needsPaint;
       for (let i = 0; i < layer.cells.length; i++) {
@@ -442,14 +462,12 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
 
       // Match the glyph's bilinear mask exactly. Particle opacity is its
       // complement, including while the particle is displaced from its home.
-      const alphaAt = (x, y) => layer.image.data[(y * layer.columns + x) * 4 + 3] / 255;
       for (const p of layer.particles) {
-        const x = p.glyphX / layer.cellSize, y = p.glyphY / layer.cellSize;
-        const ix = Math.floor(x), iy = Math.floor(y);
-        const fx = x - ix, fy = y - iy;
-        p.glyphBlend = (alphaAt(ix, iy) * (1 - fx) + alphaAt(ix + 1, iy) * fx) * (1 - fy)
-          + (alphaAt(ix, iy + 1) * (1 - fx) + alphaAt(ix + 1, iy + 1) * fx) * fy;
+        const { indices, weights } = p.glyphSample;
+        p.glyphBlend = (layer.image.data[indices[0]] * weights[0] + layer.image.data[indices[1]] * weights[1]
+          + layer.image.data[indices[2]] * weights[2] + layer.image.data[indices[3]] * weights[3]) / 255;
       }
+      layer.active = changing;
 
       if (!changed) continue;
       layer.maskCtx.putImageData(layer.image, 0, 0);
@@ -467,6 +485,9 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
   function sampleTextParticles() {
     glyphLayers.forEach(layer => layer.canvas.remove());
     glyphLayers = [];
+    activeTextParticles.clear();
+    particleGrid = createParticleGrid([]);
+    sampledTextDensity = quality.text;
     const hero = $('.hero');
     const copy = $('.hero-copy');
     if (!hero || !copy) { textParticles = []; return; }
@@ -520,7 +541,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
       const isSmall = fontSize <= 18;
       // Sampling controls the flying particles; the cached glyph keeps the
       // complete strokes once this region has gathered.
-      const lineStep = isTitle ? (isMobile ? 2.5 : 1.9) : (isSmall ? (isMobile ? 1.2 : 1.0) : (isMobile ? 1.5 : 1.25));
+      const lineStep = (isTitle ? (isMobile ? 2.5 : 1.9) : (isSmall ? (isMobile ? 1.2 : 1.0) : (isMobile ? 1.5 : 1.25))) / Math.sqrt(sampledTextDensity);
 
       for (let py = 0; py < h; py += lineStep) {
         for (let px = 0; px < w; px += lineStep) {
@@ -546,6 +567,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
               swirlDir,
               baseAlpha: pixelAlpha,
               glow: 0,
+              detailRank: Math.random(),
               isTitle,
               isSmall,
               settled: isAlreadySolidified,
@@ -556,6 +578,14 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
               particle.glyphX = px;
               particle.glyphY = py;
               particle.glyphBlend = 0;
+              particle.glyphLayer = glyphLayer;
+              const gx = px / glyphLayer.cellSize, gy = py / glyphLayer.cellSize;
+              const ix = Math.floor(gx), iy = Math.floor(gy), fx = gx - ix, fy = gy - iy;
+              particle.glyphSample = {
+                indices: [iy * glyphLayer.columns + ix, iy * glyphLayer.columns + ix + 1,
+                  (iy + 1) * glyphLayer.columns + ix, (iy + 1) * glyphLayer.columns + ix + 1].map(index => index * 4 + 3),
+                weights: [(1 - fx) * (1 - fy), fx * (1 - fy), (1 - fx) * fy, fx * fy]
+              };
               particle.glyphCell = glyphLayer.cells[Math.round(py / glyphLayer.cellSize) * glyphLayer.columns + Math.round(px / glyphLayer.cellSize)];
               particle.glyphCell.count++;
               glyphLayer.particles.push(particle);
@@ -640,22 +670,38 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
 
     textParticles = points;
+    particleGrid = createParticleGrid(points);
+    activeTextParticles = new Set(points);
     prepareTextIntro(heroRect);
+  }
+
+  function resizeStarBuffer() {
+    if (!starCanvas || !starCtx) return;
+    const dpr = Math.min(devicePixelRatio || 1, quality.dpr);
+    const bounds = starCanvas.getBoundingClientRect();
+    starCanvas.width = Math.round(bounds.width * dpr);
+    starCanvas.height = Math.round(bounds.height * dpr);
+    starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function applyMotionQuality(next) {
+    quality = next;
+    document.documentElement.dataset.motionQuality = next.name;
+    renderStars = stars.filter(star => star.detailRank < next.stars);
+    renderStrands = cometStrands.filter((_, i) => i % next.strandStep === 0);
+    // Changing detail must not rebuild glyphs or restart the comet's history.
+    resizeStarBuffer();
   }
 
   function resizeStars() {
     vw = innerWidth; vh = innerHeight;
     if (starCanvas && starCtx) {
-      const dpr = Math.min(devicePixelRatio || 1, 1.5);
-      const bounds = starCanvas.getBoundingClientRect();
-      starCanvas.width = Math.round(bounds.width * dpr);
-      starCanvas.height = Math.round(bounds.height * dpr);
-      starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      resizeStarBuffer();
       const rand = seeded(7261);
       // Uneven density, mostly faint stars, and a few brighter nearby stars.
       // Density follows viewport area so small screens retain dark space.
       const count = Math.round(vw * vh / 2400);
-      stars = Array.from({ length: count }, () => {
+      stars = Array.from({ length: count }, (_, index) => {
         let nx, ny;
         do {
           nx = rand(); ny = rand();
@@ -676,6 +722,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
           wanderRadiusY: wander * (0.4 + rand() * 0.6),
           glow: 0,
           depth,
+          detailRank: (index * .61803398875) % 1,
           isGold: rand() > 0.77,
           gathers: rand() < 0.36,
           textParticle: null
@@ -684,6 +731,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
     sampleTextParticles();
     prepareHeroTail();
+    applyMotionQuality(quality);
     placeStar(true);
     paintParticlesAndStars(performance.now());
   }
@@ -780,6 +828,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
         width: .3 + random() * 1.2
       }));
     }
+    renderStrands = cometStrands.filter((_, i) => i % quality.strandStep === 0);
     cometPath = createCometPath(opening, { width: document.documentElement.clientWidth, height: vh, heroBottom: rect ? rect.bottom + window.scrollY : 0 });
     cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
     cometParam = null;
@@ -810,7 +859,8 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
 
   function updateStarTarget(immediate = false, now = performance.now()) {
     if (!cometPath) return;
-    const hero = $('.hero');
+    const hero = heroElement;
+    frameHeroRect = hero?.getBoundingClientRect() || null;
     const previous = cometParam;
     const desired = cometPath.heroLength + Math.max(0, window.scrollY);
     if (introStart) cometParam = cometPath.heroLength * smoothstep((now - introStart - 200) / 3300);
@@ -828,7 +878,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     if (!introStart && window.scrollY > 0) cometHasDeparted = true;
     let progress = 1;
     if (hero) {
-      const rect = hero.getBoundingClientRect();
+      const rect = frameHeroRect;
       progress = clamp(window.scrollY / Math.max(1, rect.bottom + window.scrollY), 0, 1);
       heroContentOpacity = paused ? 1 : 1 - smoothstep((progress - .08) / .76);
       hero.style.setProperty('--hero-exit-opacity', heroContentOpacity.toFixed(3));
@@ -971,7 +1021,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
       const fromAlpha = smoothstep((a.distance - cometTrail.rear) / feather);
       const toAlpha = smoothstep((b.distance - cometTrail.rear) / feather);
       const gradients = new Map();
-      for (const strand of cometStrands) {
+      for (const strand of renderStrands) {
         let color = strand.color;
         if (fromAlpha < 1) {
           if (!gradients.has(color)) {
@@ -990,7 +1040,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
           if (i) starCtx.lineTo(x, y); else starCtx.moveTo(x, y);
         });
         starCtx.lineWidth = strand.width;
-        starCtx.globalAlpha = strand.alpha;
+        starCtx.globalAlpha = strand.alpha * Math.sqrt(quality.strandStep);
         starCtx.strokeStyle = color;
         starCtx.stroke();
       }
@@ -1011,23 +1061,26 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     const cometMovingSpeed = Math.hypot(cometVx, cometVy);
     prevCometX = cometWorld.x; prevCometY = cometWorld.y;
 
-    const hero = $('.hero');
-    const heroRect = hero ? hero.getBoundingClientRect() : null;
+    const hero = heroElement;
+    const heroRect = frameHeroRect;
     const heroLeft = heroRect ? heroRect.left : 0;
     const heroTop = heroRect ? heroRect.top : 0;
+    const heroVisible = heroRect && heroRect.bottom > 0 && heroRect.top < vh && heroContentOpacity > .001;
 
     // The canvas is fixed to the viewport; carry text with its hero on scroll,
     // including particles currently displaced by the pointer or intro.
     const textShiftX = heroLeft - textOriginX;
     const textShiftY = heroTop - textOriginY;
-    for (const p of textParticles) {
-      p.x += textShiftX;
-      p.y += textShiftY;
+    if (heroVisible) {
+      if (textShiftX || textShiftY) for (const p of activeTextParticles) {
+        p.x += textShiftX;
+        p.y += textShiftY;
+      }
+      textOriginX = heroLeft;
+      textOriginY = heroTop;
     }
-    textOriginX = heroLeft;
-    textOriginY = heroTop;
 
-    const copy = $('.hero-copy');
+    const copy = heroCopy;
     const introElapsed = introStart ? now - introStart : INTRO_DURATION;
     if (introStart) {
       if (introElapsed > 3500) copy?.classList.add('is-settled');
@@ -1045,6 +1098,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
           p.dislodgedFactor = 0;
           p.vx = 0; p.vy = 0;
         }
+        textOriginX = heroLeft; textOriginY = heroTop;
       }
     } else {
       if (copy && !copy.classList.contains('is-solidified')) {
@@ -1054,24 +1108,14 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
     const isSolidified = copy ? copy.classList.contains('is-solidified') : false;
 
-    // Guaranteed settled state when page is solidified and not in intro
-    if (isSolidified && !introStart) {
-      for (const p of textParticles) {
-        if (paused || (!p.dislodged && !p.settled)) {
-          p.x = heroLeft + p.relX;
-          p.y = heroTop + p.relY;
-          p.settled = true;
-          p.dislodged = false;
-          p.dislodgedFactor = 0;
-          p.glow = 0;
-          p.vx = 0; p.vy = 0;
-        }
-      }
-    }
+    const pointerOnHero = heroVisible && !paused && !heroDeparture && mouseX > -1000;
+    const workingText = !heroVisible ? [] : !isSolidified ? textParticles
+      : pointerOnHero ? particleGrid.near(mouseX - heroLeft, mouseY - heroTop, 82, activeTextParticles)
+        : activeTextParticles;
 
     // 1. Persistent sky: still stars, slow drift, and occasional local motion.
     const starMovingSpeed = Math.hypot(starVx, starVy);
-    for (const s of stars) {
+    for (const s of renderStars) {
       if (!paused) {
         s.p += s.wanderSpeed * frameStep;
         const targetWanderX = s.origX + (Math.cos(s.p) + Math.sin(s.p * 1.73) * 0.3) * s.wanderRadiusX;
@@ -1135,7 +1179,9 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     // already emitted particles along with the viewport.
     if (!paused && cometMovingSpeed > 0.6) {
       const travelling = !introStart && cometHasDeparted;
-      const sparkCount = Math.min(3, Math.floor(cometMovingSpeed * 0.55) + 1);
+      cometSparkBudget += Math.min(3, Math.floor(cometMovingSpeed / Math.max(frameStep, .01) * .55) + 1) * quality.dust * frameStep;
+      const sparkCount = Math.floor(cometSparkBudget);
+      cometSparkBudget -= sparkCount;
       for (let k = 0; k < sparkCount; k++) {
         const spAngle = Math.random() * Math.PI * 2;
         const spDist = Math.random() * (travelling ? 5 : 22);
@@ -1157,10 +1203,17 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     // 2. Staggered gathering, then direct interaction with the settled text.
     let dislodgedCount = 0;
 
-    if (textParticles.length > 0) {
-      for (const p of textParticles) {
+    if (heroVisible) {
+      for (const p of workingText) {
         const homeX = heroLeft + p.relX;
         const homeY = heroTop + p.relY;
+        if (p.settled || paused || (isSolidified && !p.dislodged)) {
+          p.x = homeX; p.y = homeY;
+          if (isSolidified) {
+            p.settled = true; p.dislodged = false; p.dislodgedFactor = 0;
+            p.vx = p.vy = p.glow = 0;
+          }
+        }
         const toHomeX = homeX - p.x;
         const toHomeY = homeY - p.y;
         const distToHome = Math.hypot(toHomeX, toHomeY);
@@ -1183,7 +1236,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
         } else {
           // Solidified state: direct particle interaction and local disintegration
           let mDist = 9999;
-          if (!paused && !heroDeparture && mouseX > -1000) {
+          if (pointerOnHero) {
             const mDx = p.x - mouseX;
             const mDy = p.y - mouseY;
             mDist = Math.hypot(mDx, mDy);
@@ -1191,6 +1244,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
             if (mDist < repelRadius && mDist > 0.5) {
               const mF = 1 - mDist / repelRadius;
               p.dislodged = true;
+              if (p.glyphLayer) p.glyphLayer.active = true;
               p.settled = false;
               p.dislodgedFactor = Math.min(1.0, p.dislodgedFactor + 0.32);
               const push = mF * 11.5 + Math.hypot(mouseVx, mouseVy) * 0.22;
@@ -1233,16 +1287,22 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
 
         if (!p.settled) {
           dislodgedCount++;
+          activeTextParticles.add(p);
         }
       }
     }
 
-    updateGlyphLayers(heroLeft, heroTop, frameStep);
+    if (heroVisible) updateGlyphLayers(heroLeft, heroTop, frameStep);
 
     // 3. A sparse travelling star becomes a glyph; nearby detail fades in only
     // as it arrives, keeping empty space clear during the opening.
-    if (textParticles.length > 0) {
-      for (const p of textParticles) {
+    if (heroVisible) {
+      for (const p of workingText) {
+        if (!introStart && p.settled && p.glyphBlend >= .998) {
+          activeTextParticles.delete(p);
+          continue;
+        }
+        if (!p.sourceStar && p.detailRank > quality.text / sampledTextDensity) continue;
         const reveal = introStart ? smoothstep(p.introProgress) : 1;
         const arrival = introStart ? smoothstep((p.introProgress - 0.55) / 0.45) : 1;
         let alpha = p.targetAlpha;
@@ -1307,7 +1367,9 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     if (!paused && isSolidified && dislodgedCount > 0) {
       const mSpeed = Math.hypot(mouseVx, mouseVy);
       if (mSpeed > 0.6) {
-        const count = Math.min(2, Math.floor(mSpeed * 0.5) + 1);
+        textSparkBudget += Math.min(2, Math.floor(mSpeed * .5) + 1) * quality.dust * frameStep;
+        const count = Math.floor(textSparkBudget);
+        textSparkBudget -= count;
         for (let k = 0; k < count; k++) {
           const spA = Math.random() * Math.PI * 2;
           const spD = Math.random() * 55;
@@ -1327,23 +1389,26 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
 
     if (stardustSparks.length > 0) {
-      for (let i = stardustSparks.length - 1; i >= 0; i--) {
-        const sp = stardustSparks[i];
+      let kept = 0;
+      for (const sp of stardustSparks) {
         if (!paused) {
-          sp.x += sp.vx; sp.y += sp.vy;
-          sp.vx *= 0.91; sp.vy *= 0.91;
-          sp.life -= sp.decay;
+          sp.x += sp.vx * frameStep; sp.y += sp.vy * frameStep;
+          const damping = Math.pow(.91, frameStep);
+          sp.vx *= damping; sp.vy *= damping;
+          sp.life -= sp.decay * frameStep;
         }
-        if (sp.life <= 0) {
-          stardustSparks.splice(i, 1);
-          continue;
-        }
+        if (sp.life <= 0) continue;
+        stardustSparks[kept++] = sp;
+        const x = sp.x - (sp.world ? window.scrollX : 0), y = sp.y - (sp.world ? window.scrollY : 0);
+        if (x < -3 || x > vw + 3 || y < -3 || y > vh + 3) continue;
         starCtx.beginPath();
-        starCtx.arc(sp.x - (sp.world ? window.scrollX : 0), sp.y - (sp.world ? window.scrollY : 0), sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
+        starCtx.arc(x, y, sp.size * (0.5 + sp.life * 0.5), 0, Math.PI * 2);
         starCtx.fillStyle = `rgba(${sp.rgb[0]},${sp.rgb[1]},${sp.rgb[2]},${clamp(sp.life * 0.9, 0, 1)})`;
         starCtx.fill();
       }
+      stardustSparks.length = kept;
     }
+    sceneBusy = Boolean(introStart || heroDeparture || cometMovingSpeed > .6 || (heroVisible && activeTextParticles.size));
     if (!paused) {
       mouseVx *= Math.pow(0.86, frameStep);
       mouseVy *= Math.pow(0.86, frameStep);
@@ -1367,11 +1432,13 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
     }
     maskRadius = 0; targetMaskRadius = 0;
     stardustSparks = [];
+    activeTextParticles = new Set(textParticles);
     cometParam = 0;
     cometUpdatedAt = null;
     cometHasDeparted = false;
     cometTrail = createCometTrail(Math.hypot(vw, vh) * .82);
     for (const layer of glyphLayers) {
+      layer.active = true;
       layer.cells.forEach(cell => { cell.alpha = 0; });
       layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
       layer.needsPaint = true;
@@ -1401,18 +1468,26 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
 
   function tick(now) {
     raf = 0;
-    if (heroDeparture || now - lastFrame >= 1000 / 60) {
-      lastFrame = now;
+    const frameTime = nextFrameTime(lastFrame, now);
+    let renderCost = null;
+    if (frameTime !== null) {
+      lastFrame = frameTime;
+      if (pendingQuality) { applyMotionQuality(pendingQuality); pendingQuality = null; }
+      const started = performance.now();
       const departed = advanceHeroDeparture(now);
       placeStar(false, now);
       paintParticlesAndStars(now);
       if (departed) heroDeparture = null;
+      renderCost = performance.now() - started;
     }
+    pendingQuality = motionQuality.sample(now, renderCost, sceneBusy) || pendingQuality;
     if (!paused) raf = requestAnimationFrame(tick);
   }
 
   function startLoop() {
     if (raf) cancelAnimationFrame(raf); raf = 0;
+    motionQuality.reset();
+    lastFrame = lastPaint = 0;
     if (!document.hidden) {
       if (paused) { placeStar(true); paintParticlesAndStars(performance.now()); }
       else raf = requestAnimationFrame(tick);
@@ -1474,6 +1549,7 @@ import { createCometPath, cometPoint, createCometTrail, recordCometMotion, fadeC
       cometUpdatedAt = null;
       if (raf) cancelAnimationFrame(raf); raf = 0;
       introStart = 0;
+      motionQuality.reset();
     } else startLoop();
   });
 
