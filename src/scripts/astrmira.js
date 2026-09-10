@@ -268,86 +268,429 @@
     canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();lost=true;$('.mira-object').dataset.webgl='false';});
     return elapsed=>{if(lost)return;gl.uniform1f(time,elapsed/1000);gl.drawArrays(gl.TRIANGLES,0,6);};
   }
-  let drawVolume=null;
-  const companion=$('.mira-object');
-  let introStart=0,phase='geometry', raf=0,lastFrame=0;
-  let starX=innerWidth*.78,starY=innerHeight*.31,targetX=starX,targetY=starY;
-  let pointerX=0,pointerY=0;
-  const starCanvas=$('#starfield');
-  const starCtx=starCanvas?.getContext('2d');
-  let stars=[],vw=innerWidth,vh=innerHeight;
-  function seeded(n){let value=n>>>0;return()=>{value=(value*1664525+1013904223)>>>0;return value/4294967296;};}
-  function resizeStars(){
-    vw=innerWidth;vh=innerHeight;
-    if(starCanvas&&starCtx){const dpr=Math.min(devicePixelRatio||1,1.5);starCanvas.width=Math.round(vw*dpr);starCanvas.height=Math.round(vh*dpr);starCtx.setTransform(dpr,0,0,dpr,0,0);
-      const rand=seeded(7261);stars=Array.from({length:Math.min(180,Math.round(vw*vh/10500))},()=>({x:rand()*vw,y:rand()*vh,r:.3+rand()*.75,o:.12+rand()*.45,p:rand()*6.28}));}
-    updateStarTarget();paintStars(performance.now());
+  let drawVolume = null;
+  const companion = $('.mira-object');
+  let introStart = 0, phase = 'geometry', raf = 0, lastFrame = 0;
+  let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
+  let prevStarX = starX, prevStarY = starY;
+  let pointerX = 0, pointerY = 0;
+  let mouseX = -9999, mouseY = -9999, mouseVx = 0, mouseVy = 0, lastMouseX = -9999, lastMouseY = -9999;
+  const starCanvas = $('#starfield');
+  const starCtx = starCanvas?.getContext('2d');
+  let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
+  const INTRO_DURATION = 2400;
+
+  function seeded(n) {
+    let value = n >>> 0;
+    return () => {
+      value = (value * 1664525 + 1013904223) >>> 0;
+      return value / 4294967296;
+    };
   }
-  function paintStars(now){
-    if(!starCtx)return;starCtx.clearRect(0,0,vw,vh);
-    for(const s of stars){const glow=paused?1:.76+.24*Math.sin(now/3500+s.p);starCtx.beginPath();starCtx.arc(s.x+pointerX*.1,s.y+pointerY*.1,s.r,0,Math.PI*2);starCtx.fillStyle=`rgba(175,194,216,${s.o*glow})`;starCtx.fill();}
-  }
-  function setPhase(next){
-    if(!companion)return;phase=next;companion.dataset.phase=next;
-    const label=$('[data-phase-label]');if(label)label.textContent={volume:'01 / VOLUME',pigment:'02 / PIGMENT',geometry:'03 / GEOMETRY'}[next];
-  }
-  function updateStarTarget(){
-    const hero=$('.hero');
-    if(hero){const rect=hero.getBoundingClientRect();
-      if(rect.bottom>130){targetX=vw*(vw<720?.81:.79);targetY=rect.top+rect.height*(vw<720?.245:.265);companion?.classList.remove('is-docked');return;}}
-    companion?.classList.add('is-docked');
-    // Dock only in the outer margin, never over paragraph text or controls.
-    targetX=vw-(vw<720?9:34);targetY=Math.min(vh*.3,240);
-  }
-  function placeStar(immediate=false,now=performance.now()){
-    updateStarTarget();let x=targetX+(paused?0:pointerX),y=targetY+(paused?0:pointerY);
-    if(introStart && now-introStart<1200){const t=clamp((now-introStart)/1200,0,1);const smooth=1-Math.pow(1-t,3);x=vw*.22+(targetX-vw*.22)*smooth;y=targetY+Math.sin(t*Math.PI)*-75;}
-    if(immediate||paused){starX=x;starY=y;}else{starX+=(x-starX)*.07;starY+=(y-starY)*.07;}
-    if(companion){companion.style.left=starX.toFixed(2)+'px';companion.style.top=starY.toFixed(2)+'px';}
-  }
-  function updateMotionButtons(){
-    document.documentElement.classList.toggle('is-paused',paused);
-    $$('[data-motion-toggle]').forEach(button=>{button.setAttribute('aria-pressed',String(paused));button.disabled=reduced.matches;});
-    $$('[data-motion-text]').forEach(el=>el.textContent=reduced.matches?'已减少动态':paused?'启用动效':'静止动效');
-    $$('[data-replay]').forEach(button=>button.disabled=reduced.matches);
-  }
-  function startIntro(force=false){
-    if(paused||reduced.matches||!$('.hero'))return;
-    let seen=false;try{seen=sessionStorage.getItem('astrmira-seen')==='1';}catch(_){}
-    if(seen&&!force){setPhase('geometry');return;}
-    if(!drawVolume)drawVolume=createVolume();
-    introStart=performance.now();setPhase('volume');
-    if(drawVolume)drawVolume(0);
-    try{sessionStorage.setItem('astrmira-seen','1');}catch(_){}
-  }
-  function tick(now){
-    raf=0;if(document.hidden)return;
-    if(now-lastFrame>=1000/30){
-      lastFrame=now;
-      if(introStart){const elapsed=now-introStart;
-        if(elapsed<1450){if(phase!=='volume')setPhase('volume');if(drawVolume)drawVolume(elapsed);}
-        else if(elapsed<2850){if(phase!=='pigment')setPhase('pigment');}
-        else if(elapsed<4600){if(phase!=='geometry')setPhase('geometry');}
-        else introStart=0;
+
+  function sampleTextParticles() {
+    const hero = $('.hero');
+    const h1 = $('.hero h1');
+    const sub = $('.hero-subtitle');
+    if (!hero || !h1) { textParticles = []; return; }
+
+    const h1Rect = h1.getBoundingClientRect();
+    const subRect = sub ? sub.getBoundingClientRect() : null;
+    const points = [];
+
+    function sampleEl(el, text, rect, step, isMain) {
+      if (!rect || rect.width <= 0 || rect.height <= 0) return;
+      const offCanvas = document.createElement('canvas');
+      const pad = 24;
+      const w = Math.ceil(rect.width) + pad * 2;
+      const h = Math.ceil(rect.height) + pad * 2;
+      offCanvas.width = w;
+      offCanvas.height = h;
+      const ctx = offCanvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      const style = window.getComputedStyle(el);
+      const fontSize = parseFloat(style.fontSize) || (isMain ? 120 : 22);
+      const fontFamily = style.fontFamily || 'Georgia, serif';
+      ctx.font = `${style.fontStyle || 'normal'} ${style.fontWeight || '400'} ${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      try { ctx.letterSpacing = style.letterSpacing; } catch (_) {}
+      ctx.fillText(text, w / 2, h / 2);
+
+      const imgData = ctx.getImageData(0, 0, w, h).data;
+      const offsetX = rect.left - pad;
+      const offsetY = rect.top - pad;
+
+      for (let py = 0; py < h; py += step) {
+        for (let px = 0; px < w; px += step) {
+          const idx = (py * w + px) * 4;
+          if (imgData[idx + 3] > 110) {
+            const homeX = offsetX + px;
+            const homeY = offsetY + py;
+            const angle = Math.random() * Math.PI * 2;
+            const dist = (0.2 + 0.8 * Math.random()) * Math.max(vw, vh) * 0.65;
+            const origX = homeX + Math.cos(angle) * dist;
+            const origY = homeY + Math.sin(angle) * dist;
+
+            const pVal = Math.random();
+            const color = pVal < 0.52 ? '#d6b881' : pVal < 0.76 ? '#f0d39e' : pVal < 0.90 ? '#8dabc3' : '#527b9f';
+            const radius = isMain ? (0.85 + Math.random() * 1.15) : (0.7 + Math.random() * 0.85);
+
+            points.push({
+              homeX, homeY,
+              origX, origY,
+              x: origX, y: origY,
+              vx: (Math.random() - 0.5) * 3,
+              vy: (Math.random() - 0.5) * 3,
+              color,
+              radius,
+              baseAlpha: isMain ? (0.65 + Math.random() * 0.35) : (0.55 + Math.random() * 0.35),
+              glow: 0,
+              strokeAngle: angle + Math.PI / 2,
+              isMain
+            });
+          }
+        }
       }
-      paintStars(now);placeStar(false,now);
     }
-    if(!paused)raf=requestAnimationFrame(tick);
+
+    const sStep = vw < 720 ? 4 : 3;
+    sampleEl(h1, 'Astrmira', h1Rect, sStep, true);
+    if (sub && subRect) {
+      sampleEl(sub, '于未知处求索，向星穹间开拓。', subRect, sStep, false);
+    }
+    textParticles = points;
   }
-  function startLoop(){
-    if(raf)cancelAnimationFrame(raf);raf=0;
-    if(!document.hidden){if(paused){paintStars(performance.now());placeStar(true);}else raf=requestAnimationFrame(tick);}
+
+  function resizeStars() {
+    vw = innerWidth; vh = innerHeight;
+    if (starCanvas && starCtx) {
+      const dpr = Math.min(devicePixelRatio || 1, 1.5);
+      starCanvas.width = Math.round(vw * dpr);
+      starCanvas.height = Math.round(vh * dpr);
+      starCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const rand = seeded(7261);
+      stars = Array.from({ length: Math.min(180, Math.round(vw * vh / 10500)) }, () => {
+        const ox = rand() * vw, oy = rand() * vh;
+        return {
+          x: ox, y: oy, origX: ox, origY: oy,
+          vx: 0, vy: 0,
+          r: 0.35 + rand() * 0.85,
+          o: 0.15 + rand() * 0.45,
+          p: rand() * 6.28,
+          glow: 0,
+          strokeLen: 2 + rand() * 5,
+          angle: rand() * 6.28
+        };
+      });
+    }
+    sampleTextParticles();
+    updateStarTarget();
+    paintParticlesAndStars(performance.now());
   }
-  window.addEventListener('pointermove',e=>{if(!finePointer.matches||paused)return;pointerX=(e.clientX/vw-.5)*16;pointerY=(e.clientY/vh-.5)*12;},{passive:true});
-  document.addEventListener('mouseleave',()=>{pointerX=pointerY=0;});
-  window.addEventListener('scroll',()=>{if(paused)placeStar(true);},{passive:true});
+
+  function setPhase(next) {
+    if (!companion) return;
+    phase = next; companion.dataset.phase = next;
+    const label = $('[data-phase-label]');
+    if (label) label.textContent = { volume: '01 / VOLUME', pigment: '02 / PIGMENT', geometry: '03 / GEOMETRY' }[next];
+  }
+
+  function updateStarTarget() {
+    const hero = $('.hero');
+    if (hero) {
+      const rect = hero.getBoundingClientRect();
+      if (rect.bottom > 130) {
+        targetX = vw * (vw < 720 ? .81 : .79);
+        targetY = rect.top + rect.height * (vw < 720 ? .245 : .265);
+        companion?.classList.remove('is-docked');
+        return;
+      }
+    }
+    companion?.classList.add('is-docked');
+    targetX = vw - (vw < 720 ? 9 : 34);
+    targetY = Math.min(vh * .3, 240);
+  }
+
+  function placeStar(immediate = false, now = performance.now()) {
+    updateStarTarget();
+    let x = targetX + (paused ? 0 : pointerX);
+    let y = targetY + (paused ? 0 : pointerY);
+
+    if (introStart) {
+      const elapsed = now - introStart;
+      if (elapsed < INTRO_DURATION) {
+        const t = clamp(elapsed / INTRO_DURATION, 0, 1);
+        const u = 1 - Math.pow(1 - t, 3.2);
+
+        // Trajectory: Bottom-left deep space to title right
+        const P0 = { x: -60, y: vh * 1.06 };
+        const P1 = { x: vw * 0.12, y: vh * 0.60 };
+        const P2 = { x: vw * 0.48, y: vh * 0.16 };
+        const P3 = { x: targetX, y: targetY };
+
+        const inv = 1 - u;
+        x = inv * inv * inv * P0.x + 3 * inv * inv * u * P1.x + 3 * inv * u * u * P2.x + u * u * u * P3.x;
+        y = inv * inv * inv * P0.y + 3 * inv * inv * u * P1.y + 3 * inv * u * u * P2.y + u * u * u * P3.y;
+      } else {
+        introStart = 0;
+      }
+    }
+
+    if (immediate || paused) { starX = x; starY = y; }
+    else { starX += (x - starX) * 0.12; starY += (y - starY) * 0.12; }
+
+    if (companion) {
+      companion.style.left = starX.toFixed(2) + 'px';
+      companion.style.top = starY.toFixed(2) + 'px';
+    }
+  }
+
+  function paintParticlesAndStars(now) {
+    if (!starCtx) return;
+    starCtx.clearRect(0, 0, vw, vh);
+
+    const starVx = starX - prevStarX;
+    const starVy = starY - prevStarY;
+    prevStarX = starX; prevStarY = starY;
+
+    // Coalescence calculation
+    let coalesceT = 1;
+    if (introStart) {
+      const elapsed = now - introStart;
+      if (elapsed < 420) {
+        coalesceT = 0;
+      } else {
+        const prog = clamp((elapsed - 420) / 1650, 0, 1);
+        coalesceT = 1 - Math.pow(1 - prog, 2.8);
+      }
+      if (coalesceT >= 0.92) {
+        const copy = $('.hero-copy');
+        if (copy && !copy.classList.contains('is-revealed')) {
+          copy.classList.add('is-revealed');
+          copy.classList.remove('is-coalescing');
+        }
+      }
+    } else {
+      coalesceT = 1;
+      const copy = $('.hero-copy');
+      if (copy && !copy.classList.contains('is-revealed')) {
+        copy.classList.add('is-revealed');
+        copy.classList.remove('is-coalescing');
+      }
+    }
+
+    // 1. Paint and perturb ambient background stars
+    for (const s of stars) {
+      // Star companion wake perturbation
+      const sDx = s.x - starX, sDy = s.y - starY;
+      const sDist = Math.hypot(sDx, sDy);
+      if (sDist < 200 && sDist > 1) {
+        const f = 1 - sDist / 200;
+        s.vx += (sDx / sDist) * f * 6 + (-sDy / sDist) * f * 4 + starVx * 0.15;
+        s.vy += (sDy / sDist) * f * 6 + (sDx / sDist) * f * 4 + starVy * 0.15;
+        s.glow = Math.min(1.0, s.glow + f * 1.6);
+      }
+
+      // Mouse perturbation
+      if (mouseX > -1000) {
+        const mDx = s.x - mouseX, mDy = s.y - mouseY;
+        const mDist = Math.hypot(mDx, mDy);
+        if (mDist < 110 && mDist > 1) {
+          const mf = 1 - mDist / 110;
+          s.vx += (mDx / mDist) * mf * 5 + mouseVx * 0.12;
+          s.vy += (mDy / mDist) * mf * 5 + mouseVy * 0.12;
+          s.glow = Math.min(1.0, s.glow + mf * 0.4);
+        }
+      }
+
+      // Spring back to resting origin
+      s.vx += (s.origX - s.x) * 0.04;
+      s.vy += (s.origY - s.y) * 0.04;
+      s.vx *= 0.85; s.vy *= 0.85;
+      s.x += s.vx; s.y += s.vy;
+      s.glow *= 0.95;
+
+      const glow = paused ? 1 : (.76 + .24 * Math.sin(now / 3500 + s.p)) + s.glow;
+      starCtx.beginPath();
+      starCtx.arc(s.x + pointerX * .1, s.y + pointerY * .1, s.r * (1 + s.glow * 0.4), 0, Math.PI * 2);
+      starCtx.fillStyle = s.glow > 0.2 ? `rgba(245,225,185,${clamp(s.o * glow, 0, 1)})` : `rgba(175,194,216,${clamp(s.o * glow, 0, 1)})`;
+      starCtx.fill();
+    }
+
+    // 2. Paint and perturb typography particles
+    if (textParticles.length > 0) {
+      for (const p of textParticles) {
+        // Star wake perturbation
+        const sDx = p.x - starX, sDy = p.y - starY;
+        const sDist = Math.hypot(sDx, sDy);
+        if (sDist < 220 && sDist > 1) {
+          const factor = 1 - sDist / 220;
+          p.vx += (sDx / sDist) * factor * 13 + (-sDy / sDist) * factor * 9 + starVx * 0.25;
+          p.vy += (sDy / sDist) * factor * 13 + (sDx / sDist) * factor * 9 + starVy * 0.25;
+          p.glow = Math.min(1.0, p.glow + factor * 2.2);
+        }
+
+        // Mouse perturbation
+        if (mouseX > -1000) {
+          const mDx = p.x - mouseX, mDy = p.y - mouseY;
+          const mDist = Math.hypot(mDx, mDy);
+          if (mDist < 120 && mDist > 1) {
+            const mFactor = 1 - mDist / 120;
+            p.vx += (mDx / mDist) * mFactor * 8 + mouseVx * 0.2;
+            p.vy += (mDy / mDist) * mFactor * 8 + mouseVy * 0.2;
+            p.glow = Math.min(1.0, p.glow + mFactor * 0.5);
+          }
+        }
+
+        // Spring force towards target (interpolating from origX/Y to homeX/Y)
+        const targetPosX = p.origX * (1 - coalesceT) + p.homeX * coalesceT;
+        const targetPosY = p.origY * (1 - coalesceT) + p.homeY * coalesceT;
+        const spring = 0.05 + 0.08 * coalesceT;
+        p.vx += (targetPosX - p.x) * spring;
+        p.vy += (targetPosY - p.y) * spring;
+        p.vx *= 0.83; p.vy *= 0.83;
+        p.x += p.vx; p.y += p.vy;
+        p.glow *= 0.94;
+
+        // Render particle
+        const alpha = (p.baseAlpha || 0.7) * (1 + p.glow * 0.5);
+        starCtx.fillStyle = p.glow > 0.3 ? '#fff5d8' : p.color;
+        starCtx.globalAlpha = clamp(alpha, 0, 1);
+        starCtx.beginPath();
+        starCtx.arc(p.x, p.y, p.radius * (1 + p.glow * 0.4), 0, Math.PI * 2);
+        starCtx.fill();
+
+        // Van Gogh directional streak for higher glow or dispersed phase
+        if (coalesceT < 0.75 || p.glow > 0.25) {
+          const strokeLen = 2.5 + p.glow * 4.5;
+          const cos = Math.cos(p.strokeAngle) * strokeLen;
+          const sin = Math.sin(p.strokeAngle) * strokeLen;
+          starCtx.strokeStyle = p.color;
+          starCtx.lineWidth = p.radius * 0.8;
+          starCtx.beginPath();
+          starCtx.moveTo(p.x - cos, p.y - sin);
+          starCtx.lineTo(p.x + cos, p.y + sin);
+          starCtx.stroke();
+        }
+      }
+      starCtx.globalAlpha = 1.0;
+    }
+  }
+
+  function startIntro(force = false) {
+    if (paused || reduced.matches || !$('.hero')) return;
+    const copy = $('.hero-copy');
+    if (copy) {
+      copy.classList.remove('is-revealed');
+      copy.classList.add('is-coalescing');
+    }
+    // Re-scatter text particles if forced replay
+    if (force && textParticles.length > 0) {
+      textParticles.forEach(p => {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = (0.25 + 0.75 * Math.random()) * Math.max(vw, vh) * 0.65;
+        p.origX = p.homeX + Math.cos(angle) * dist;
+        p.origY = p.homeY + Math.sin(angle) * dist;
+        p.x = p.origX; p.y = p.origY;
+        p.vx = (Math.random() - 0.5) * 4;
+        p.vy = (Math.random() - 0.5) * 4;
+        p.glow = 1.0;
+      });
+    }
+    if (!drawVolume) drawVolume = createVolume();
+    introStart = performance.now();
+    setPhase('volume');
+    placeStar(true, introStart);
+    if (drawVolume) drawVolume(0);
+  }
+
+  function tick(now) {
+    raf = 0; if (document.hidden) return;
+    if (now - lastFrame >= 1000 / 30) {
+      lastFrame = now;
+      if (introStart) {
+        const elapsed = now - introStart;
+        if (elapsed < 1100) {
+          if (phase !== 'volume') setPhase('volume');
+          if (drawVolume) drawVolume(elapsed);
+        } else if (elapsed < 1950) {
+          if (phase !== 'pigment') setPhase('pigment');
+        } else {
+          if (phase !== 'geometry') setPhase('geometry');
+        }
+      }
+      placeStar(false, now);
+      paintParticlesAndStars(now);
+    }
+    if (!paused) raf = requestAnimationFrame(tick);
+  }
+
+  function startLoop() {
+    if (raf) cancelAnimationFrame(raf); raf = 0;
+    if (!document.hidden) {
+      if (paused) { paintParticlesAndStars(performance.now()); placeStar(true); }
+      else raf = requestAnimationFrame(tick);
+    }
+  }
+
+  function updateMotionButtons() {
+    document.documentElement.classList.toggle('is-paused', paused);
+    $$('[data-motion-toggle]').forEach(button => {
+      button.setAttribute('aria-pressed', String(paused));
+      button.disabled = reduced.matches;
+    });
+    $$('[data-motion-text]').forEach(el => el.textContent = reduced.matches ? '已减少动态' : paused ? '启用动效' : '静止动效');
+    $$('[data-replay]').forEach(button => button.disabled = reduced.matches);
+  }
+
+  window.addEventListener('pointermove', e => {
+    if (!finePointer.matches || paused) return;
+    pointerX = (e.clientX / vw - .5) * 16;
+    pointerY = (e.clientY / vh - .5) * 12;
+    if (lastMouseX > -1000) {
+      mouseVx = (e.clientX - lastMouseX) * 0.4;
+      mouseVy = (e.clientY - lastMouseY) * 0.4;
+    }
+    mouseX = e.clientX; mouseY = e.clientY;
+    lastMouseX = e.clientX; lastMouseY = e.clientY;
+  }, { passive: true });
+
+  document.addEventListener('mouseleave', () => {
+    mouseX = mouseY = lastMouseX = lastMouseY = -9999;
+    mouseVx = mouseVy = 0;
+    pointerX = pointerY = 0;
+  });
+
+  window.addEventListener('scroll', () => {
+    if (paused) placeStar(true);
+  }, { passive: true });
+
   let resizeTimer;
-  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(resizeStars,100);},{passive:true});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){if(raf)cancelAnimationFrame(raf);raf=0;introStart=0;setPhase('geometry');}else startLoop();});
-  reduced.addEventListener('change',()=>{paused=reduced.matches;introStart=0;setPhase('geometry');updateMotionButtons();startLoop();});
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeStars, 100);
+  }, { passive: true });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (raf) cancelAnimationFrame(raf); raf = 0;
+      introStart = 0; setPhase('geometry');
+    } else startLoop();
+  });
+
+  reduced.addEventListener('change', () => {
+    paused = reduced.matches;
+    introStart = 0; setPhase('geometry');
+    updateMotionButtons(); startLoop();
+  });
 
   resizeStars();
-  if(standalone && location.hash.startsWith('#/') && location.hash.length>2)go(location.hash.slice(2),false);
+  if (standalone && location.hash.startsWith('#/') && location.hash.length > 2) go(location.hash.slice(2), false);
   else initPage();
-  placeStar(true);startIntro();startLoop();
+  placeStar(true);
+  startIntro();
+  startLoop();
 })();
