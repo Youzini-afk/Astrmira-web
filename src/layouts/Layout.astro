@@ -3,19 +3,18 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import StarCompanion from '../components/StarCompanion.astro';
+import Starfield from '../components/Starfield.astro';
 
 interface Props {
   title?: string;
   description?: string;
-  currentPath?: string;
-  showCompanion?: boolean;
+  route?: string;
 }
 
 const {
-  title = 'Astrmira 幻梦星芒 — 于未知处求索，让智能扎根',
-  description = 'Astrmira（幻梦星芒）是一家偏研究型企业，深耕数据库系统、高维检索、向量量化、后训练与自主认知 Agent 平台。',
-  currentPath = '/',
-  showCompanion = true
+  title = 'Astrmira · 幻梦星芒 — 于未知处求索，让智能扎根',
+  description = 'Astrmira（幻梦星芒）是一家偏研究型企业，研究方向涵盖数据库、检索、向量、量化、后训练与数学，并探索数据系统、Agent 平台与科研合作。',
+  route = 'home'
 } = Astro.props;
 ---
 
@@ -25,115 +24,29 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090c12" />
+    <meta name="robots" content="index, follow" />
     <meta name="description" content={description} />
-    
-    <!-- Favicon: Astrmira 4-point star -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSI+PGVsbGlwc2UgY3g9IjI0IiBjeT0iMjQiIHJ4PSIyMSIyeT0iOSIgdHJhbnNmb3JtPSJyb3RhdGUoLTM2IDI0IDI0KSIgc3Ryb2tlPSIjZDZiODgxIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxwYXRoIGQ9Ik0yNCA4QzI1LjMgMjAuMyAyNy43IDIyLjcgNDAgMjRDMjcuNyAyNS4zIDI1LjMgMjcuNyAyNCA0MEMyMi43IDI3LjcgMjAuMyAyNS4zIDggMjRDMjAuMyAyMi43IDIyLjcgMjAuMyAyNCA4WiIgZmlsbD0iI2Q2Yjg4MSIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTIiIHI9IjEuNyIgZmlsbD0iI2Q2Yjg4MSIvPjwvc3ZnPg==" />
-
-    <!-- Google Fonts: EB Garamond & Noto Serif SC -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet" />
-
     <title>{title}</title>
-
-    <!-- Schema.org JSON-LD for AI Search & Google indexing -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Astrmira",
         "alternateName": "幻梦星芒",
-        "url": "https://astrmira.com",
+        "url": "https://astrmira-web.pages.dev",
         "description": "Astrmira（幻梦星芒）是一家偏研究型企业，研究方向涵盖数据库、检索、向量、量化、后训练与数学，并探索数据系统、Agent 平台与科研合作。"
       }
     </script>
   </head>
   <body>
-    <!-- Ambient Stardust Canvas -->
-    <canvas id="starfield" aria-hidden="true"></canvas>
-
-    <!-- Header -->
-    <Header currentPath={currentPath} />
-
-    <!-- Living Celestial Companion -->
-    {showCompanion && <StarCompanion />}
-
-    <!-- Main Content -->
-    <main class="site-main">
+    <Starfield />
+    <Header currentRoute={route} />
+    <StarCompanion />
+    <main id="main" class="site-main" data-route={route} tabindex="-1">
       <slot />
     </main>
-
-    <!-- Footer -->
     <Footer />
-
-    <style>
-      #starfield {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 0;
-        opacity: 0.65;
-      }
-
-      .site-main {
-        position: relative;
-        z-index: 2;
-        min-height: 80vh;
-      }
-    </style>
-
-    <script>
-      // Subtle background twinkling stardust
-      (function initStarfield() {
-        const canvas = document.getElementById('starfield') as HTMLCanvasElement;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        let stars: Array<{ x: number; y: number; r: number; o: number; p: number }> = [];
-        let vw = window.innerWidth;
-        let vh = window.innerHeight;
-
-        function resize() {
-          vw = window.innerWidth;
-          vh = window.innerHeight;
-          const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-          canvas.width = Math.round(vw * dpr);
-          canvas.height = Math.round(vh * dpr);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-          stars = [];
-          const count = Math.min(160, Math.round((vw * vh) / 11000));
-          for (let i = 0; i < count; i++) {
-            stars.push({
-              x: Math.random() * vw,
-              y: Math.random() * vh,
-              r: 0.3 + Math.random() * 0.7,
-              o: 0.12 + Math.random() * 0.4,
-              p: Math.random() * Math.PI * 2
-            });
-          }
-        }
-
-        function paint(now: number) {
-          ctx.clearRect(0, 0, vw, vh);
-          for (const s of stars) {
-            const glow = 0.75 + 0.25 * Math.sin(now / 3500 + s.p);
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(175, 194, 216, ${s.o * glow})`;
-            ctx.fill();
-          }
-          requestAnimationFrame(paint);
-        }
-
-        window.addEventListener('resize', resize, { passive: true });
-        resize();
-        requestAnimationFrame(paint);
-      })();
-    </script>
+    <script src="../scripts/astrmira.js"></script>
   </body>
 </html>

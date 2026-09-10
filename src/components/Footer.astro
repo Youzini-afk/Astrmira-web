@@ -1,126 +1,21 @@
 ---
-// Footer.astro: Majestic watermark, metadata and observatory colophon
+// Site Footer
 ---
-
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-top">
       <span>RESEARCH-DRIVEN. POSSIBILITY-BOUND.</span>
-      <a href="#" class="back-to-top" id="btn-back-top">回到顶部 &uarr;</a>
+      <a href="#main" data-back-top>回到顶部 ↑</a>
     </div>
-
-    <!-- Huge Faint Wordmark -->
     <div class="footer-wordmark" aria-hidden="true">Astrmira</div>
-
     <div class="footer-bottom">
-      <div class="footer-copy">
-        <span>© 2026 Astrmira · 幻梦星芒</span>
-        <span class="sep">·</span>
-        <span class="muted">真实变星与算法系统的探索者</span>
-      </div>
-
+      <span>© 2026 Astrmira · 幻梦星芒</span>
+      <span>概念原型 / 业务状态与论文资料待补充</span>
       <div class="footer-links">
-        <a href="/projects">Projects</a>
-        <a href="/research">Research</a>
-        <a href="/about">About</a>
-        <a href="/contact">合作联系</a>
+        <a href="/projects/" data-route="projects">Projects</a>
+        <a href="/research/" data-route="research">Research</a>
+        <a href="/collaborate/" data-route="collaborate">合作联系</a>
       </div>
     </div>
   </div>
 </footer>
-
-<style>
-  .site-footer {
-    position: relative;
-    z-index: 5;
-    border-top: 1px solid var(--line);
-    overflow: hidden;
-    background: #080b10;
-  }
-
-  .footer-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding-top: 36px;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--faint);
-    letter-spacing: 0.1em;
-  }
-
-  .back-to-top:hover {
-    color: var(--gold);
-  }
-
-  .footer-wordmark {
-    font-family: var(--serif);
-    font-size: clamp(80px, 21vw, 320px);
-    letter-spacing: -0.06em;
-    line-height: 1.0;
-    color: rgba(194, 196, 199, 0.05);
-    text-align: center;
-    margin: 30px 0 -20px;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  .footer-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    border-top: 1px solid var(--line);
-    padding-block: 22px;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--faint);
-    flex-wrap: wrap;
-  }
-
-  .footer-copy {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .footer-copy .sep {
-    color: var(--line);
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 24px;
-  }
-
-  .footer-links a {
-    transition: color 0.2s;
-  }
-
-  .footer-links a:hover {
-    color: var(--gold);
-  }
-
-  @media (max-width: 768px) {
-    .footer-bottom {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    .footer-links {
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-  }
-</style>
-
-<script>
-  const backTop = document.getElementById('btn-back-top');
-  if (backTop) {
-    backTop.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-</script>
