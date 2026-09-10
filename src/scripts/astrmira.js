@@ -279,6 +279,7 @@
   const starCanvas = $('#starfield');
   const starCtx = starCanvas?.getContext('2d');
   let stars = [], textParticles = [], vw = innerWidth, vh = innerHeight;
+  let glyphLayers = [];
   let textOriginX = 0, textOriginY = 0;
   let stardustSparks = [];
   let lastPaint = 0;
@@ -351,7 +352,108 @@
     }
   }
 
+  function createGlyphLayer(hero, glyph, left, top, width, height, dpr, isTitle, visible) {
+    const canvas = document.createElement('canvas');
+    canvas.width = glyph.width;
+    canvas.height = glyph.height;
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.className = 'hero-glyph-surface';
+    Object.assign(canvas.style, {
+      position: 'absolute', pointerEvents: 'none',
+      left: `${left}px`, top: `${top}px`,
+      width: `${glyph.width / dpr}px`, height: `${glyph.height / dpr}px`
+    });
+    const ctx = canvas.getContext('2d');
+    const mask = document.createElement('canvas');
+    const cellSize = isTitle ? 12 : 6;
+    const columns = Math.ceil(width / cellSize) + 1;
+    const rows = Math.ceil(height / cellSize) + 1;
+    mask.width = columns; mask.height = rows;
+    const maskCtx = mask.getContext('2d');
+    if (!ctx || !maskCtx) return null;
+    const image = maskCtx.createImageData(columns, rows);
+    for (let i = 0; i < image.data.length; i += 4) {
+      image.data[i] = image.data[i + 1] = image.data[i + 2] = 255;
+    }
+    const layer = {
+      canvas, ctx, glyph, mask, maskCtx, image, dpr, cellSize, columns, rows,
+      particles: [], needsPaint: true,
+      cells: Array.from({ length: columns * rows }, (_, i) => ({
+        x: i % columns, y: Math.floor(i / columns),
+        count: 0, sum: 0, alpha: visible ? 1 : 0, source: null
+      }))
+    };
+    hero.append(canvas);
+    glyphLayers.push(layer);
+    return layer;
+  }
+
+  function finishGlyphLayer(layer) {
+    const occupied = layer.cells.filter(cell => cell.count);
+    // Empty mask cells inherit the nearest stroke, preserving antialiased
+    // edges without exposing them before their particles arrive.
+    for (const cell of layer.cells) {
+      if (cell.count) continue;
+      let distance = Infinity;
+      for (const candidate of occupied) {
+        const d = (candidate.x - cell.x) ** 2 + (candidate.y - cell.y) ** 2;
+        if (d < distance) { distance = d; cell.source = candidate; }
+      }
+    }
+  }
+
+  function updateGlyphLayers(heroLeft, heroTop, frameStep) {
+    for (const layer of glyphLayers) {
+      for (const cell of layer.cells) cell.sum = 0;
+      for (const p of layer.particles) {
+        const distance = Math.hypot(p.x - heroLeft - p.relX, p.y - heroTop - p.relY);
+        const arrival = introStart ? smoothstep((p.introProgress - 0.72) / 0.28) : 1;
+        p.glyphCell.sum += arrival * (1 - smoothstep((distance - 1) / 9));
+      }
+      for (const cell of layer.cells) {
+        if (!cell.count) continue;
+        const target = cell.sum / cell.count;
+        const blend = 1 - Math.exp(-frameStep / (target < cell.alpha ? 4 : 7));
+        cell.alpha = paused ? target : cell.alpha + (target - cell.alpha) * blend;
+        if (Math.abs(target - cell.alpha) < 0.002) cell.alpha = target;
+      }
+      let changed = layer.needsPaint;
+      for (let i = 0; i < layer.cells.length; i++) {
+        const cell = layer.cells[i];
+        if (!cell.count) cell.alpha = cell.source?.alpha || 0;
+        const alpha = Math.round(cell.alpha * 255);
+        const index = i * 4 + 3;
+        if (layer.image.data[index] !== alpha) changed = true;
+        layer.image.data[index] = alpha;
+      }
+
+      // Match the glyph's bilinear mask exactly. Particle opacity is its
+      // complement, including while the particle is displaced from its home.
+      const alphaAt = (x, y) => layer.image.data[(y * layer.columns + x) * 4 + 3] / 255;
+      for (const p of layer.particles) {
+        const x = p.glyphX / layer.cellSize, y = p.glyphY / layer.cellSize;
+        const ix = Math.floor(x), iy = Math.floor(y);
+        const fx = x - ix, fy = y - iy;
+        p.glyphBlend = (alphaAt(ix, iy) * (1 - fx) + alphaAt(ix + 1, iy) * fx) * (1 - fy)
+          + (alphaAt(ix, iy + 1) * (1 - fx) + alphaAt(ix + 1, iy + 1) * fx) * fy;
+      }
+
+      if (!changed) continue;
+      layer.maskCtx.putImageData(layer.image, 0, 0);
+      layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+      layer.ctx.globalCompositeOperation = 'source-over';
+      layer.ctx.drawImage(layer.glyph, 0, 0);
+      layer.ctx.globalCompositeOperation = 'destination-in';
+      const scale = layer.cellSize * layer.dpr;
+      layer.ctx.drawImage(layer.mask, -scale / 2, -scale / 2, layer.columns * scale, layer.rows * scale);
+      layer.ctx.globalCompositeOperation = 'source-over';
+      layer.needsPaint = false;
+    }
+  }
+
   function sampleTextParticles() {
+    glyphLayers.forEach(layer => layer.canvas.remove());
+    glyphLayers = [];
     const hero = $('.hero');
     const copy = $('.hero-copy');
     if (!hero || !copy) { textParticles = []; return; }
@@ -382,28 +484,34 @@
       const pad = 16;
       const w = textWidth + pad * 2;
       const h = textHeight + pad * 2;
-      offCanvas.width = w;
-      offCanvas.height = h;
+      // Full glyphs and their particles share one raster at native screen
+      // resolution; the viewport star canvas can keep its lighter buffer.
+      const dpr = devicePixelRatio || 1;
+      offCanvas.width = Math.ceil(w * dpr);
+      offCanvas.height = Math.ceil(h * dpr);
 
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
       try { ctx.letterSpacing = letterSpacing; } catch (_) {}
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = `rgb(${targetRgb.join(',')})`;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'left';
       ctx.fillText(text, pad, h / 2);
 
-      const imgData = ctx.getImageData(0, 0, w, h).data;
+      const imgData = ctx.getImageData(0, 0, offCanvas.width, offCanvas.height).data;
       const startX = targetCenterX - textWidth / 2 - pad;
       const startY = targetCenterY - h / 2;
+      const glyphLayer = createGlyphLayer(hero, offCanvas, startX, startY, w, h, dpr, isTitle, isAlreadySolidified && !introStart);
 
       const isMobile = vw < 720;
       const isSmall = fontSize <= 18;
-      // High-precision subpixel sampling: small text is sampled densely (step 1.0px) so every stroke is 100% legible
+      // Sampling controls the flying particles; the cached glyph keeps the
+      // complete strokes once this region has gathered.
       const lineStep = isTitle ? (isMobile ? 2.5 : 1.9) : (isSmall ? (isMobile ? 1.2 : 1.0) : (isMobile ? 1.5 : 1.25));
 
       for (let py = 0; py < h; py += lineStep) {
         for (let px = 0; px < w; px += lineStep) {
-          const idx = (Math.floor(py) * w + Math.floor(px)) * 4;
+          const idx = (Math.floor(py * dpr) * offCanvas.width + Math.floor(px * dpr)) * 4;
           const pixelAlpha = imgData[idx + 3] / 255;
           if (pixelAlpha > 0.18) {
             const relX = startX + px;
@@ -413,7 +521,7 @@
             const targetRadius = isTitle ? 1.0 : (isSmall ? 0.65 : 0.82);
             const swirlDir = Math.random() < 0.5 ? -1 : 1;
 
-            points.push({
+            const particle = {
               relX, relY,
               x: heroRect.left + relX,
               y: heroRect.top + relY,
@@ -430,10 +538,20 @@
               settled: isAlreadySolidified,
               dislodged: false,
               dislodgedFactor: 0
-            });
+            };
+            if (glyphLayer) {
+              particle.glyphX = px;
+              particle.glyphY = py;
+              particle.glyphBlend = 0;
+              particle.glyphCell = glyphLayer.cells[Math.round(py / glyphLayer.cellSize) * glyphLayer.columns + Math.round(px / glyphLayer.cellSize)];
+              particle.glyphCell.count++;
+              glyphLayer.particles.push(particle);
+            }
+            points.push(particle);
           }
         }
       }
+      if (glyphLayer) finishGlyphLayer(glyphLayer);
     }
 
     // 1. Kicker: 幻梦星芒 / ASTR — MIRA
@@ -674,7 +792,6 @@
           p.dislodged = false;
           p.dislodgedFactor = 0;
           p.glow = 0;
-          p.glow = 0;
           p.vx = 0; p.vy = 0;
         }
       }
@@ -842,6 +959,8 @@
       }
     }
 
+    updateGlyphLayers(heroLeft, heroTop, frameStep);
+
     // 3. A sparse travelling star becomes a glyph; nearby detail fades in only
     // as it arrives, keeping empty space clear during the opening.
     if (textParticles.length > 0) {
@@ -860,6 +979,7 @@
         } else if (p.dislodged) {
           alpha = clamp(alpha + p.glow * 0.35, 0, 1);
         }
+        if (p.glyphCell) alpha *= 1 - p.glyphBlend;
         if (alpha <= 0.01) continue;
 
         let rgb;
@@ -968,6 +1088,11 @@
     }
     maskRadius = 0; targetMaskRadius = 0;
     stardustSparks = [];
+    for (const layer of glyphLayers) {
+      layer.cells.forEach(cell => { cell.alpha = 0; });
+      layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+      layer.needsPaint = true;
+    }
     const hero = $('.hero');
     const heroRect = hero ? hero.getBoundingClientRect() : { left: 0, top: 0 };
     textOriginX = heroRect.left;
