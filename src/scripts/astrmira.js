@@ -1,6 +1,7 @@
 import { mountArticleTocs } from './article-toc.js';
 import { mountPaperCarousels } from './paper-carousel.js';
 import { createMotionController } from './motion-controller.js';
+import { mountSiteMenu } from './site-menu.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -17,6 +18,7 @@ import { createMotionController } from './motion-controller.js';
   let brief = '';
   let copiedTimer;
   const motion = createMotionController(main);
+  const closeMenu = mountSiteMenu();
   let disposeArticleTocs = () => {};
   let disposePaperCarousels = () => {};
 
@@ -31,8 +33,7 @@ import { createMotionController } from './motion-controller.js';
       if (route === a.dataset.route || route.startsWith(a.dataset.route + '/')) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
-    $('[data-menu-toggle]')?.setAttribute('aria-expanded', 'false');
-    $('.site-nav')?.classList.remove('is-open');
+    closeMenu();
     drawQuant(3); drawAgent();
     if (focus) main?.focus({ preventScroll: true });
     motion.refresh();
@@ -171,11 +172,6 @@ import { createMotionController } from './motion-controller.js';
     if (routeLink && standalone && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
       e.preventDefault(); go(routeLink.dataset.route); return;
     }
-    if (target.closest('[data-menu-toggle]')) {
-      const button = $('[data-menu-toggle]');
-      const open = button.getAttribute('aria-expanded') !== 'true';
-      button.setAttribute('aria-expanded', String(open)); $('.site-nav')?.classList.toggle('is-open', open); return;
-    }
     if (target.closest('[data-back-top]')) { e.preventDefault(); window.scrollTo({top:0,behavior:motion.paused ? 'instant' : 'smooth'}); main?.focus({preventScroll:true}); return; }
     const tab = target.closest('[data-lab-tab]'); if (tab) { activateTab(tab.dataset.labTab); return; }
     if (target.closest('[data-query-reset]')) { moveQuery(288,154); return; }
@@ -217,12 +213,6 @@ import { createMotionController } from './motion-controller.js';
     if (t.matches('[data-research-search]')) filterResearchItems();
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      const toggle = $('[data-menu-toggle]');
-      if (toggle?.getAttribute('aria-expanded') === 'true') {
-        toggle.setAttribute('aria-expanded','false'); $('.site-nav')?.classList.remove('is-open'); toggle.focus();
-      }
-    }
     if (!e.target.matches?.('[data-lab-tab]')) return;
     const keys=['vector','quant','agent']; const i=keys.indexOf(e.target.dataset.labTab);
     const next=e.key==='ArrowRight'?(i+1)%3:e.key==='ArrowLeft'?(i+2)%3:e.key==='Home'?0:e.key==='End'?2:-1;

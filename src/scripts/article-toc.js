@@ -19,6 +19,8 @@ export function activeHeadingAt(positions, line, currentId, preferredId) {
 
 export function mountArticleTocs(root, isPaused = () => false) {
   if (!root) return () => {};
+  const compact = matchMedia('(max-width: 1000px)');
+  const english = document.documentElement.lang === 'en';
   const cleanups = [];
   const usedIds = new Set([...document.querySelectorAll('[id]')].map(node => node.id));
   for (const article of root.querySelectorAll('.article-layout')) {
@@ -35,18 +37,18 @@ export function mountArticleTocs(root, isPaused = () => false) {
     info.append(...aside.childNodes);
     const toc = document.createElement('details');
     toc.className = 'article-toc';
-    toc.open = true;
+    toc.open = !compact.matches;
     const summary = document.createElement('summary');
-    summary.textContent = '本页目录';
+    summary.textContent = english ? 'On this page' : '本页目录';
     const nav = document.createElement('nav');
-    nav.setAttribute('aria-label', '本页目录');
+    nav.setAttribute('aria-label', summary.textContent);
     const list = document.createElement('ul');
     nav.append(list); toc.append(summary, nav);
     aside.append(info, toc);
     aside.classList.add('has-article-toc');
 
     const entries = headings.map(heading => {
-      const label = heading === overview ? '概览' : heading.textContent.trim().replace(/\s+/g, ' ');
+      const label = heading === overview ? (english ? 'Overview' : '概览') : heading.textContent.trim().replace(/\s+/g, ' ');
       if (!heading.id) {
         const base = `section-${heading === overview ? 'overview' : headingSlug(label)}`;
         let id = base, suffix = 2;
@@ -91,6 +93,7 @@ export function mountArticleTocs(root, isPaused = () => false) {
       preferredId = entry.heading.id;
       if (location.hash !== link.hash) history.pushState(history.state, '', link.hash);
       setActive(preferredId);
+      if (compact.matches) toc.open = false;
       entry.heading.focus({ preventScroll: true });
       entry.heading.scrollIntoView({ behavior: isPaused() ? 'instant' : 'smooth', block: 'start' });
       schedule();
@@ -105,7 +108,10 @@ export function mountArticleTocs(root, isPaused = () => false) {
       schedule();
     };
 
+    const onLayoutChange = () => { toc.open = !compact.matches; schedule(); };
     nav.addEventListener('click', onClick);
+    toc.addEventListener('toggle', schedule);
+    compact.addEventListener('change', onLayoutChange);
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule, { passive: true });
     window.addEventListener('hashchange', onHashChange);
@@ -119,6 +125,8 @@ export function mountArticleTocs(root, isPaused = () => false) {
       cancelAnimationFrame(frame);
       observer.disconnect();
       nav.removeEventListener('click', onClick);
+      toc.removeEventListener('toggle', schedule);
+      compact.removeEventListener('change', onLayoutChange);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
       window.removeEventListener('hashchange', onHashChange);

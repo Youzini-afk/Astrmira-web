@@ -30,13 +30,13 @@ const en = locale === 'en';
   .paper-carousel-note, .paper-carousel-controls > span { color: var(--faint); font-size: 11px; letter-spacing: .03em; }
   .paper-carousel-controls { display: flex; align-items: center; gap: 9px; }
   .paper-carousel-controls > span { margin-right: 9px; }
-  .paper-carousel-controls button { display: grid; place-items: center; width: 42px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--gold); cursor: pointer; font-size: 20px; transition: border-color .2s, background-color .2s; }
+  .paper-carousel-controls button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line); background: transparent; color: var(--gold); cursor: pointer; font-size: 20px; transition: border-color .2s, background-color .2s; }
   .paper-carousel-controls button:hover:enabled { border-color: var(--gold); background: #d6b8810a; }
   .paper-carousel-controls button:disabled { opacity: .28; cursor: default; }
   .paper-carousel-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media (max-width: 1050px) { .paper-track { grid-auto-columns: calc((100% - 20px) / 2); } }
   @media (max-width: 720px) {
-    .paper-track { grid-auto-columns: 88%; gap: 16px; }
+    .paper-track { grid-auto-columns: 92%; gap: 16px; }
     .paper-carousel-note { font-size: 10px; max-width: 150px; line-height: 1.8; }
     .paper-carousel-controls > span { display: none; }
   }

@@ -14,6 +14,7 @@ export function createMotionController(main) {
   const mountedAt = performance.now();
   let worker, rendererReady = false, revision = 0, raf = 0, needsPublish = true, awaitingInput = false;
   let vw = innerWidth, vh = innerHeight, heroElement, heroCopy, heroBox = null, frameHeroRect = null;
+  let sceneDpr = devicePixelRatio || 1;
   let cometPath, cometParam = null, cometUpdatedAt = null, cometWorld = { x: 0, y: 0 }, targetX = 0, targetY = 0;
   let cometDockElement, cometDockSurface, cometDockObserver, companionPose = '', companionAppearance = '', dockAppearance = '';
   let cometHasDeparted = false, cometStrands = [], openingPaths = [], openingMatrix = [1,0,0,1,0,0], pathDirty = true;
@@ -77,7 +78,8 @@ export function createMotionController(main) {
   async function refreshLayout() {
     const current = ++revision;
     heroElement = $('.hero'); heroCopy = $('.hero-copy');
-    vw = innerWidth; vh = innerHeight;
+    vw = canvas?.clientWidth || innerWidth; vh = canvas?.clientHeight || innerHeight;
+    sceneDpr = devicePixelRatio || 1;
     measureHero(); prepareHeroTail(); observeCometDock(); updateMotionButtons();
     if (!worker) { fallback(); return; }
     // Read fonts once; subsequent frames never measure or rasterize text.
@@ -88,15 +90,21 @@ export function createMotionController(main) {
     if (current !== revision || !worker) { glyphs.forEach(g => g.bitmap.close()); return; }
     rendererReady = false; pathDirty = true;
     placeStar(true);
-    const layout = { width: vw, height: vh, dpr: devicePixelRatio || 1, hero: heroBox,
+    const layout = { width: vw, height: vh, dpr: sceneDpr, hero: heroBox,
       path: cometPath, matrix: openingMatrix, openingPaths, strands: cometStrands, glyphs };
     worker.postMessage({ type: 'layout', revision, layout, state: state() }, glyphs.map(g => g.bitmap));
     schedule();
   }
   function heroStarAnchor(rect) {
+    if (matchMedia('(max-height: 500px) and (min-width: 600px) and (max-width: 1100px)').matches) {
+      return { x: rect.left + rect.width * .84, y: rect.top + rect.height * .5 };
+    }
+    if (vw <= 720) {
+      return { x: rect.left + rect.width * .78, y: rect.top + Math.min(135, rect.height * .2) };
+    }
     return {
-      x: rect.left + rect.width * (vw < 720 ? .81 : .79),
-      y: rect.top + rect.height * (vw < 720 ? .245 : .265)
+      x: rect.left + rect.width * .79,
+      y: rect.top + rect.height * .265
     };
   }
 
@@ -265,6 +273,7 @@ export function createMotionController(main) {
     // Yield the opening to the visitor's navigation intent. The glyph masks
     // still blend into their settled state while the whole hero fades away.
     introStart = 0;
+    heroCopy?.classList.add('is-settled', 'is-solidified');
     pointer = { x: -9999, y: -9999, vx: 0, vy: 0, sequence: pointer.sequence + 1 };
     if (paused || reduced.matches) {
       window.scrollTo({ top: from + distance, behavior: 'instant' });
@@ -385,7 +394,7 @@ export function createMotionController(main) {
     if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ','Escape','Tab'].includes(event.key)) cancelHeroDeparture();
   });
   window.addEventListener('pointermove', event => {
-    if (!finePointer.matches || paused) return;
+    if (!finePointer.matches || event.pointerType === 'touch' || paused) return;
     pointer = { x: event.clientX, y: event.clientY,
       vx: pointer.x > -1000 ? (event.clientX - pointer.x) * .4 : 0,
       vy: pointer.y > -1000 ? (event.clientY - pointer.y) * .4 : 0, sequence: pointer.sequence + 1 };
@@ -394,8 +403,21 @@ export function createMotionController(main) {
   document.addEventListener('mouseleave', () => {
     pointer = { x: -9999, y: -9999, vx: 0, vy: 0, sequence: pointer.sequence + 1 }; schedule();
   });
-  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('scroll', () => {
+    // Native touch scrolling can start before the opening finishes. Release
+    // its clock and ease from the current star position into the scroll path.
+    if (introStart && window.scrollY > 1) {
+      introStart = 0;
+      heroCopy?.classList.add('is-settled', 'is-solidified');
+    }
+    schedule();
+  }, { passive: true });
   window.addEventListener('resize', () => {
+    // The canvas uses stable large-viewport units. Toolbar and keyboard
+    // changes need no new glyph bitmaps, particles, or comet history.
+    if (vw === (canvas?.clientWidth || innerWidth) && vh === (canvas?.clientHeight || innerHeight) && sceneDpr === (devicePixelRatio || 1)) {
+      schedule(); return;
+    }
     cancelHeroDeparture(); clearTimeout(resizeTimer); resizeTimer = setTimeout(refresh, 100);
   }, { passive: true });
   document.addEventListener('visibilitychange', () => {
