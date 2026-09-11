@@ -112,9 +112,9 @@ const source = 'https://apod.nasa.gov/apod/ap070817.html';
   .about-content h2 { font-size: clamp(25px, 2.2vw, 32px); line-height: 1.55; letter-spacing: .01em; margin-bottom: 24px; text-wrap: pretty; }
   .about-chapter + .about-chapter { margin-top: 76px; }
   .name-stories { margin-top: 34px; }
-  .name-story { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 26px; padding-block: 30px; border-top: 1px solid var(--line); }
-  .name-term { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--gold); font: 25px/1.5 var(--serif); }
-  .name-term span { font: 9px var(--sans); }
+  .name-story { display: grid; grid-template-columns: minmax(112px, max-content) minmax(0, 1fr); gap: 26px; padding-block: 30px; border-top: 1px solid var(--line); }
+  .name-term { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; white-space: nowrap; color: var(--gold); font: 25px/1.5 var(--serif); }
+  .name-term span { flex-shrink: 0; font: 9px var(--sans); }
   .name-story h3 { margin: 0 0 14px; font-size: 20px; line-height: 1.6; }
   .name-story .record-source { margin-top: 16px; }
   .about-content .name-afterword { padding: 22px 24px; border-left: 1px solid var(--gold); background: #d6b88105; color: var(--text); }
