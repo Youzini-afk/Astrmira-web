@@ -68,13 +68,16 @@ const offsets = [[0, -5], [5, 0], [0, 5], [-5, 0]];
 
   .hero-particle-link { --field-active: 0; --field-depth: 0%; --field-reveal-time: 0s; --field-reveal-delay: .45s; --field-travel-time: .45s; position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; min-height: 52px; padding: 14px 20px; border: 1px solid #b3c9df30; border-radius: 9px; background: #111820cc; color: #e3e7eb; font: 500 14px/1.55 var(--sans); letter-spacing: .025em; text-decoration: none; transition: color .3s, border-color .3s; }
   .hero-link-label { position: relative; z-index: 1; text-align: center; text-wrap: balance; text-shadow: 0 1px 2px #070b12; }
+  .hero-research { --hover-ink: #171c22; --hover-border: #f5eedb; background: #e8e1d2; border-color: #f5eee080; color: #22272d; box-shadow: inset 0 1px #ffffff60; }
+  .hero-research .hero-link-label { text-shadow: none; }
+  .hero-research .hero-button-field { filter: brightness(.4) saturate(.6); }
   /* The inner aperture closes towards the centre, exposing actual star points
      from all four borders. It never draws a solid fill over the button. */
   .hero-button-field { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; opacity: var(--field-active); clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, var(--field-depth) var(--field-depth), var(--field-depth) calc(100% - var(--field-depth)), calc(100% - var(--field-depth)) calc(100% - var(--field-depth)), calc(100% - var(--field-depth)) var(--field-depth), var(--field-depth) var(--field-depth)); transition: opacity .45s ease, clip-path var(--field-reveal-time) cubic-bezier(.3,.05,.25,1) var(--field-reveal-delay); }
   .hero-star-sheet { position: absolute; inset: 0; background-image: var(--star-image); background-size: 100% 100%; background-repeat: no-repeat; transform: translate(calc(var(--from-x) * (1 - var(--field-active))), calc(var(--from-y) * (1 - var(--field-active)))); transition: transform var(--field-travel-time) cubic-bezier(.3,.05,.25,1); }
-  .hero-particle-link:focus-visible { --field-active: 1; --field-depth: 50%; --field-reveal-time: .95s; --field-reveal-delay: .03s; --field-travel-time: .95s; color: #f1eee7; border-color: #bdcbd875; outline: 2px solid var(--gold); outline-offset: 4px; }
+  .hero-particle-link:focus-visible { --field-active: 1; --field-depth: 50%; --field-reveal-time: .95s; --field-reveal-delay: .03s; --field-travel-time: .95s; color: var(--hover-ink, #f1eee7); border-color: var(--hover-border, #bdcbd875); outline: 2px solid var(--gold); outline-offset: 4px; }
   @media (hover: hover) and (pointer: fine) {
-    .hero-particle-link:hover { --field-active: 1; --field-depth: 50%; --field-reveal-time: .95s; --field-reveal-delay: .03s; --field-travel-time: .95s; color: #f1eee7; border-color: #bdcbd875; }
+    .hero-particle-link:hover { --field-active: 1; --field-depth: 50%; --field-reveal-time: .95s; --field-reveal-delay: .03s; --field-travel-time: .95s; color: var(--hover-ink, #f1eee7); border-color: var(--hover-border, #bdcbd875); }
   }
   .hero-particle-link:active { --field-active: 1; --field-depth: 50%; --field-reveal-time: 0s; --field-reveal-delay: 0s; --field-travel-time: 0s; border-color: #d3cfb9; }
   .hero-particle-link:active .hero-button-field { transition: none; }
