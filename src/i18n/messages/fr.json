@@ -93,7 +93,7 @@
     "contact": {
       "copy": "Copier l’adresse e-mail",
       "copied": "Adresse copiée",
-      "success": "Adresse copiée. Collez-la dans le champ destinataire de votre messagerie habituelle.",
+      "success": "Adresse copiée",
       "fallback": "L’adresse est sélectionnée. Utilisez la commande de copie de votre système ou un appui long sur l’adresse.",
       "manual": "Vous pouvez aussi sélectionner l’adresse ou faire un appui long pour la copier."
     }

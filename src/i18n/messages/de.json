@@ -93,7 +93,7 @@
     "contact": {
       "copy": "E-Mail-Adresse kopieren",
       "copied": "Kopiert",
-      "success": "Adresse kopiert. Fügen Sie sie im Empfängerfeld Ihres gewohnten E-Mail-Dienstes ein.",
+      "success": "Adresse kopiert",
       "fallback": "Die Adresse ist markiert. Nutzen Sie den Kopierbefehl Ihres Systems oder halten Sie die Adresse zum Kopieren gedrückt.",
       "manual": "Sie können die Adresse auch markieren oder zum Kopieren gedrückt halten."
     }
