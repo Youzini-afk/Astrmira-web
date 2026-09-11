@@ -3,6 +3,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
 import { createMotionController } from './motion-controller.js';
 import { mountSiteMenu } from './site-menu.js';
 import { getUi, countLabel } from './ui.js';
+import { copyContactEmail } from './contact.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -16,8 +17,6 @@ import { getUi, countLabel } from './ui.js';
   let filterResearch = 'all';
   let queryY = 154;
   let agentStage = 0;
-  let brief = '';
-  let copiedTimer;
   const motion = createMotionController(main);
   const closeMenu = mountSiteMenu();
   let disposeArticleTocs = () => {};
@@ -28,7 +27,8 @@ import { getUi, countLabel } from './ui.js';
     disposeArticleTocs = mountArticleTocs(main, () => motion.paused);
     disposePaperCarousels();
     disposePaperCarousels = mountPaperCarousels(main, () => motion.paused);
-    filterResearch = 'all'; queryY = 154; agentStage = 0; brief = '';
+    filterResearch = 'all'; queryY = 154; agentStage = 0;
+    $$('[data-copy-contact]').forEach(button => button.hidden = false);
     const route = main?.dataset.route || 'home';
     $$('.site-nav [data-route]').forEach(a => {
       if (route === a.dataset.route || route.startsWith(a.dataset.route + '/')) a.setAttribute('aria-current', 'page');
@@ -187,24 +187,8 @@ import { getUi, countLabel } from './ui.js';
     const rf = target.closest('[data-research-filter]'); if (rf) { filterResearch = rf.dataset.researchFilter; filterResearchItems(); return; }
     if (target.closest('[data-replay]')) { motion.replay(); return; }
     if (target.closest('[data-motion-toggle]')) { motion.toggle(); return; }
-    if (target.closest('[data-copy-brief]') && brief) {
-      const status = $('[data-brief-status]');
-      try {
-        await navigator.clipboard.writeText(brief);
-        if (status) status.textContent = ui.form.copied;
-      } catch (_) {
-        const pre = $('[data-brief-text]');
-        const selection = window.getSelection(); const range = document.createRange();
-        range.selectNodeContents(pre); selection.removeAllRanges(); selection.addRange(range);
-        if (status) status.textContent = ui.form.copyFallback;
-      }
-      clearTimeout(copiedTimer); return;
-    }
-    if (target.closest('[data-download-brief]') && brief) {
-      const blob = new Blob([brief], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob); const a = document.createElement('a');
-      a.href = url; a.download = `Astrmira-${ui.form.briefTitle}.txt`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
-    }
+    const copyEmail = target.closest('[data-copy-contact]');
+    if (copyEmail) await copyContactEmail(copyEmail, ui.contact);
   });
   document.addEventListener('input', e => {
     const t = e.target;
@@ -219,17 +203,6 @@ import { getUi, countLabel } from './ui.js';
     const next=e.key==='ArrowRight'?(i+1)%3:e.key==='ArrowLeft'?(i+2)%3:e.key==='Home'?0:e.key==='End'?2:-1;
     if(next>=0){e.preventDefault();activateTab(keys[next],true);}
   });
-  document.addEventListener('submit', e => {
-    const form=e.target;if(!form.matches?.('[data-brief-form]'))return;
-    e.preventDefault(); if(!form.reportValidity())return;
-    const data=new FormData(form);
-    brief = `Astrmira · ${ui.form.briefTitle}\n\n${ui.form.briefName}: ${String(data.get('name') || ui.form.notProvided).trim()}\n${ui.form.briefOrganization}: ${String(data.get('organization') || ui.form.notProvided).trim()}\n${ui.form.briefArea}: ${data.get('area')}\n\n${ui.form.briefProblem}:\n${String(data.get('problem') || '').trim()}\n\n—\n${ui.form.briefSuffix}`;
-    $('[data-brief-text]').textContent=brief;
-    $('[data-brief-result]').hidden=false;
-    $('[data-brief-status]').textContent = ui.form.generated;
-    $('[data-brief-result]').scrollIntoView({behavior:motion.paused?'instant':'smooth',block:'nearest'});
-  });
-
 
   if (standalone && location.hash.startsWith('#/') && location.hash.length > 2) go(location.hash.slice(2), false);
   else initPage();

@@ -90,35 +90,12 @@
       "fullPdf": "Vollständiger Artikel als PDF",
       "related": "Verwandte Artikel"
     },
-    "form": {
-      "name": "Ihr Name (optional)",
-      "namePlaceholder": "Name",
-      "organization": "Organisation oder Team (optional)",
-      "organizationPlaceholder": "Universität, Labor oder Unternehmen",
-      "area": "Bereich der Zusammenarbeit",
-      "areas": [
-        "Gemeinsame Forschung",
-        "Datenbanken und Suchsysteme",
-        "Agentenplattformen und Anwendungen",
-        "Eine weitere Frage für den Austausch"
-      ],
-      "problem": "Welches Problem möchten Sie gemeinsam lösen? *",
-      "placeholder": "Hintergrund, vorhandene Grundlagen und gewünschtes Ergebnis…",
-      "submit": "Kooperationsskizze erstellen",
-      "note": "Sie können die Skizze kopieren oder herunterladen. Es wird nichts automatisch versendet.",
-      "result": "Ihre Kooperationsskizze",
-      "copy": "Text kopieren",
-      "download": "Als .txt speichern",
-      "generated": "Die Skizze wurde lokal erstellt und nicht versendet.",
-      "copied": "In die Zwischenablage kopiert. Die Skizze wurde nicht versendet.",
-      "copyFallback": "Automatisches Kopieren ist nicht verfügbar. Der Text ist markiert; verwenden Sie den Kopierbefehl Ihres Systems.",
-      "notProvided": "Nicht angegeben",
-      "briefTitle": "Kooperationsskizze",
-      "briefName": "Name",
-      "briefOrganization": "Organisation / Team",
-      "briefArea": "Bereich der Zusammenarbeit",
-      "briefProblem": "Problem und Ziel",
-      "briefSuffix": "Diese Skizze wurde in Ihrem Browser erstellt und nicht versendet."
+    "contact": {
+      "copy": "E-Mail-Adresse kopieren",
+      "copied": "Kopiert",
+      "success": "Adresse kopiert. Fügen Sie sie im Empfängerfeld Ihres gewohnten E-Mail-Dienstes ein.",
+      "fallback": "Die Adresse ist markiert. Nutzen Sie den Kopierbefehl Ihres Systems oder halten Sie die Adresse zum Kopieren gedrückt.",
+      "manual": "Sie können die Adresse auch markieren oder zum Kopieren gedrückt halten."
     }
   },
   "home": {
@@ -260,20 +237,50 @@
     "discuss": "Diese Richtung besprechen"
   },
   "collaborate": {
-    "title": "Mit Astrmira zusammenarbeiten",
-    "description": "Beginnen Sie eine Zusammenarbeit mit Astrmira in Forschung oder Entwicklung.",
-    "label": "Zusammenarbeit / Mit einer Frage beginnen",
+    "title": "Kontakt und Zusammenarbeit — Astrmira",
+    "description": "Sprechen Sie mit Astrmira über Forschung, Systeme und offene Projekte. Teilen Sie Fragen und Ideen für eine Zusammenarbeit per E-Mail.",
+    "label": "Kontakt und Zusammenarbeit",
     "heading": [
-      "Die nächste Frage",
-      "beginnt mit Ihnen."
+      "Gute Fragen.",
+      "Gemeinsame Neugier."
     ],
-    "introduction": "Bringen Sie einen realen Anwendungsfall, eine offene Frage oder einen Forschungsplan mit. Wir klären zuerst das Problem und entscheiden dann, wie wir gemeinsam vorankommen.",
-    "sideTitle": "Beginnen wir mit dem Problem.",
-    "sideNote": "Beschreiben Sie Hintergrund, vorhandene Grundlagen und gewünschtes Ergebnis, um eine kurze Kooperationsskizze zu erstellen.",
-    "aspects": [
-      "Datenbanken und Suche",
-      "Agentenanwendungen",
-      "Forschung und Hochschulen"
+    "introduction": "Eine Forschungsfrage, eine Herausforderung im System oder eine Idee, die noch Gestalt annimmt. Wir freuen uns auf den Austausch mit Forschenden, Entwicklern und Teams über lohnende gemeinsame Vorhaben.",
+    "emailLabel": "An Astrmira schreiben",
+    "emailNote": "Schreiben Sie von Ihrem gewohnten E-Mail-Konto aus. So bleiben Ideen, Unterlagen und der weitere Austausch in einem Gespräch verbunden.",
+    "directionsLabel": "Was wir gemeinsam angehen können",
+    "directionsTitle": "Verschiedene Ausgangspunkte. Ein gemeinsames Gespräch.",
+    "directions": [
+      {
+        "title": "Forschungskooperation",
+        "text": "Artikel und Methoden diskutieren, Ergebnisse reproduzieren, Experimente durchführen oder gemeinsam forschen. Perspektiven aus anderen Fachgebieten sind willkommen."
+      },
+      {
+        "title": "Systeme und Anwendungen",
+        "text": "Von Datenbanken und Suche bis zur Ausführung von Agenten: konkrete Anwendungsfälle, technische Anforderungen und Wege von der Forschung in die Praxis erkunden."
+      },
+      {
+        "title": "Austausch zu Open Source",
+        "text": "Teilen Sie Erfahrungen mit TriviumDB, infOS oder Piarium, schlagen Sie Verbesserungen vor oder besprechen Sie einen Beitrag. Gemeinsam richten wir die Werkzeuge an realen Problemen aus."
+      }
+    ],
+    "researchLink": "Unsere Forschung entdecken",
+    "projectsLink": "Offene Projekte ansehen",
+    "writingLabel": "Ihre erste E-Mail",
+    "writingTitle": "Eine Idee genügt für den Anfang.",
+    "writingNote": "Sie brauchen keinen fertigen Vorschlag. Etwas Hintergrund und Ihre Erwartungen geben uns einen Ausgangspunkt.",
+    "prompts": [
+      {
+        "title": "Woran Sie arbeiten",
+        "text": "Ihre Forschung, Ihr Projekt oder Team und der aktuelle Stand der Arbeit."
+      },
+      {
+        "title": "Was Sie gemeinsam erkunden möchten",
+        "text": "Eine Frage, eine Herausforderung oder eine mögliche Form der Zusammenarbeit."
+      },
+      {
+        "title": "Hilfreiche Unterlagen",
+        "text": "Artikel, Code-Repositories, Projektlinks oder andere passende Materialien können Sie gerne beifügen."
+      }
     ]
   },
   "fields": {

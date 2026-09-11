@@ -21,6 +21,7 @@ Astrmira-web/
 │   │   ├── ProjectCard.astro # TriviumDB、infOS、Piarium 共用卡片
 │   │   ├── PaperCarousel.astro # 可横向翻阅的论文卡片
 │   │   ├── AboutPage.astro # 关于页共用结构
+│   │   ├── ContactPage.astro # 七语言联系页、邮箱与来信建议
 │   │   ├── pages/          # 国际化首页、列表、详情和合作页模板
 │   │   └── Footer.astro    # 宏大水印与页脚信息
 │   ├── data/               # 项目、论文元数据与基础文案
@@ -35,7 +36,7 @@ Astrmira-web/
 │       ├── projects/       # 简体中文项目列表与详情
 │       ├── research/       # 简体中文论文、研究方向与详情
 │       ├── about.astro     # 关于页入口
-│       ├── collaborate.astro # 合作简报生成页
+│       ├── collaborate.astro # 邮箱联系与合作页
 │       └── [locale]/[...path].astro # 六种带语言前缀的静态页面
 ├── astro.config.mjs        # Astro 配置文件（默认纯静态输出）
 ├── wrangler.toml           # Cloudflare Pages 配置文件
@@ -69,14 +70,21 @@ npm run preview
 - 英文与五种新语言共用 `src/components/pages/` 模板，由动态路由在构建时生成。页面长文案只参与静态构建，浏览器仅接收当前语言的交互文案，不下载所有翻译。原有简体中文页面保留。
 - 翻译文件在 `src/i18n/messages/`，对应 `base-content.ts` 的结构。品牌、仓库、许可证标识、论文原题和作者等元数据共用；展示文案全部提供翻译，数组长度和 `{count}`、`{language}` 等占位符必须一致，缺失会直接使构建失败。
 - 增加内容时同步更新五份翻译；新增语言需补齐翻译、扩展 `src/i18n.ts` 类型并加入 `routing.js` 的 `LOCALES`，路由和菜单会自动生成。
-- 验证：`node --test tests/*.test.js`；构建后运行 `node scripts/check-i18n-browser.mjs`，检查全部路由、语言识别、选择记忆、链接、移动菜单、无 JS 导航、本地化筛选、目录与合作简报。需要现有 Playwright 和 Edge，可设置 `PLAYWRIGHT_MODULE` 指向模块路径。
+- 验证：`node --test tests/*.test.js`；构建后运行 `node scripts/check-i18n-browser.mjs`，检查全部路由、语言识别、选择记忆、链接、移动菜单、无 JS 导航、本地化筛选、目录与联系邮箱复制。需要现有 Playwright 和 Edge，可设置 `PLAYWRIGHT_MODULE` 指向模块路径。
+
+## 联系邮箱
+
+- `/collaborate/` 与 `/contact/` 使用同一联系页，七种语言共用 `src/components/ContactPage.astro`。页面展示邮箱、合作方向与来信建议，客户使用自己的邮箱撰写。
+- 收件地址通过 `PUBLIC_CONTACT_EMAIL` 配置，默认 `contact@astrmira.com`。本地可以复制 `.env.example` 为 `.env`；Cloudflare Pages 中在项目的构建环境变量里设置该值，然后重新构建部署。地址是公开信息，不需要邮件密码或 API 密钥。
+- 邮箱在静态构建时写入 HTML，修改环境变量需要重新构建；只接受一个邮箱地址，错误配置会使构建失败，避免发布不可用的联系方式。
+- 「复制邮箱」只操作剪贴板，不跳转邮件应用，不提交内容。剪贴板不可用时选中地址并提示手动复制；禁用 JavaScript 时仍显示地址和复制说明。
 
 ## 手机与平板
 
 - 共用的响应式布局位于 `src/styles/responsive.css`，卡片内部样式保留在各组件中。项目卡片在 1100px 以下分两列，720px 以下单列；导航在 900px 以下收起；详情目录在 1000px 以下折叠到正文上方。
 - 首屏使用稳定的小视口高度，背景画布使用大视口高度，地址栏伸缩不重建粒子。真正的窗口尺寸、方向或像素密度变化仍会重新测量字形和星尾。
 - 手机使用原生触摸滚动和横向翻阅；按钮按触摸设备扩大点击区域，保留页面缩放。横屏和设备安全区域分别适配。
-- 构建后运行 `node scripts/check-responsive-browser.mjs`，检查中英文代表页面在 8 种尺寸下的布局，以及触摸、导航、目录、表单、旋转与无 JavaScript 导航。需要 Playwright 和已安装的 Edge；可用 `PLAYWRIGHT_MODULE` 指定现有 Playwright 模块路径。可选 `--screenshots=<目录>` 保存截图。
+- 构建后运行 `node scripts/check-responsive-browser.mjs`，检查中英文代表页面在 8 种尺寸下的布局，以及触摸、导航、目录、邮箱复制、旋转与无 JavaScript 导航。需要 Playwright 和已安装的 Edge；可用 `PLAYWRIGHT_MODULE` 指定现有 Playwright 模块路径。可选 `--screenshots=<目录>` 保存截图。
 - 多语言排版可追加 `--locales=zh-hant,ja,ko,fr,de --sizes=320x568,820x1180,1440x900`；`node scripts/check-glyph-clarity.mjs --locales=zh-Hant,ja,ko,fr,de` 验证新增语言的移动端原生像素字形与背景动画隔离。
 
 ---

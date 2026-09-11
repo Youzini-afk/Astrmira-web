@@ -1,0 +1,155 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getContent, getUi } from '../i18n/content';
+import { contactChinese } from '../data/contact';
+import { resolveContactEmail } from '../config/contact.js';
+import { localePath, type Locale } from '../i18n';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-cn' } = Astro.props;
+const copy = locale === 'zh-cn' ? contactChinese : getContent(locale).collaborate;
+const ui = getUi(locale).contact;
+const email = resolveContactEmail(import.meta.env.PUBLIC_CONTACT_EMAIL);
+const cjk = locale.startsWith('zh') || locale === 'ja' || locale === 'ko';
+const href = (path: string) => localePath(path, locale);
+const symbols = [
+  'M5 6h7c2 0 4 1 4 3v19c0-2-2-3-4-3H5V6Zm22 0h-7c-2 0-4 1-4 3v19c0-2 2-3 4-3h7V6Z',
+  'm16 4 12 6-12 6L4 10l12-6ZM4 16l12 6 12-6M4 22l12 6 12-6',
+  'm11 9-7 7 7 7m10-14 7 7-7 7m-3-18-4 26',
+];
+---
+
+<Layout locale={locale} title={copy.title} description={copy.description} route="collaborate">
+  <div class="wrap contact-page">
+    <section class="contact-intro" aria-labelledby="contact-heading">
+      <div class="contact-opening">
+        <p class="eyebrow">{copy.label}</p>
+        <h1 id="contact-heading" class:list={{ 'cjk-heading': cjk }}>{copy.heading[0]}<br /><em>{copy.heading[1]}</em></h1>
+        <p class="contact-lede">{copy.introduction}</p>
+      </div>
+
+      <section class="contact-card" aria-labelledby="contact-email-label">
+        <div class="contact-card-heading">
+          <p class="eyebrow" id="contact-email-label">{copy.emailLabel}</p>
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="1" /><path d="m3 7 13 11L29 7M3 26l9-11m17 11-9-11" /></svg>
+        </div>
+        <p class="contact-address" data-contact-email dir="ltr" translate="no">{email}</p>
+        <p class="contact-email-note">{copy.emailNote}</p>
+        <div class="contact-copy-area">
+          <button type="button" class="button button-primary" data-copy-contact hidden>
+            <svg class="copy-symbol" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M6 5V2h11v12h-3" /><rect x="3" y="6" width="10" height="12" rx="1" /></svg>
+            <svg class="copied-symbol" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="m4 10 4 4 8-8" /></svg>
+            <span data-copy-contact-label>{ui.copy}</span>
+          </button>
+          <p class="contact-copy-status" data-contact-status role="status" aria-live="polite" aria-atomic="true"></p>
+          <noscript><p class="contact-copy-status">{ui.manual}</p></noscript>
+        </div>
+      </section>
+    </section>
+
+    <section class="contact-directions" aria-labelledby="contact-directions-heading">
+      <div class="contact-section-heading">
+        <div><p class="eyebrow">{copy.directionsLabel}</p><h2 id="contact-directions-heading">{copy.directionsTitle}</h2></div>
+        <div class="contact-explore-links">
+          <a href={href('/research/')} class="text-link">{copy.researchLink}<span aria-hidden="true">↗</span></a>
+          <a href={href('/projects/')} class="text-link">{copy.projectsLink}<span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <div class="contact-direction-grid">
+        {copy.directions.map((direction, index) => <article class="contact-direction">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" aria-hidden="true"><path d={symbols[index]} /></svg>
+          <h3>{direction.title}</h3><p>{direction.text}</p>
+        </article>)}
+      </div>
+    </section>
+
+    <section class="contact-writing" aria-labelledby="contact-writing-heading">
+      <div class="contact-writing-intro">
+        <p class="eyebrow">{copy.writingLabel}</p>
+        <h2 id="contact-writing-heading">{copy.writingTitle}</h2>
+        <p>{copy.writingNote}</p>
+      </div>
+      <ul class="contact-prompts">
+        {copy.prompts.map(prompt => <li><span class="prompt-marker" aria-hidden="true">✧</span><div><h3>{prompt.title}</h3><p>{prompt.text}</p></div></li>)}
+      </ul>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .contact-page { padding-top: clamp(64px, 7vw, 112px); padding-bottom: 100px; }
+  .contact-intro { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: clamp(40px, 5vw, 80px); align-items: center; }
+  .contact-opening h1 { margin: 24px 0 28px; font: 400 clamp(40px, 4.3vw, 64px)/1.16 var(--serif); letter-spacing: -.035em; text-wrap: balance; }
+  .contact-opening h1 em { color: var(--gold); font-weight: 400; }
+  .contact-opening .cjk-heading { font-size: clamp(34px, 3.8vw, 55px); line-height: 1.5; letter-spacing: .025em; }
+  .cjk-heading em { font-style: normal; }
+  .contact-lede { max-width: 550px; font-size: 15px; line-height: 2; color: var(--muted); text-wrap: pretty; }
+  .contact-card { position: relative; padding: clamp(26px, 3vw, 42px); border: 1px solid var(--line); background: radial-gradient(ellipse at 100% 0, #d6b8810b, transparent 70%), #0e141dee; }
+  .contact-card::before { content: ''; position: absolute; top: -1px; left: -1px; width: 64px; height: 1px; background: var(--gold); }
+  .contact-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .contact-card-heading .eyebrow { color: var(--gold); font-size: 10px; }
+  .contact-card-heading svg { width: 30px; height: 30px; flex-shrink: 0; color: var(--gold); opacity: .7; }
+  .contact-address { margin: 32px 0 20px; font: 400 clamp(25px, 2.8vw, 38px)/1.4 var(--serif); letter-spacing: -.025em; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
+  .contact-email-note { color: var(--muted); font-size: 13px; line-height: 1.9; }
+  .contact-copy-area { margin-top: 30px; }
+  .contact-copy-area .button { min-height: 48px; padding: 13px 20px; gap: 12px; font-size: 12px; max-width: 100%; }
+  .contact-copy-area svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .copied-symbol, .is-copied .copy-symbol { display: none; }
+  .is-copied .copied-symbol { display: block; }
+  .contact-copy-status { font-size: 12px; line-height: 1.8; color: var(--gold); }
+  .contact-copy-status:not(:empty) { margin-top: 14px; }
+  .contact-directions { margin-top: 96px; }
+  .contact-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 50px; margin-bottom: 32px; }
+  .contact-section-heading h2, .contact-writing h2 { margin-top: 15px; font-size: clamp(24px, 2.4vw, 32px); line-height: 1.5; font-weight: 400; text-wrap: pretty; }
+  .contact-explore-links { display: flex; flex-wrap: wrap; gap: 10px 26px; flex-shrink: 0; }
+  .contact-explore-links a { min-height: 44px; gap: 12px; color: var(--muted); font-size: 12px; }
+  .contact-explore-links a:hover { color: var(--gold); }
+  .contact-explore-links a span { color: var(--gold); }
+  .contact-direction-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
+  .contact-direction { border-top: 1px solid var(--line); padding-top: 27px; }
+  .contact-direction svg { width: 30px; height: 30px; color: var(--gold); opacity: .8; margin-bottom: 22px; }
+  .contact-direction h3 { font-size: 21px; margin-bottom: 15px; line-height: 1.5; }
+  .contact-direction p, .contact-writing p { color: var(--muted); font-size: 14px; line-height: 1.95; text-wrap: pretty; }
+  .contact-writing { margin-top: 76px; padding-top: 48px; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 72px; }
+  .contact-writing .eyebrow { color: var(--muted); font: 10px/1.8 var(--mono); }
+  .contact-writing h2 { margin-bottom: 18px; }
+  .contact-writing-intro > p:last-child { max-width: 440px; }
+  .contact-prompts { list-style: none; margin: 0; padding: 0; display: grid; gap: 26px; }
+  .contact-prompts li { display: flex; gap: 18px; }
+  .prompt-marker { color: var(--gold); margin-top: 1px; }
+  .contact-prompts h3 { font-size: 15px; line-height: 1.8; margin-bottom: 5px; }
+  .contact-prompts p { font-size: 13px; }
+  :global(html:lang(de)) .contact-page { hyphens: auto; }
+  @media (max-width: 1100px) {
+    .contact-intro { gap: 32px; }
+    .contact-card { padding: 26px; }
+    .contact-section-heading { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .contact-direction-grid { gap: 24px; }
+  }
+  @media (max-width: 900px) {
+    .contact-intro { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    .contact-opening { max-width: 680px; }
+    .contact-opening h1 { font-size: clamp(40px, 6vw, 58px); }
+    .contact-opening .cjk-heading { font-size: clamp(34px, 5.3vw, 46px); }
+    .contact-card { padding: 32px; }
+    .contact-address { font-size: clamp(28px, 4.5vw, 40px); }
+    .contact-email-note { max-width: 520px; }
+    .contact-copy-area { margin-top: 24px; }
+    .contact-directions { margin-top: 64px; }
+    .contact-writing { gap: 36px; }
+  }
+  @media (max-width: 600px) {
+    .contact-page { padding-top: 48px; padding-bottom: 64px; }
+    .contact-opening h1 { font-size: 39px; overflow-wrap: anywhere; }
+    .contact-opening .cjk-heading { font-size: 34px; }
+    .contact-lede { font-size: 14px; }
+    .contact-card { padding: 26px 22px; }
+    .contact-address { font-size: clamp(25px, 6.4vw, 34px); margin-top: 26px; }
+    .contact-direction-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .contact-direction { position: relative; padding-top: 24px; }
+    .contact-direction svg { position: absolute; top: 24px; right: 0; width: 24px; height: 24px; }
+    .contact-direction h3 { padding-right: 40px; font-size: 21px; }
+    .contact-writing { grid-template-columns: minmax(0, 1fr); margin-top: 52px; padding-top: 34px; gap: 28px; }
+    .contact-copy-area .button { width: 100%; justify-content: center; }
+  }
+</style>

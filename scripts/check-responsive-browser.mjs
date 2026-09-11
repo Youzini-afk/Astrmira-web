@@ -15,7 +15,7 @@ const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const sizeArgument = process.argv.find(arg => arg.startsWith('--sizes='))?.slice(8);
 const sizes = sizeArgument ? sizeArgument.split(',').map(size => size.split('x').map(Number)) : [[320, 568], [390, 844], [600, 960], [768, 1024], [820, 1180], [1024, 768], [844, 390], [1440, 900]];
 const locales = process.argv.find(arg => arg.startsWith('--locales='))?.slice(10).split(',') || ['zh-cn', 'en'];
-const routes = ['/', '/projects/', '/research/', '/projects/data-systems/', '/research/papers/low-bit-decisions/', '/about/', '/collaborate/'];
+const routes = process.argv.find(arg => arg.startsWith('--routes='))?.slice(9).split(',') || ['/', '/projects/', '/research/', '/projects/data-systems/', '/research/papers/low-bit-decisions/', '/about/', '/collaborate/'];
 const failures = [];
 let checked = 0;
 
@@ -112,15 +112,12 @@ async function checkInteractions() {
   await nav.locator('.nav-contact').tap();
   await page.waitForURL('**/en/collaborate/');
   await page.setViewportSize({ width: 320, height: 568 });
-  await page.locator('[name=problem]').fill('A mobile collaboration brief that stays readable and fully operable.');
-  assert.equal(await page.locator('[name=problem]').evaluate(n => getComputedStyle(n).fontSize), '16px');
-  const fields = await page.locator('.form-grid .field').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().top));
-  assert.ok(fields[1] > fields[0], 'Phone form fields must stack.');
-  await page.locator('button[type=submit]').tap();
-  assert.ok(await page.locator('[data-brief-result]').isVisible());
-  const briefLayout = await page.evaluate(layoutEvidence);
-  assert.deepEqual(briefLayout.outside, []);
-  assert.deepEqual(briefLayout.textOverflow, []);
+  await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: { writeText: async text => { window.__copiedAddress = text; } } }));
+  await page.locator('[data-copy-contact]').tap();
+  assert.equal(await page.evaluate(() => window.__copiedAddress), await page.locator('[data-contact-email]').textContent());
+  const contactLayout = await page.evaluate(layoutEvidence);
+  assert.deepEqual(contactLayout.outside, []);
+  assert.deepEqual(contactLayout.textOverflow, []);
 
   await page.setViewportSize({ width: 820, height: 1180 });
   await page.goto(new URL('/en/projects/data-systems/', server.url).href);
@@ -178,7 +175,7 @@ try {
       const result = await page.evaluate(layoutEvidence);
       checked++;
       if (result.outside.length || result.textOverflow.length) failures.push({ size: `${width}x${height}`, route: localizedRoute, ...result });
-      if (screenshotDir && [390, 820, 844].includes(width) && ['/', '/projects/data-systems/', '/collaborate/'].includes(route)) {
+      if (screenshotDir && [390, 820, 844, 1440].includes(width) && ['/', '/projects/data-systems/', '/collaborate/'].includes(route)) {
         await page.screenshot({ path: path.join(screenshotDir, `${locale}-${width}-${route === '/' ? 'home' : route.split('/').filter(Boolean).at(-1)}.png`), fullPage: route !== '/' });
         if (route === '/') await page.locator('#projects').screenshot({ path: path.join(screenshotDir, `${locale}-${width}-projects.png`) });
       }

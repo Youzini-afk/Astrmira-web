@@ -90,35 +90,12 @@
       "fullPdf": "PDF 全文",
       "related": "相關論文"
     },
-    "form": {
-      "name": "如何稱呼您（選填）",
-      "namePlaceholder": "姓名",
-      "organization": "組織或團隊（選填）",
-      "organizationPlaceholder": "大學、實驗室或公司",
-      "area": "合作方向",
-      "areas": [
-        "聯合研究",
-        "資料庫與檢索系統",
-        "Agent 平台與應用",
-        "其他值得討論的問題"
-      ],
-      "problem": "您希望一起解決什麼問題？ *",
-      "placeholder": "問題背景、現有基礎，以及希望達成的目標…",
-      "submit": "產生合作簡報",
-      "note": "產生後可複製或下載，內容不會自動傳送。",
-      "result": "您的合作簡報",
-      "copy": "複製文字",
-      "download": "儲存為 .txt",
-      "generated": "簡報已在本機產生，尚未傳送。",
-      "copied": "已複製到剪貼簿，簡報尚未傳送。",
-      "copyFallback": "無法自動複製。已選取文字，請使用系統的複製指令。",
-      "notProvided": "未填寫",
-      "briefTitle": "合作簡報",
-      "briefName": "稱呼",
-      "briefOrganization": "組織 / 團隊",
-      "briefArea": "合作方向",
-      "briefProblem": "問題與目標",
-      "briefSuffix": "此簡報在目前的瀏覽器中產生，尚未傳送。"
+    "contact": {
+      "copy": "複製信箱",
+      "copied": "已複製",
+      "success": "已複製信箱地址，可貼到你常用信箱的收件人欄位。",
+      "fallback": "已選取信箱地址，請使用系統複製功能，或長按地址複製。",
+      "manual": "也可以選取或長按信箱地址進行複製。"
     }
   },
   "home": {
@@ -260,20 +237,50 @@
     "discuss": "討論這個方向"
   },
   "collaborate": {
-    "title": "與 Astrmira 合作",
-    "description": "與 Astrmira 開啟研究或工程合作。",
-    "label": "合作 / 從問題開始",
+    "title": "聯絡與合作 — Astrmira 幻夢星芒",
+    "description": "聯絡 Astrmira，交流研究問題、系統應用與開源專案。歡迎透過電子郵件分享想法與合作構想。",
+    "label": "聯絡與合作",
     "heading": [
-      "下一個問題，",
-      "由您開啟。"
+      "讓好問題，",
+      "遇見同行者。"
     ],
-    "introduction": "一個真實場景、一項開放問題，或一份研究計畫。我們先釐清問題，再討論如何一起前進。",
-    "sideTitle": "讓我們從問題開始。",
-    "sideNote": "整理問題背景、現有基礎與期望成果，產生便於交流的合作簡報。",
-    "aspects": [
-      "資料庫與檢索",
-      "Agent 應用",
-      "科研與大學合作"
+    "introduction": "研究中的一個疑問，系統裡的一個挑戰，或是仍在醞釀的想法。我們期待與研究者、開發者和團隊交流，找到值得一起推進的方向。",
+    "emailLabel": "寫信給 Astrmira",
+    "emailNote": "歡迎透過你常用的信箱來信。讓想法、資料和後續交流，留在同一段郵件往來裡。",
+    "directionsLabel": "我們可以一起做什麼",
+    "directionsTitle": "從不同起點，展開對話。",
+    "directions": [
+      {
+        "title": "研究合作",
+        "text": "圍繞共同關心的問題，交流論文與方法，進行重現、實驗和聯合研究。也歡迎來自不同學科的觀點。"
+      },
+      {
+        "title": "系統與應用",
+        "text": "從資料庫、檢索到 Agent 執行系統，討論具體情境、技術需求，以及將研究帶入實際應用的可能。"
+      },
+      {
+        "title": "開源交流",
+        "text": "分享 TriviumDB、infOS 或 Piarium 的使用經驗、改進建議與貢獻構想，一起讓工具更好地回應真實問題。"
+      }
+    ],
+    "researchLink": "瞭解我們的研究",
+    "projectsLink": "瀏覽開源專案",
+    "writingLabel": "關於第一封來信",
+    "writingTitle": "一個想法，就可以開始。",
+    "writingNote": "不必準備完整的方案。簡單介紹背景與期待，就有了繼續交流的起點。",
+    "prompts": [
+      {
+        "title": "你正在做什麼",
+        "text": "你的研究、專案或團隊，以及目前的進展。"
+      },
+      {
+        "title": "你希望一起推進什麼",
+        "text": "想討論的問題、遇到的挑戰，或你構想的合作方式。"
+      },
+      {
+        "title": "有哪些資料可以參考",
+        "text": "論文、程式碼儲存庫、專案連結或相關資料，都可以隨信附上。"
+      }
     ]
   },
   "fields": {

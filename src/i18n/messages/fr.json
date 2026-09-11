@@ -90,35 +90,12 @@
       "fullPdf": "Article complet en PDF",
       "related": "Articles associés"
     },
-    "form": {
-      "name": "Votre nom (facultatif)",
-      "namePlaceholder": "Nom",
-      "organization": "Organisation ou équipe (facultatif)",
-      "organizationPlaceholder": "Université, laboratoire ou entreprise",
-      "area": "Domaine de collaboration",
-      "areas": [
-        "Recherche conjointe",
-        "Bases de données et systèmes de recherche",
-        "Plateformes et applications d’agents",
-        "Une autre question à explorer ensemble"
-      ],
-      "problem": "Quel problème souhaitez-vous résoudre ensemble ? *",
-      "placeholder": "Le contexte, les travaux existants et le résultat souhaité…",
-      "submit": "Créer une note de collaboration",
-      "note": "Vous pourrez la copier ou la télécharger. Rien n’est envoyé automatiquement.",
-      "result": "Votre note de collaboration",
-      "copy": "Copier le texte",
-      "download": "Enregistrer en .txt",
-      "generated": "La note a été créée localement et n’a pas été envoyée.",
-      "copied": "Texte copié dans le presse-papiers. La note n’a pas été envoyée.",
-      "copyFallback": "La copie automatique n’est pas disponible. Le texte est sélectionné ; utilisez la commande de copie de votre système.",
-      "notProvided": "Non renseigné",
-      "briefTitle": "Note de collaboration",
-      "briefName": "Nom",
-      "briefOrganization": "Organisation / équipe",
-      "briefArea": "Domaine de collaboration",
-      "briefProblem": "Problème et objectif",
-      "briefSuffix": "Cette note a été créée dans votre navigateur et n’a pas été envoyée."
+    "contact": {
+      "copy": "Copier l’adresse e-mail",
+      "copied": "Adresse copiée",
+      "success": "Adresse copiée. Collez-la dans le champ destinataire de votre messagerie habituelle.",
+      "fallback": "L’adresse est sélectionnée. Utilisez la commande de copie de votre système ou un appui long sur l’adresse.",
+      "manual": "Vous pouvez aussi sélectionner l’adresse ou faire un appui long pour la copier."
     }
   },
   "home": {
@@ -260,20 +237,50 @@
     "discuss": "Discuter de cette orientation"
   },
   "collaborate": {
-    "title": "Collaborer avec Astrmira",
-    "description": "Commencez une collaboration scientifique ou technique avec Astrmira.",
-    "label": "Collaborer / Partir d’une question",
+    "title": "Contact et collaboration — Astrmira",
+    "description": "Contactez Astrmira pour échanger sur la recherche, les systèmes et les projets ouverts. Partagez vos questions et vos idées de collaboration par e-mail.",
+    "label": "Contact et collaboration",
     "heading": [
-      "La prochaine question",
-      "commence avec vous."
+      "De bonnes questions.",
+      "Une curiosité partagée."
     ],
-    "introduction": "Apportez une situation concrète, une question ouverte ou un projet de recherche. Nous clarifions d’abord le problème, puis décidons comment avancer ensemble.",
-    "sideTitle": "Commençons par le problème.",
-    "sideNote": "Décrivez le contexte, les acquis et le résultat souhaité pour créer une note de collaboration concise.",
-    "aspects": [
-      "Bases de données et recherche d’information",
-      "Applications d’agents",
-      "Recherche et universités"
+    "introduction": "Une question de recherche, un défi technique ou une idée en devenir. Nous accueillons les échanges avec les chercheurs, les développeurs et les équipes pour trouver ce qui mérite d’être exploré ensemble.",
+    "emailLabel": "Écrire à Astrmira",
+    "emailNote": "Écrivez depuis votre messagerie habituelle pour réunir vos idées, les documents utiles et la suite de nos échanges.",
+    "directionsLabel": "Ce que nous pouvons faire ensemble",
+    "directionsTitle": "Des points de départ différents. Un dialogue commun.",
+    "directions": [
+      {
+        "title": "Collaboration scientifique",
+        "text": "Échanger sur les articles et les méthodes, reproduire des résultats, mener des expériences ou construire une recherche commune. Les regards d’autres disciplines sont les bienvenus."
+      },
+      {
+        "title": "Systèmes et applications",
+        "text": "Des bases de données et de la recherche d’information aux systèmes d’exécution d’agents : discuter des usages, des besoins techniques et du passage de la recherche à la pratique."
+      },
+      {
+        "title": "Échanges autour du code ouvert",
+        "text": "Partagez votre expérience de TriviumDB, infOS ou Piarium, vos suggestions et vos idées de contribution pour que ces outils répondent mieux aux problèmes réels."
+      }
+    ],
+    "researchLink": "Explorer nos recherches",
+    "projectsLink": "Voir les projets ouverts",
+    "writingLabel": "Votre premier e-mail",
+    "writingTitle": "Une idée suffit pour commencer.",
+    "writingNote": "Un projet entièrement défini n’est pas nécessaire. Un peu de contexte et vos attentes nous donnent un point de départ.",
+    "prompts": [
+      {
+        "title": "Ce sur quoi vous travaillez",
+        "text": "Votre recherche, votre projet ou votre équipe, et l’état actuel du travail."
+      },
+      {
+        "title": "Ce que vous souhaitez explorer ensemble",
+        "text": "Une question, une difficulté ou une forme de collaboration envisagée."
+      },
+      {
+        "title": "Les ressources à consulter",
+        "text": "Vous pouvez joindre des articles, des dépôts de code, des liens de projets ou tout autre document pertinent."
+      }
     ]
   },
   "fields": {

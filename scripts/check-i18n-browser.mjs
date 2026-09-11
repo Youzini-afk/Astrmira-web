@@ -108,18 +108,20 @@ try {
     const { ui } = copy, ctx = await context(), page = await ctx.newPage();
     await page.goto(origin + localePath('/collaborate/', locale.id));
     assert.equal(await page.locator('.site-nav [data-route="projects"]').textContent(), ui.nav.projects);
-    await page.locator('#contact-name').fill('Zoë 金');
-    await page.locator('#contact-area').selectOption({ label: ui.form.areas[1] });
-    await page.locator('#contact-problem').fill('A concrete multilingual research question.');
-    await page.locator('[data-brief-form]').evaluate(form => form.requestSubmit());
-    const brief = await page.locator('[data-brief-text]').textContent();
-    assert.ok(brief.includes(ui.form.briefTitle) && brief.includes(ui.form.areas[1]) && brief.includes('Zoë 金'));
-    assert.equal(await page.locator('[data-brief-status]').textContent(), ui.form.generated);
-    const downloadPromise = page.waitForEvent('download');
-    await page.locator('[data-download-brief]').click();
-    const download = await downloadPromise;
-    assert.equal(download.suggestedFilename(), 'Astrmira-' + ui.form.briefTitle + '.txt');
-    assert.equal(await readFile(await download.path(), 'utf8'), brief);
+    assert.equal(await page.locator('form, input, textarea, a[href^="mailto:"]').count(), 0, 'Contact is an email address, not a form or mail-app redirect.');
+    await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.__copiedAddress = text; } } }));
+    const contactUrl = page.url();
+    await page.locator('[data-copy-contact]').click();
+    assert.equal(await page.evaluate(() => window.__copiedAddress), await page.locator('[data-contact-email]').textContent());
+    assert.equal(await page.locator('[data-contact-status]').textContent(), ui.contact.success);
+    assert.equal(await page.locator('[data-copy-contact-label]').textContent(), ui.contact.copied);
+    assert.equal(page.url(), contactUrl, 'Copying must not navigate or open an email application.');
+    await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => { throw new DOMException('Denied', 'NotAllowedError'); } } }));
+    await page.locator('[data-copy-contact]').click();
+    assert.equal(await page.locator('[data-contact-status]').textContent(), ui.contact.fallback);
+    assert.equal(await page.evaluate(() => getSelection().toString()), await page.locator('[data-contact-email]').textContent());
+    await page.goto(origin + localePath('/contact/', locale.id));
+    assert.equal(await page.locator('.contact-direction').count(), 3, 'Contact alias uses the same page.');
 
     await page.goto(origin + localePath('/research/', locale.id));
     await page.locator('[data-research-search]').fill('2605.02171');
@@ -161,9 +163,13 @@ try {
   await native.locator('.language-trigger').click();
   await native.locator('[data-locale-choice="fr"]').click();
   await native.waitForURL('**/fr/about/');
+  await native.goto(origin + '/fr/contact/');
+  assert.ok(await native.locator('[data-contact-email]').isVisible());
+  assert.equal(await native.locator('[data-copy-contact]').isVisible(), false);
+  assert.ok(await native.locator('noscript').isVisible(), 'Manual copying is explained without JavaScript.');
   await nativeContext.close();
   assert.deepEqual(errors, []);
-  console.log('PASS: ' + routes + ' routes, localized metadata and links, language detection and persistence, seven-language menu, mobile and no-JS navigation, filters, TOCs and collaboration briefs.');
+  console.log('PASS: ' + routes + ' routes, localized metadata and links, language detection and persistence, seven-language menu, mobile and no-JS navigation, filters, TOCs and contact copy/fallback.');
 } finally {
   await browser.close();
   await server.close();
