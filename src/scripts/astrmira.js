@@ -608,14 +608,14 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       }
     }
 
-    // 1. Kicker: 幻梦星芒 / ASTR — MIRA
+    // 1. Kicker: 幻梦星芒 / ASTRMIRA
     const kickerEl = $('.hero-kicker');
     if (kickerEl) {
       const r = kickerEl.getBoundingClientRect();
       const style = window.getComputedStyle(kickerEl);
       const cx = r.left - heroRect.left + r.width / 2;
       const cy = r.top - heroRect.top + r.height / 2;
-      sampleTextLine('幻梦星芒 / ASTR — MIRA', style, cx, cy, [205, 192, 168], false);
+      sampleTextLine('幻梦星芒 / ASTRMIRA', style, cx, cy, [205, 192, 168], false);
     }
 
     // 2. Title: Astrmira (Astr + mira italic)
