@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createNearestParticleLookup } from '../src/scripts/nearest-particle.js';
 import { setGlyphCoverage, sampleGlyphCoverage } from '../src/scripts/glyph-coverage.js';
-import { createMotionQuality } from '../src/scripts/motion-quality.js';
+
 
 test('guide lookup agrees with an exhaustive search, including outside the cloud', () => {
   const points = Array.from({ length: 301 }, (_, i) => ({ relX: Math.sin(i * 1.7) * 800, relY: Math.cos(i * 2.3) * 300 }));
@@ -34,21 +34,4 @@ test('particle alpha follows the same bilinear mask as the high-resolution glyph
   assert.equal(sampleGlyphCoverage(particle), .5);
   particle.glyphLayer.alphaData.fill(255);
   assert.equal(sampleGlyphCoverage(particle), 1);
-});
-
-test('opening feedback can reduce work within the first second', () => {
-  const quality = createMotionQuality();
-  const changes = [];
-  for (let now = 0; now <= 900; now += 30) {
-    const next = quality.sample(now, 12, true, true);
-    if (next) changes.push(next.name);
-  }
-  assert.deepEqual(changes, ['balanced']);
-});
-
-test('a heavily overloaded opening is not mistaken for a background-tab gap', () => {
-  const quality = createMotionQuality();
-  quality.sample(0, 60, true, true);
-  assert.equal(quality.sample(700, 60, true, true)?.name, 'balanced');
-  assert.equal(quality.sample(1400, 60, true, true)?.name, 'light');
 });

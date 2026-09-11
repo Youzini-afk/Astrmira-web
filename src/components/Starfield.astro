@@ -1,5 +1,10 @@
 ---
-// Starfield background canvas
+// The native background is always available before the optional GPU scene.
+let seed = 7261;
+const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+const stars = Array.from({ length: 500 }, () => ({ x: random() * 1440, y: random() * 900, r: .35 + random() * .85, a: .13 + random() * .4 }));
 ---
-<canvas id="starfield" aria-hidden="true"></canvas>
+<svg class="sky-fallback" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  {stars.map(s => <circle cx={s.x} cy={s.y} r={s.r} fill="#b0cae6" opacity={s.a} />)}
+</svg>
 <canvas id="particlefield" aria-hidden="true"></canvas>
