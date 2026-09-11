@@ -1,0 +1,42 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PaperCard from '../../../components/PaperCard.astro';
+import { papers } from '../../../data/papers';
+const fields = [
+  ['databases', 'Databases'], ['retrieval', 'Retrieval'], ['vectors', 'Vectors'],
+  ['quantization', 'Quantization'], ['post-training', 'Post-training'], ['mathematics', 'Mathematics']
+];
+---
+
+<Layout locale="en" title="Research and publications — Astrmira" description="Read Astrmira papers and explore the questions, methods, and findings behind our research." route="research">
+  <div class="wrap">
+    <section class="page-title"><p class="eyebrow">RESEARCH / PUBLICATIONS</p><h1>Questions.<br /><em>Evidence. Progress.</em></h1><p>Our research begins with questions worth asking, then builds methods and evidence across different fields. This page brings together papers, current directions, and the next questions opened by each result.</p></section>
+    <section class="directory-content" data-research-directory aria-label="Research papers">
+      <div class="directory-toolbar">
+        <div class="filters" aria-label="Filter papers"><button class="filter-button" data-research-filter="all" aria-pressed="true">All papers</button><button class="filter-button" data-research-filter="vectors" aria-pressed="false">Vector search</button><button class="filter-button" data-research-filter="llms" aria-pressed="false">LLM quantization</button><button class="filter-button" data-research-filter="theory" aria-pressed="false">Representation and theory</button></div>
+        <input class="research-search" data-research-search placeholder="Search papers, authors, or keywords…" type="search" aria-label="Search papers, authors, or keywords" />
+      </div>
+      <div class="publication-grid">{papers.map(paper => <PaperCard paper={paper} headingLevel="h2" locale="en" />)}</div>
+      <p class="empty-search" data-empty-search hidden>No matching paper was found. Try another keyword or research direction.</p>
+      <p class="publication-count" data-research-count aria-live="polite">{papers.length} papers</p>
+    </section>
+    <section class="research-exploration" aria-labelledby="exploration-title">
+      <div class="section-heading"><div><p class="eyebrow">EXPLORE THE DIRECTIONS</p><h2 id="exploration-title">Follow a question into its field.</h2><p class="sub">Browse the foundations that connect our work in data systems, retrieval, representation, efficient intelligence, and mathematics.</p></div></div>
+      <nav class="research-fields topic-list" aria-label="Browse research fields">{fields.map(([slug, label]) => <a class="tag" href={`/en/research/${slug}/`} data-route={`research/${slug}`}>{label} <span aria-hidden="true">↗</span></a>)}</nav>
+    </section>
+    <section class="research-contact"><p>Have a question worth pursuing together?</p><a href="/en/collaborate/" data-route="collaborate" class="text-link">Talk with us <span class="arrow" aria-hidden="true">↗</span></a></section>
+  </div>
+</Layout>
+
+<style>
+  .publication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
+  .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
+  .research-exploration { padding: 70px 0; border-top: 1px solid var(--line); }
+  .research-fields { margin-top: 28px; }
+  .research-fields .tag:hover { color: var(--gold); border-color: var(--gold); }
+  .research-fields .tag span { margin-left: 8px; }
+  .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
+  .research-contact .text-link { margin-top: 0; }
+  @media (max-width: 720px) { .publication-grid { grid-template-columns: 1fr; gap: 22px; } .research-exploration { padding: 50px 0; } .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; } }
+</style>

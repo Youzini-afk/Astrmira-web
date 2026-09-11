@@ -10,7 +10,7 @@ const viewport = { width: Number(args.width || 2550), height: Number(args.height
 const names = ['sampleTextParticles', 'prepareTextIntro', 'prepareHeroTail', 'resizeStars', 'applyMotionQuality', 'updateGlyphLayers', 'paintCometTrail', 'paintParticlesAndStars', 'placeStar', 'tick'];
 const browser = await chromium.launch({ headless: true, channel: args.browser || 'msedge' });
 try {
-  const page = await browser.newPage({ viewport, deviceScaleFactor: Number(args.dpr || 1.25) });
+  const page = await browser.newPage({ viewport, deviceScaleFactor: Number(args.dpr || 1.25), locale: args.locale || 'zh-CN' });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.route(/\/src\/scripts\/astrmira\.js(?:\?.*)?$/, async route => {

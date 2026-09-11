@@ -51,6 +51,14 @@ npm run build
 npm run preview
 ```
 
+## 国际化
+
+- 默认语言为简体中文，继续使用现有的 `/`、`/projects/`、`/research/` 等 URL。
+- 英文页面使用 `/en/` 前缀，并为现有页面提供一一对应的静态路由。
+- 首次访问根据 `navigator.languages` 在中文和英文间选择；导航中的语言开关会记录用户选择，并覆盖后续自动识别。
+- 页面输出独立的 `lang`、canonical 与 `hreflang`，语言链接通过 `src/i18n.ts` 统一生成。
+- 新增语言时应先补齐页面内容和对应静态路由，再加入 `astro.config.mjs` 的 `i18n.locales`。
+
 ---
 
 ## 部署到 Cloudflare Pages (CF)

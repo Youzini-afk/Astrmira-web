@@ -1,12 +1,18 @@
 ---
+import { localePath, type Locale } from '../i18n';
 interface Props {
   currentRoute?: string;
+  locale?: Locale;
+  currentPath?: string;
 }
-const { currentRoute = 'home' } = Astro.props;
+const { currentRoute = 'home', locale = 'zh-cn', currentPath = '/' } = Astro.props;
+const en = locale === 'en';
+const href = (path: string) => localePath(path, locale);
+const alternateLocale: Locale = en ? 'zh-cn' : 'en';
 ---
 
 <header class="site-header">
-  <a href="/" data-route="home" class="brand" aria-label="Astrmira 幻梦星芒 首页">
+  <a href={href('/')} data-route="home" class="brand" aria-label={en ? 'Astrmira home' : 'Astrmira 幻梦星芒 首页'}>
     <svg class="brand-symbol" viewBox="0 0 48 48" fill="none" aria-hidden="true">
       <ellipse cx="24" cy="24" rx="21" ry="9" transform="rotate(-36 24 24)" stroke="currentColor" stroke-width=".8"/>
       <path d="M24 8C25.3 20.3 27.7 22.7 40 24C27.7 25.3 25.3 27.7 24 40C22.7 27.7 20.3 25.3 8 24C20.3 22.7 22.7 20.3 24 8Z" fill="currentColor"/>
@@ -14,11 +20,12 @@ const { currentRoute = 'home' } = Astro.props;
     </svg>
     <span class="brand-name">Astrmira<span class="brand-cn">幻梦星芒</span></span>
   </a>
-  <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>菜单 <span aria-hidden="true">＋</span></button>
-  <nav id="site-nav" class="site-nav" aria-label="主导航">
-    <a href="/projects/" data-route="projects" aria-current={currentRoute.startsWith('projects') ? 'page' : undefined}>项目</a>
-    <a href="/research/" data-route="research" aria-current={currentRoute.startsWith('research') ? 'page' : undefined}>研究</a>
-    <a href="/about/" data-route="about" aria-current={currentRoute === 'about' ? 'page' : undefined}>关于我们</a>
-    <a href="/collaborate/" data-route="collaborate" class="nav-contact" aria-current={currentRoute === 'collaborate' ? 'page' : undefined}>开始合作 <span aria-hidden="true">↗</span></a>
+  <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>{en ? 'Menu' : '菜单'} <span aria-hidden="true">＋</span></button>
+  <nav id="site-nav" class="site-nav" aria-label={en ? 'Main navigation' : '主导航'}>
+    <a href={href('/projects/')} data-route="projects" aria-current={currentRoute.startsWith('projects') ? 'page' : undefined}>{en ? 'Projects' : '项目'}</a>
+    <a href={href('/research/')} data-route="research" aria-current={currentRoute.startsWith('research') ? 'page' : undefined}>{en ? 'Research' : '研究'}</a>
+    <a href={href('/about/')} data-route="about" aria-current={currentRoute === 'about' ? 'page' : undefined}>{en ? 'About' : '关于我们'}</a>
+    <a href={localePath(currentPath, alternateLocale)} class="locale-switch" data-locale-choice={alternateLocale} lang={en ? 'zh-CN' : 'en'} hreflang={en ? 'zh-CN' : 'en'} aria-label={en ? '切换到简体中文' : 'Switch to English'}>{en ? '中文' : 'EN'}</a>
+    <a href={href('/collaborate/')} data-route="collaborate" class="nav-contact" aria-current={currentRoute === 'collaborate' ? 'page' : undefined}>{en ? 'Work with us' : '开始合作'} <span aria-hidden="true">↗</span></a>
   </nav>
 </header>

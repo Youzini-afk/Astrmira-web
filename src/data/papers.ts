@@ -17,6 +17,14 @@ export interface Paper {
   related: string[];
 }
 
+export interface PaperTranslation {
+  heading: string;
+  summary: string;
+  tags: string[];
+  caption: string;
+  sections: { title: string; paragraphs: string[] }[];
+}
+
 // Editorial order: recent work first, then its representation and system foundations.
 // Descriptions are grounded in the linked arXiv abstracts and versioned full texts.
 export const papers: Paper[] = [
@@ -177,6 +185,84 @@ export const papers: Paper[] = [
     related: ['covariance-binary-quantization', 'low-bit-decisions'],
   },
 ];
+
+export const paperEnglish: Record<string, PaperTranslation> = {
+  'low-bit-decisions': {
+    heading: 'When do compressed vectors make the same decisions?',
+    summary: 'Places quantization error inside the ranking and graph-pruning decisions that vector search actually makes, relating reliability to comparison margins, correlated residuals, and execution traces.',
+    tags: ['Vector search', 'Decision stability', 'Quantization theory'],
+    caption: 'A comparison changes only when quantization error crosses its decision boundary.',
+    sections: [
+      { title: 'From distance error to a concrete choice', paragraphs: [
+        'Vector search repeatedly chooses which candidate is closer and which edge should remain. Average error and global rank correlation do not explain why these local decisions fail, so this work analyzes the comparisons executed by the algorithm itself.',
+        'The key quantities are the original margin between candidates and whether quantization error can cross it. The analysis separates risk near the decision boundary from the tail behavior of calibrated residuals, including correlations induced by a shared query or graph node.'
+      ] },
+      { title: 'Connecting local decisions to a graph trace', paragraphs: [
+        'For Vamana neighbor selection under a fixed candidate order, the paper connects agreement on individual pruning decisions with agreement of the final neighbor list on a frozen exact state.',
+        'When distributional assumptions are unreliable, independent held-out blocks provide risk estimates for a fixed quantization rule. Binary codes, RaBitQ, Lucene BBQ, and product quantization can be studied through the same decision interface.'
+      ] },
+      { title: 'Choosing quantization for the search process', paragraphs: [
+        'Across learned, classical, and synthetic representations, normalized comparison margins predict ranking and pruning flips better than global rank correlation. The scope covers fixed candidate sets and frozen traces; end-to-end recall also depends on candidate coverage.'
+      ] }
+    ]
+  },
+  'contextual-quantization': {
+    heading: 'Why does the value of the same quantization move change?',
+    summary: 'Studies the real utility of a discrete move in extreme low-bit LLMs by evaluating the move along its own path and combining decisions in an evolving model state.',
+    tags: ['LLM quantization', 'Post-training', 'Discrete optimization'],
+    caption: 'A move is shaped by the path it takes and by the state produced by earlier moves.',
+    sections: [
+      { title: 'A better reconstruction is not always a better model', paragraphs: [
+        'Post-training quantization changes a finite code to reduce weight or activation reconstruction error, while the model is ultimately judged by predictive loss and task performance. The paper asks how to tell whether a legal code move is actually useful at a fixed bit width.',
+        'Utility depends on the displacement of the move. A gradient evaluated only at the start misses curvature along the path; evaluating at the move midpoint gives a better sign estimate for endpoint loss. Low-bit Llama-3.2 experiments test this distinction.'
+      ] },
+      { title: 'Quantization moves interact', paragraphs: [
+        'Enumeration over legal quantized states shows that combined utility is approximately quadratic. Small pairwise interactions can still change the best multi-objective tradeoff, and the same move can switch from helpful to harmful in a different state.',
+        'Midpoint readings repair local choices. For larger combinations, the method reevaluates from states that are actually reached and verifies exact endpoints; endpoint-evaluated beam search finds sparse updates that outperform larger one-shot changes.'
+      ] },
+      { title: 'From static scores to state-aware optimization', paragraphs: [
+        'The work moves quantization optimization to the level of individual code changes: define the objective, evaluate each move along its path, and recombine moves as the state evolves. Experiments connect these choices to task accuracy and held-out perplexity.'
+      ] }
+    ]
+  },
+  'covariance-binary-quantization': {
+    heading: 'What survives at one or two bits?',
+    summary: 'Explains low-bit ranking behavior through covariance structure and coordinate heterogeneity, including why an extra magnitude bit and random rotation help different representations in different ways.',
+    tags: ['Representation geometry', 'Binary quantization', 'Covariance'],
+    caption: 'Coordinate scale and cross-coordinate structure jointly determine the ranking information that survives compression.',
+    sections: [
+      { title: 'Why can opposite designs both work?', paragraphs: [
+        'Some binary quantization systems randomly rotate vectors while others preserve the original axes, and retrieval quality varies widely across representations at the same bit width. The paper studies these observations through the statistics of contrastive embeddings.'
+      ] },
+      { title: 'Separating covariance from coordinate heterogeneity', paragraphs: [
+        'Under a Gaussian model, the full covariance structure affects ranking fidelity; marginal variances alone miss accumulated cross-coordinate signal. Unequal coordinate variances determine how much a magnitude bit can add and whether random rotation helps or removes useful structure.',
+        'Rotation equalizes variance and can support isotropic distance correction, but it can also erase heterogeneity used by another code. The paper derives approximate fidelity expressions and empirical scaling relationships across models and dimensions.'
+      ] },
+      { title: 'Turning representation structure into a design signal', paragraphs: [
+        'Experiments across nine embedding families and eighteen datasets examine covariance, magnitude bits, and rotation. The results offer statistical guidance for choosing an encoding and preprocessing strategy under the stated Gaussian and approximation conditions.'
+      ] }
+    ]
+  },
+  quiver: {
+    heading: 'QuIVer: building the search graph directly in binary space',
+    summary: 'Builds, prunes, and navigates an ANN graph in a training-free two-bit space, reading full vectors only for final reranking and exposing the data regimes where compact topology works.',
+    tags: ['Approximate nearest neighbors', 'Graph indexes', 'Binary quantization'],
+    caption: 'Navigate with a compact binary graph, then rerank a small candidate set using the original vectors.',
+    sections: [
+      { title: 'Let quantization shape the graph', paragraphs: [
+        'QuIVer asks whether binary quantization can be the metric space of the graph index itself. A training-free two-bit code combines sign and magnitude bits so Vamana edge selection, diversity pruning, and query navigation all operate in quantized space.'
+      ] },
+      { title: 'Compact navigation, exact reranking', paragraphs: [
+        'Queries are encoded as binary signatures and traverse candidates with bitwise operations. Full float32 vectors are read only at the end for reranking, separating frequently accessed signatures and adjacency lists from cold full-precision data.',
+        'No learned codebook or rotation matrix is required. Because quantization participates in construction and navigation, topology, computation, and memory layout can be designed around the compact representation together.'
+      ] },
+      { title: 'Evaluate systems together with data geometry', paragraphs: [
+        'Experiments on twelve million-scale datasets show strong distribution dependence: contrastive embeddings in cosine space fit the topology best, some multimodal representations follow, and native Euclidean or unstructured data perform poorly.',
+        'The work makes the tradeoff between compression, throughput, and data compatibility explicit, and provides a systems foundation for later work on quantization theory.'
+      ] }
+    ]
+  }
+};
 
 export const paperUrl = (paper: Paper) => `/research/papers/${paper.slug}/`;
 export const arxivUrl = (paper: Paper) => `https://arxiv.org/abs/${paper.arxiv}`;

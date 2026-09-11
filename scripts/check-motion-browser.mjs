@@ -40,7 +40,7 @@ const glyphs = page => page.evaluate(() => [...document.querySelectorAll('.hero-
 }));
 try {
   if (!downloadOnly) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.25 });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.25, locale: 'zh-CN' });
   watch(page);
   await page.goto(url);
   if (output) { await page.waitForTimeout(2400); await page.screenshot({ path: path.join(output, 'opening.png') }); }
@@ -90,12 +90,12 @@ try {
   }));
   await page.close();
 
-  const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', locale: 'zh-CN' });
   watch(reduced); await reduced.goto(url); await settled(reduced);
   assert.ok((await glyphs(reduced)).every(alpha => alpha > 0), 'reduced motion must never leave blank text');
   await reduced.close();
 
-  const fallback = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const fallback = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'zh-CN' });
   watch(fallback);
   await fallback.addInitScript(() => {
     Object.defineProperty(HTMLCanvasElement.prototype, 'transferControlToOffscreen', { value: undefined });
@@ -108,7 +108,7 @@ try {
   await fallback.close();
   }
 
-  const blocked = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  const blocked = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', locale: 'zh-CN' });
   watch(blocked);
   let blockedWorkers = 0;
   await blocked.route('**/*particle-worker*.js', route => { blockedWorkers++; return route.abort(); });

@@ -1,18 +1,22 @@
 ---
 import PaperCard from './PaperCard.astro';
 import { papers } from '../data/papers';
+import type { Locale } from '../i18n';
+interface Props { locale?: Locale }
+const { locale = 'zh-cn' } = Astro.props;
+const en = locale === 'en';
 ---
 
 <div class="paper-carousel" data-paper-carousel>
-  <div id="home-paper-track" class="paper-track" data-paper-track role="region" aria-label="研究论文，可左右翻阅" tabindex="0">
-    {papers.map(paper => <PaperCard paper={paper} />)}
+  <div id="home-paper-track" class="paper-track" data-paper-track role="region" aria-label={en ? 'Research papers, horizontally scrollable' : '研究论文，可左右翻阅'} tabindex="0">
+    {papers.map(paper => <PaperCard paper={paper} locale={locale} />)}
   </div>
   <div class="paper-carousel-bottom">
-    <span class="paper-carousel-note">论文 · 发现 · 进展</span>
+    <span class="paper-carousel-note">{en ? 'PAPERS · FINDINGS · PROGRESS' : '论文 · 发现 · 进展'}</span>
     <div class="paper-carousel-controls" data-paper-controls hidden>
-      <span aria-hidden="true">左右翻阅</span>
-      <button type="button" data-paper-prev aria-label="查看前面的论文" aria-controls="home-paper-track" disabled>←</button>
-      <button type="button" data-paper-next aria-label="查看后面的论文" aria-controls="home-paper-track">→</button>
+      <span aria-hidden="true">{en ? 'Browse' : '左右翻阅'}</span>
+      <button type="button" data-paper-prev aria-label={en ? 'View previous papers' : '查看前面的论文'} aria-controls="home-paper-track" disabled>←</button>
+      <button type="button" data-paper-next aria-label={en ? 'View next papers' : '查看后面的论文'} aria-controls="home-paper-track">→</button>
     </div>
   </div>
   <p class="paper-carousel-status" data-paper-status aria-live="polite" aria-atomic="true"></p>

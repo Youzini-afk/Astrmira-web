@@ -4,52 +4,90 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import StarCompanion from '../components/StarCompanion.astro';
 import Starfield from '../components/Starfield.astro';
+import { localePath, type Locale } from '../i18n';
 
 interface Props {
   title?: string;
   description?: string;
   route?: string;
+  locale?: Locale;
 }
 
 const {
   title = 'Astrmira · 幻梦星芒 — 于未知处求索，向星穹间开拓',
   description = 'Astrmira（幻梦星芒）是一家偏研究型企业，研究方向涵盖数据库、检索、向量、量化、后训练与数学，并探索数据系统、Agent 平台与科研合作。',
-  route = 'home'
+  route = 'home',
+  locale = 'zh-cn'
 } = Astro.props;
+const isEnglish = locale === 'en';
+const canonicalPath = localePath(Astro.url.pathname, locale);
+const canonical = new URL(canonicalPath, Astro.site || Astro.url.origin);
+const zhUrl = new URL(localePath(Astro.url.pathname, 'zh-cn'), canonical);
+const enUrl = new URL(localePath(Astro.url.pathname, 'en'), canonical);
+const organizationDescription = isEnglish
+  ? 'Astrmira is a research-driven company working across databases, retrieval, vector systems, quantization, post-training, mathematics, and open-source intelligent systems.'
+  : 'Astrmira（幻梦星芒）是一家偏研究型企业，研究方向涵盖数据库、检索、向量、量化、后训练与数学，并探索数据系统、Agent 平台与科研合作。';
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={isEnglish ? 'en' : 'zh-CN'} data-locale={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090c12" />
     <meta name="robots" content="index, follow" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="zh-CN" href={zhUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={zhUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <title>{title}</title>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Astrmira",
-        "alternateName": "幻梦星芒",
-        "url": "https://astrmira-web.pages.dev",
-        "description": "Astrmira（幻梦星芒）是一家偏研究型企业，研究方向涵盖数据库、检索、向量、量化、后训练与数学，并探索数据系统、Agent 平台与科研合作。"
-      }
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org', '@type': 'Organization', name: 'Astrmira', alternateName: '幻梦星芒',
+      url: 'https://www.astrmira.com', description: organizationDescription
+    })} />
+    <script is:inline define:vars={{ locale }}>
+      (() => {
+        const key = 'astrmira-locale';
+        let saved = null;
+        try { saved = localStorage.getItem(key); } catch (_) {}
+        if (locale === 'zh-cn' && !location.pathname.startsWith('/en/')) {
+          let preferred = saved === 'en' || saved === 'zh-cn' ? saved : null;
+          if (!preferred) {
+            const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+            for (const language of languages) {
+              const code = String(language || '').toLowerCase();
+              if (code.startsWith('zh')) { preferred = 'zh-cn'; break; }
+              if (code.startsWith('en')) { preferred = 'en'; break; }
+            }
+            if (!preferred) preferred = 'en';
+          }
+          if (preferred === 'en') {
+            const destination = `/en${location.pathname === '/' ? '/' : location.pathname}${location.search}${location.hash}`;
+            location.replace(destination);
+            return;
+          }
+        }
+        document.addEventListener('click', event => {
+          const choice = event.target.closest?.('[data-locale-choice]');
+          if (!choice) return;
+          try { localStorage.setItem(key, choice.dataset.localeChoice); } catch (_) {}
+        });
+      })();
     </script>
   </head>
   <body>
     <Starfield />
-    <Header currentRoute={route} />
+    <Header currentRoute={route} locale={locale} currentPath={Astro.url.pathname} />
     <StarCompanion />
     <main id="main" class="site-main" data-route={route} tabindex="-1">
       <slot />
     </main>
-    <Footer />
+    <Footer locale={locale} />
     <script src="../scripts/astrmira.js"></script>
   </body>
 </html>

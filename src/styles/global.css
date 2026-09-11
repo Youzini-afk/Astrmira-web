@@ -104,3 +104,5 @@
   .article-aside-info{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
   .article-toc{margin-top:20px;padding-top:18px}
 }
+.locale-switch{font:10px var(--mono);letter-spacing:.09em;color:var(--gold);border:1px solid var(--line);padding:6px 8px;line-height:1}.locale-switch:hover{border-color:var(--gold)}
+@media(max-width:720px){.locale-switch{align-self:flex-start;margin:14px 0 4px;padding:8px 10px}}

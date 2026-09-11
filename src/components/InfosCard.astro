@@ -1,16 +1,20 @@
 ---
 import InfosArtwork from './InfosArtwork.astro';
+import { localePath, type Locale } from '../i18n';
+interface Props { locale?: Locale }
+const { locale = 'zh-cn' } = Astro.props;
+const en = locale === 'en';
 ---
 
 <article class="project-card" data-category="agents">
-  <a href="/projects/agent-platform/" data-route="projects/agent-platform" aria-label="了解 infOS AI 伙伴运行时">
+  <a href={localePath('/projects/agent-platform/', locale)} data-route="projects/agent-platform" aria-label={en ? 'Explore the infOS AI companion runtime' : '了解 infOS AI 伙伴运行时'}>
     <div class="project-art">
       <span class="art-label">INTELLIGENCE</span>
       <InfosArtwork />
     </div>
     <div class="project-body">
       <h3>infOS</h3>
-      <p>面向 AI 伙伴的开源运行时，连接长期记忆、上下文与工具能力。以 TriviumDB 为记忆底座，为 PeroperoChat 承载持续对话与桌面交互。</p>
+      <p>{en ? 'An open-source runtime for AI companions, connecting long-term memory, context, and tools while powering persistent conversation and desktop interaction.' : '面向 AI 伙伴的开源运行时，连接长期记忆、上下文与工具能力。以 TriviumDB 为记忆底座，为 PeroperoChat 承载持续对话与桌面交互。'}</p>
       <div class="project-footer">
         <span>MEMORY · CONTEXT · TOOLS</span>
         <span class="arrow" aria-hidden="true">↗</span>

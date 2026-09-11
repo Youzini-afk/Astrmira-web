@@ -1,16 +1,20 @@
 ---
 import PiariumArtwork from './PiariumArtwork.astro';
+import { localePath, type Locale } from '../i18n';
+interface Props { locale?: Locale }
+const { locale = 'zh-cn' } = Astro.props;
+const en = locale === 'en';
 ---
 
 <article class="project-card" data-category="harness">
-  <a href="/projects/piarium/" data-route="projects/piarium" aria-label="了解 Piarium Agent Harness">
+  <a href={localePath('/projects/piarium/', locale)} data-route="projects/piarium" aria-label={en ? 'Explore the Piarium agent harness' : '了解 Piarium Agent Harness'}>
     <div class="project-art">
       <span class="art-label">AGENT HARNESS</span>
       <PiariumArtwork />
     </div>
     <div class="project-body">
       <h3>Piarium</h3>
-      <p>面向复杂工程任务的完整 Agent Harness，贯通代码检索、上下文与记忆、多 Agent 协作和结果验证，让任务从理解问题持续推进到交付。</p>
+      <p>{en ? 'A complete agent harness for complex engineering work, spanning code retrieval, context and memory, multi-agent coordination, and verifiable delivery.' : '面向复杂工程任务的完整 Agent Harness，贯通代码检索、上下文与记忆、多 Agent 协作和结果验证，让任务从理解问题持续推进到交付。'}</p>
       <div class="project-footer">
         <span>CONTEXT · EXECUTION · VERIFICATION</span>
         <span class="arrow" aria-hidden="true">↗</span>

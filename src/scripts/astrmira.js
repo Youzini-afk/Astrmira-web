@@ -15,6 +15,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(pointer: fine)');
+  const english = document.documentElement.lang === 'en';
   const standalone = document.body.dataset.mode === 'standalone';
   const main = $('#main');
   let filterResearch = 'all';
@@ -159,7 +160,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       if (!card.hidden) count++;
     });
     $$('[data-project-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.projectFilter === value)));
-    const output = $('[data-project-count]'); if (output) output.textContent = `${count} 项`;
+    const output = $('[data-project-count]'); if (output) output.textContent = english ? `${count} projects` : `${count} 项`;
   }
   function filterResearchItems() {
     let count = 0;
@@ -171,7 +172,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     });
     $$('[data-research-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.researchFilter === filterResearch)));
     const empty = $('[data-empty-search]'); if (empty) empty.hidden = count > 0;
-    const output = $('[data-research-count]'); if (output) output.textContent = `${count} 篇论文`;
+    const output = $('[data-research-count]'); if (output) output.textContent = english ? `${count} papers` : `${count} 篇论文`;
   }
 
   // One delegated listener remains valid after single-file preview navigation.
@@ -210,19 +211,19 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       const status = $('[data-brief-status]');
       try {
         await navigator.clipboard.writeText(brief);
-        if (status) status.textContent = '已复制到剪贴板。简报仍未发送。';
+        if (status) status.textContent = english ? 'Copied to the clipboard. The brief has not been sent.' : '已复制到剪贴板。简报仍未发送。';
       } catch (_) {
         const pre = $('[data-brief-text]');
         const selection = window.getSelection(); const range = document.createRange();
         range.selectNodeContents(pre); selection.removeAllRanges(); selection.addRange(range);
-        if (status) status.textContent = '浏览器未允许自动复制。已选中文本，请使用系统复制命令。';
+        if (status) status.textContent = english ? 'Automatic copying was unavailable. The text is selected; use your system copy command.' : '浏览器未允许自动复制。已选中文本，请使用系统复制命令。';
       }
       clearTimeout(copiedTimer); return;
     }
     if (target.closest('[data-download-brief]') && brief) {
       const blob = new Blob([brief], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob); const a = document.createElement('a');
-      a.href = url; a.download = 'Astrmira-合作简报.txt'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+      a.href = url; a.download = english ? 'Astrmira-collaboration-brief.txt' : 'Astrmira-合作简报.txt'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
     }
   });
   document.addEventListener('input', e => {
@@ -248,10 +249,12 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     const form=e.target;if(!form.matches?.('[data-brief-form]'))return;
     e.preventDefault(); if(!form.reportValidity())return;
     const data=new FormData(form);
-    brief=`Astrmira · 合作简报\n\n称呼：${String(data.get('name')||'未填写').trim()}\n组织 / 团队：${String(data.get('organization')||'未填写').trim()}\n合作方向：${data.get('area')}\n\n问题与目标：\n${String(data.get('problem')||'').trim()}\n\n——\n此简报在当前浏览器中生成，尚未发送。`;
+    brief = english
+      ? `Astrmira · Collaboration brief\n\nName: ${String(data.get('name') || 'Not provided').trim()}\nOrganization / team: ${String(data.get('organization') || 'Not provided').trim()}\nCollaboration area: ${data.get('area')}\n\nProblem and goal:\n${String(data.get('problem') || '').trim()}\n\n—\nThis brief was generated in your browser and has not been sent.`
+      : `Astrmira · 合作简报\n\n称呼：${String(data.get('name')||'未填写').trim()}\n组织 / 团队：${String(data.get('organization')||'未填写').trim()}\n合作方向：${data.get('area')}\n\n问题与目标：\n${String(data.get('problem')||'').trim()}\n\n——\n此简报在当前浏览器中生成，尚未发送。`;
     $('[data-brief-text]').textContent=brief;
     $('[data-brief-result]').hidden=false;
-    $('[data-brief-status]').textContent='简报已在本地生成，尚未发送。';
+    $('[data-brief-status]').textContent = english ? 'The brief was generated locally and has not been sent.' : '简报已在本地生成，尚未发送。';
     $('[data-brief-result]').scrollIntoView({behavior:paused?'instant':'smooth',block:'nearest'});
   });
 
@@ -608,14 +611,14 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       }
     }
 
-    // 1. Kicker: 幻梦星芒 / ASTRMIRA
+    // 1. Kicker
     const kickerEl = $('.hero-kicker');
     if (kickerEl) {
       const r = kickerEl.getBoundingClientRect();
       const style = window.getComputedStyle(kickerEl);
       const cx = r.left - heroRect.left + r.width / 2;
       const cy = r.top - heroRect.top + r.height / 2;
-      sampleTextLine('幻梦星芒 / ASTRMIRA', style, cx, cy, [205, 192, 168], false);
+      sampleTextLine(kickerEl.textContent.trim(), style, cx, cy, [205, 192, 168], false);
     }
 
     // 2. Title: Astrmira (Astr + mira italic)
@@ -648,36 +651,37 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       sampleTextLine('mira', h1Style, cxMira, h1CenterY, [238, 234, 225], true, 'italic');
     }
 
-    // 3. Subtitle: 于未知处求索，向星穹间开拓。
+    // 3. Subtitle
     const subEl = $('.hero-subtitle');
     if (subEl) {
       const r = subEl.getBoundingClientRect();
       const style = window.getComputedStyle(subEl);
       const cx = r.left - heroRect.left + r.width / 2;
       const cy = r.top - heroRect.top + r.height / 2;
-      sampleTextLine('于未知处求索，向星穹间开拓。', style, cx, cy, [250, 248, 243], false);
+      sampleTextLine(subEl.textContent.trim(), style, cx, cy, [250, 248, 243], false);
     }
 
-    // 4. English: From first principles to real-world intelligence.
+    // 4. Supporting line
     const engEl = $('.hero-english');
     if (engEl) {
       const r = engEl.getBoundingClientRect();
       const style = window.getComputedStyle(engEl);
       const cx = r.left - heroRect.left + r.width / 2;
       const cy = r.top - heroRect.top + r.height / 2;
-      sampleTextLine('From first principles to real-world intelligence.', style, cx, cy, [172, 179, 193], false, 'italic');
+      sampleTextLine(engEl.textContent.trim(), style, cx, cy, [172, 179, 193], false, 'italic');
     }
 
-    // 5. Description: 2 lines
+    // 5. Description
     const descEl = $('.hero-description');
     if (descEl) {
       const r = descEl.getBoundingClientRect();
       const style = window.getComputedStyle(descEl);
       const cx = r.left - heroRect.left + r.width / 2;
-      const cy1 = (r.top - heroRect.top) + r.height * 0.28;
-      const cy2 = (r.top - heroRect.top) + r.height * 0.72;
-      sampleTextLine('我们研究数据、计算与智能的底层问题，', style, cx, cy1, [165, 174, 189], false);
-      sampleTextLine('让严谨的理论，成为可用的系统。', style, cx, cy2, [165, 174, 189], false);
+      const lines = descEl.innerText.split(/\n+/).map(line => line.trim()).filter(Boolean);
+      lines.forEach((line, index) => {
+        const position = lines.length === 2 ? .28 + index * .44 : (index + .5) / lines.length;
+        sampleTextLine(line, style, cx, (r.top - heroRect.top) + r.height * position, [165, 174, 189], false);
+      });
     }
 
     // The Mira annotation joins the same star gathering and cached glyphs.
@@ -1644,7 +1648,9 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       button.setAttribute('aria-pressed', String(paused));
       button.disabled = reduced.matches;
     });
-    $$('[data-motion-text]').forEach(el => el.textContent = reduced.matches ? '已减少动态' : paused ? '启用动效' : '静止动效');
+    $$('[data-motion-text]').forEach(el => el.textContent = english
+      ? reduced.matches ? 'Reduced motion' : paused ? 'Enable motion' : 'Pause motion'
+      : reduced.matches ? '已减少动态' : paused ? '启用动效' : '静止动效');
     $$('[data-replay]').forEach(button => button.disabled = reduced.matches);
   }
 

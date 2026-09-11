@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { researchFields } from '../data/english';
+interface Props { slug: keyof typeof researchFields }
+const { slug } = Astro.props;
+const [name, description, question] = researchFields[slug];
+---
+
+<Layout locale="en" title={`${name} research — Astrmira`} description={description} route={`research/${slug}`}>
+  <div class="wrap">
+    <section class="page-title">
+      <div class="breadcrumb"><a href="/en/" data-route="home">Home</a><span>/</span><a href="/en/research/" data-route="research">Research</a><span>/</span><span>{name}</span></div>
+      <p class="eyebrow">RESEARCH FIELD / {name.toUpperCase()}</p>
+      <h1>{name},<br /><em>an unfolding question.</em></h1>
+      <p>{description}</p>
+    </section>
+    <article class="article-layout">
+      <aside class="article-aside"><p class="eyebrow">{name.toUpperCase()}</p><p>Research direction<br />Open questions</p></aside>
+      <div class="article-content">
+        <h2>Begin with the question.</h2>
+        <p class="field-question">{question}</p>
+        <p>We approach this field by making assumptions explicit, connecting methods to measurable behavior, and allowing experiments and systems to refine the question itself.</p>
+        <div class="product-links"><a class="button button-primary" href="/en/collaborate/" data-route="collaborate">Start a research conversation <span class="arrow" aria-hidden="true">↗</span></a></div>
+      </div>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .field-question { color: var(--text); font: 400 clamp(22px, 2.5vw, 34px)/1.55 var(--serif); max-width: 850px; margin: 24px 0 34px; }
+  .product-links { margin-top: 38px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .product-links .button { margin-top: 0; }
+</style>

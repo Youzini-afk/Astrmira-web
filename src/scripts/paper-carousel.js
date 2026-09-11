@@ -45,7 +45,7 @@ export function mountPaperCarousels(root, isPaused = () => false) {
         const rect = card.getBoundingClientRect();
         return rect.left >= bounds.left - 2 && rect.right <= bounds.right + 2;
       });
-      status.textContent = visible.map(card => card.querySelector('h3').textContent).join('；');
+      status.textContent = visible.map(card => card.querySelector('h3').textContent).join(document.documentElement.lang === 'en' ? '; ' : '；');
     };
     previous.addEventListener('click', onPrevious);
     next.addEventListener('click', onNext);

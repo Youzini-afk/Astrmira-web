@@ -1,25 +1,28 @@
 ---
 import PaperArtwork from './PaperArtwork.astro';
-import { paperUrl, arxivUrl, type Paper } from '../data/papers';
-interface Props { paper: Paper; headingLevel?: 'h2' | 'h3' }
-const { paper, headingLevel: Heading = 'h3' } = Astro.props;
+import { paperUrl, arxivUrl, paperEnglish, type Paper } from '../data/papers';
+import { localePath, type Locale } from '../i18n';
+interface Props { paper: Paper; headingLevel?: 'h2' | 'h3'; locale?: Locale }
+const { paper, headingLevel: Heading = 'h3', locale = 'zh-cn' } = Astro.props;
+const en = locale === 'en';
+const localized = en ? paperEnglish[paper.slug] : paper;
 ---
 
-<article class="paper-card" data-research-item data-theme={paper.themes.join(' ')} data-search={[paper.title, paper.heading, paper.summary, ...paper.authors, ...paper.tags, paper.arxiv].join(' ')}>
-  <a class="paper-card-main" href={paperUrl(paper)} data-route={`research/papers/${paper.slug}`}>
+<article class="paper-card" data-research-item data-theme={paper.themes.join(' ')} data-search={[paper.title, localized.heading, localized.summary, ...paper.authors, ...localized.tags, paper.arxiv].join(' ')}>
+  <a class="paper-card-main" href={localePath(paperUrl(paper), locale)} data-route={`research/papers/${paper.slug}`}>
     <div class="paper-art">
       <div class="paper-art-meta"><span>{paper.category}</span><time datetime={paper.submitted}>{paper.submitted.slice(0, 7).replace('-', '.')}</time></div>
       <PaperArtwork kind={paper.artwork} />
     </div>
     <div class="paper-copy">
-      <Heading>{paper.heading}</Heading>
-      <p class="paper-original-title" lang="en">{paper.title}</p>
-      <p class="paper-summary">{paper.summary}</p>
+      <Heading>{localized.heading}</Heading>
+      {!en && <p class="paper-original-title" lang="en">{paper.title}</p>}
+      <p class="paper-summary">{localized.summary}</p>
     </div>
   </a>
   <div class="paper-card-footer">
-    <span>{paper.tags.slice(0, 2).join(' · ')}</span>
-    <a href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer" aria-label={`在 arXiv 阅读 ${paper.title}（新窗口）`}>arXiv <span aria-hidden="true">↗</span></a>
+    <span>{localized.tags.slice(0, 2).join(' · ')}</span>
+    <a href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer" aria-label={en ? `Read ${paper.title} on arXiv (new window)` : `在 arXiv 阅读 ${paper.title}（新窗口）`}>arXiv <span aria-hidden="true">↗</span></a>
   </div>
 </article>
 

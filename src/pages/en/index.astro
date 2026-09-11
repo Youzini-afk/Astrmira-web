@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PaperCarousel from '../../components/PaperCarousel.astro';
+import TriviumCard from '../../components/TriviumCard.astro';
+import InfosCard from '../../components/InfosCard.astro';
+import PiariumCard from '../../components/PiariumCard.astro';
+import OriginArtwork from '../../components/OriginArtwork.astro';
+
+const colours = ['#c5ab81', '#719dc4', '#9dbbd6'];
+const strands = Array.from({ length: 72 }, (_, index) => {
+  const offset = (index - 36) * 2.2;
+  const opacity = .025 + ((index * 37) % 75) / 1000;
+  const width = .3 + ((index * 53) % 120) / 100;
+  return {
+    route: index === 36,
+    colour: colours[(index * 7) % colours.length], opacity, width,
+    d: `M${(-100 + offset).toFixed(1)} ${(720 + offset).toFixed(1)} C${(140 + offset).toFixed(1)} ${(475 + offset).toFixed(1)}, ${(370 + offset).toFixed(1)} ${(815 + offset).toFixed(1)}, ${(698 + offset).toFixed(1)} ${(474 + offset / 3).toFixed(1)} S${(993 + offset / 3).toFixed(1)} ${(139 + offset / 2).toFixed(1)}, 1125 202`
+  };
+});
+---
+
+<Layout locale="en" title="Astrmira · Research, systems, and lasting curiosity" description="Astrmira studies foundational questions in data and intelligence, then builds open systems that carry research into the real world." route="home">
+  <section class="hero" data-star-anchor="hero">
+    <svg class="hero-sky" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><radialGradient id="skyglow-en"><stop stop-color="#8dabc3" stop-opacity=".1" /><stop offset="1" stop-color="#8dabc3" stop-opacity="0" /></radialGradient></defs>
+      <ellipse cx="1050" cy="240" rx="300" ry="220" fill="url(#skyglow-en)" />
+      <g stroke="#94b1ce" fill="none"><ellipse cx="720" cy="350" rx="580" ry="235" transform="rotate(-22 720 350)" stroke-opacity=".075" stroke-width=".6" /><ellipse cx="740" cy="360" rx="550" ry="240" transform="rotate(-22 740 360)" stroke-opacity=".07" stroke-width=".6" stroke-dasharray="1 9" /><ellipse cx="740" cy="360" rx="490" ry="190" transform="rotate(-22 740 360)" stroke-opacity=".09" stroke-width=".5" /></g>
+      <g data-star-tail opacity="0" stroke-dasharray="1" stroke-dashoffset="1">{strands.map(strand => <path data-star-route={strand.route ? '' : undefined} d={strand.d} stroke={strand.colour} stroke-opacity={strand.opacity} stroke-width={strand.width} fill="none" />)}</g>
+    </svg>
+    <div class="coordinates hero-particle-mode"><span class="coord-star" data-coordinate-line>ο CETI / MIRA</span><span class="coord-line" data-coordinate-line>THE WONDERFUL STAR</span><span class="coord-line" data-coordinate-line>ARTISTIC INTERPRETATION</span></div>
+    <div class="hero-copy hero-particle-mode"><div class="hero-text-stage"><p class="hero-kicker">A WONDERFUL STAR <span style="color:var(--faint)">/</span> ASTRMIRA</p><h1>Astr<em>mira</em></h1><p class="hero-subtitle">Seek the unknown. Build beyond the horizon.</p><p class="hero-english">From first principles to real-world intelligence.</p><p class="hero-description">We study foundational questions in data, computation, and intelligence,<br />then turn rigorous ideas into systems people can use.</p></div><div class="hero-actions"><a href="/en/research/" data-route="research" class="button button-primary">Explore our research <span class="arrow">↗</span></a><a href="#projects" class="button button-quiet">Discover projects <span aria-hidden="true">↓</span></a></div></div>
+    <div class="hero-bottom"><a href="#practice" class="scroll-cue">SCROLL TO DISCOVER</a><div class="motion-controls"><span class="phase-label">MIRA</span><button data-replay aria-label="Replay the moving star and particle typography">↺ Replay</button><button data-motion-toggle aria-pressed="false"><span class="motion-dot"></span><span data-motion-text>Pause motion</span></button></div></div>
+  </section>
+  <div class="domains-strip"><div class="wrap domains-inner"><span>DATABASES</span><i>✧</i><span>RETRIEVAL</span><i>✧</i><span>VECTORS</span><i>✧</i><span>QUANTIZATION</span><i>✧</i><span>POST-TRAINING</span><i>✧</i><span>MATHEMATICS</span></div></div>
+  <section id="practice" class="wrap manifesto"><p class="eyebrow">OUR RESEARCH</p><div><h2>From one question,<br /><em>toward new understanding.</em></h2><p>We frame questions, build methods, and test ideas through derivation and experiment—letting each finding become the beginning of the next inquiry.</p></div></section>
+  <section id="principles" class="wrap projects-section"><div class="section-heading"><div><p class="eyebrow">RESEARCH, IN THE OPEN</p><h2>Keep asking<br /><em>into the unknown.</em></h2><p class="sub">From foundational problems to new findings across different fields, this is where we record our papers and research progress.</p></div><a href="/en/research/" data-route="research" class="text-link">All research <span class="arrow">↗</span></a></div><PaperCarousel locale="en" /></section>
+  <section class="wrap manifesto"><p class="eyebrow">OUR PRACTICE</p><div><h2>Exploration goes<br /><em>beyond the paper.</em></h2><p>Foundational research expands what is possible. Building systems lets real problems answer back.</p></div></section>
+  <section id="projects" class="wrap projects-section"><div class="section-heading"><div><p class="eyebrow">IDEAS, MADE TANGIBLE</p><h2>Build research<br /><em>into reality.</em></h2><p class="sub">From data foundations and intelligent companions to sustained execution for complex work.</p></div><a href="/en/projects/" data-route="projects" class="text-link">All projects <span class="arrow">↗</span></a></div><div class="project-grid"><TriviumCard locale="en" /><InfosCard locale="en" /><PiariumCard locale="en" /></div></section>
+  <section class="wrap origin-section" data-star-anchor="origin"><OriginArtwork /><div class="origin-copy"><p class="eyebrow">A NOTE ON OUR NAME</p><h2>A wonderful star.<br /><em>A lasting curiosity.</em></h2><p class="origin-cn">Stars change. Curiosity continues.</p><p>Astr evokes the distant sky; Mira is a real variable star; Mirage is an imagined horizon still to be reached. We call this image 幻梦星芒—a wonderful star.</p><p style="margin-top:13px">Mira changes in brightness and leaves a long ultraviolet tail. It reminds us to preserve imagination around the unknown and leave a trail that others can continue.</p><a class="source-link" href="https://science.nasa.gov/universe/exoplanets/the-tail-of-a-wonderful-star/" target="_blank" rel="noopener noreferrer">Name inspiration · NASA / The Tail of a Wonderful Star ↗</a></div></section>
+  <section class="wrap"><div class="collaborate-block"><div><p class="eyebrow" style="margin-bottom:18px">LET’S ASK THE NEXT QUESTION</p><h2>The next question worth studying<br />may come from you.</h2><p>Databases and intelligent systems · Research collaboration · University partnerships<br />Begin a meaningful collaboration with one real problem.</p></div><a href="/en/collaborate/" data-route="collaborate" class="button button-primary">Start a conversation <span class="arrow">↗</span></a></div></section>
+</Layout>
