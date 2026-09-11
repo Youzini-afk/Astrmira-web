@@ -14,8 +14,12 @@ const ui = getUi(locale).carousel;
       {papers.map(paper => <PaperCard paper={paper} locale={locale} />)}
     </div>
     <div class="paper-carousel-controls" data-paper-controls hidden>
-      <button type="button" data-paper-prev aria-label={ui.previous} aria-controls="home-paper-track" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button>
-      <button type="button" data-paper-next aria-label={ui.next} aria-controls="home-paper-track"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button>
+      <button class="paper-arrow" type="button" data-paper-prev aria-label={ui.previous} aria-controls="home-paper-track" disabled>
+        <span class="arrow-track" aria-hidden="true">{[0, 1].map(() => <span class="arrow-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5m7-7-7 7 7 7"/></svg></span>)}</span>
+      </button>
+      <button class="paper-arrow" type="button" data-paper-next aria-label={ui.next} aria-controls="home-paper-track">
+        <span class="arrow-track" aria-hidden="true">{[0, 1].map(() => <span class="arrow-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14m-7-7 7 7-7 7"/></svg></span>)}</span>
+      </button>
     </div>
   </div>
   <p class="paper-carousel-note">{ui.note}</p>
@@ -36,13 +40,24 @@ const ui = getUi(locale).carousel;
   /* Keep the hit areas outside the book text, centered on the covers rather than the footer. */
   .paper-carousel-controls { position: absolute; z-index: 3; inset: 44px calc(-1 * var(--arrow-offset)) 70px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; }
   .paper-carousel-controls[hidden] { display: none; }
-  .paper-carousel-controls button { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border: 1px solid #b3c9df24; border-radius: 50%; background: #0c1017ed; color: var(--gold); cursor: pointer; pointer-events: auto; transition: border-color .2s, background-color .2s, color .2s; }
-  .paper-carousel-controls button:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-  @media (hover: hover) and (pointer: fine) { .paper-carousel-controls button:hover:enabled { border-color: #d6b88170; background: #1b222c; color: #eee5d2; } }
-  .paper-carousel-controls button:disabled { opacity: .28; cursor: default; }
+  /* Ring exchange and travelling arrows inspired by karthik092726122003 on Uiverse.io. */
+  .paper-arrow { --arrow-active: 0; --arrow-start: 0%; --arrow-step: -50%; position: relative; display: block; width: 52px; height: 52px; flex-shrink: 0; margin: 0; padding: 0; border: 0; border-radius: 50%; overflow: hidden; background: transparent; color: var(--gold); cursor: pointer; pointer-events: auto; transition: color .2s, opacity .2s, transform .12s; }
+  .paper-arrow[data-paper-next] { --arrow-start: -50%; --arrow-step: 50%; }
+  .paper-arrow::before, .paper-arrow::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: #0c1017ed; pointer-events: none; }
+  .paper-arrow::before { border: 1px solid #b3c9df40; opacity: calc(1 - var(--arrow-active)); transform: scale(calc(1 - .28 * var(--arrow-active))); transition: opacity .3s cubic-bezier(.165,.84,.44,1), transform .45s cubic-bezier(.25,.46,.45,.94); }
+  .paper-arrow::after { border: 1.5px solid #d6b881b3; opacity: var(--arrow-active); transform: scale(calc(1.25 - .25 * var(--arrow-active))); transition: opacity .3s cubic-bezier(.77,0,.175,1) .06s, transform .45s cubic-bezier(.455,.03,.515,.955) .06s; }
+  .arrow-track { position: absolute; z-index: 1; inset: 0 auto 0 0; display: flex; width: 200%; transform: translateX(calc(var(--arrow-start) + var(--arrow-step) * var(--arrow-active))); transition: transform .4s cubic-bezier(.22,.9,.25,1); pointer-events: none; }
+  .arrow-icon { display: grid; place-items: center; flex: 0 0 50%; height: 100%; }
+  .paper-arrow:focus-visible { outline: 1px solid #eee5d2; outline-offset: -1px; }
+  .paper-arrow:focus-visible:enabled { --arrow-active: 1; color: #eee5d2; }
+  @media (hover: hover) and (pointer: fine) { .paper-arrow:hover:enabled { --arrow-active: 1; color: #eee5d2; } }
+  .paper-arrow:active:enabled { --arrow-active: 1; color: #eee5d2; transform: scale(.96); }
+  .paper-arrow:disabled { opacity: .28; cursor: default; }
+  :global(html.is-paused) .paper-arrow::before, :global(html.is-paused) .paper-arrow::after, :global(html.is-paused) .arrow-track { transition: none; }
   .paper-carousel-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media (max-width: 1050px) { .paper-track { grid-auto-columns: min(310px, calc((100% - 24px) / 2)); gap: 24px; } }
   @media (max-width: 720px) {
+    .paper-arrow { width: 48px; height: 48px; }
     .paper-track { grid-auto-columns: min(300px, 88%); gap: 24px; }
     .paper-carousel-note { font-size: 10px; max-width: 150px; line-height: 1.8; }
   }
