@@ -89,7 +89,6 @@ html { -webkit-text-size-adjust: 100%; }
   .navigation-ready .site-nav:not(.is-open) { display: none; }
   .site-nav.is-open { animation: navigation-enter .18s ease-out; }
   .site-nav > a { display: flex; align-items: center; min-height: 48px; padding: 12px 0; font-size: 15px; }
-  .site-nav .locale-switch { align-self: flex-start; justify-content: center; margin: 10px 0; padding: 10px 16px; min-width: 64px; min-height: 44px; font-size: 12px; }
   .site-nav .nav-contact { padding: 18px 0 4px; margin: 8px 0 0; border: 0; border-top: 1px solid var(--line); }
   /* Navigation stays available before enhancement and when JavaScript is off. */
   html:not(.navigation-ready) .site-header { height: auto; min-height: var(--header-height); flex-wrap: wrap; padding-block: max(18px, env(safe-area-inset-top)) 0; }

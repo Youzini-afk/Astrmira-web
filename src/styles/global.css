@@ -96,7 +96,6 @@
 .article-toc a[data-level="subsection"]{padding-left:24px;font-size:11px}
 .article-toc a:hover{color:var(--text);background:#91b9d508}
 .article-toc a[aria-current="location"]{color:var(--gold);border-left-color:var(--gold);background:#d6b8810a}
-.locale-switch{font:10px var(--mono);letter-spacing:.09em;color:var(--gold);border:1px solid var(--line);padding:6px 8px;line-height:1}.locale-switch:hover{border-color:var(--gold)}
 
 /* Native text is the reliable baseline. Enhancement hides it only after a
    complete GPU scene exists; failure restores readable content immediately. */

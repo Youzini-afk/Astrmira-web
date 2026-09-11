@@ -8,7 +8,11 @@ interface Props {
 const { currentRoute = 'home', locale = 'zh-cn', currentPath = '/' } = Astro.props;
 const en = locale === 'en';
 const href = (path: string) => localePath(path, locale);
-const alternateLocale: Locale = en ? 'zh-cn' : 'en';
+const languages: { locale: Locale; lang: string; label: string }[] = [
+  { locale: 'zh-cn', lang: 'zh-CN', label: '简体中文' },
+  { locale: 'en', lang: 'en', label: 'English' },
+];
+const languageLabel = en ? 'Choose language, current: English' : '选择语言，当前：简体中文';
 ---
 
 <header class="site-header">
@@ -25,7 +29,49 @@ const alternateLocale: Locale = en ? 'zh-cn' : 'en';
     <a href={href('/projects/')} data-route="projects" aria-current={currentRoute.startsWith('projects') ? 'page' : undefined}>{en ? 'Projects' : '项目'}</a>
     <a href={href('/research/')} data-route="research" aria-current={currentRoute.startsWith('research') ? 'page' : undefined}>{en ? 'Research' : '研究'}</a>
     <a href={href('/about/')} data-route="about" aria-current={currentRoute === 'about' ? 'page' : undefined}>{en ? 'About' : '关于我们'}</a>
-    <a href={localePath(currentPath, alternateLocale)} class="locale-switch" data-locale-choice={alternateLocale} lang={en ? 'zh-CN' : 'en'} hreflang={en ? 'zh-CN' : 'en'} aria-label={en ? '切换到简体中文' : 'Switch to English'}>{en ? '中文' : 'EN'}</a>
+    <details class="language-picker" data-language-picker>
+      <summary class="language-trigger" aria-label={languageLabel} title={en ? 'Language' : '选择语言'} aria-controls="language-options">
+        <svg class="language-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <ellipse cx="12" cy="12" rx="4" ry="9" />
+          <path d="M3 12h18M4.3 7.5h15.4M4.3 16.5h15.4" />
+        </svg>
+        <svg class="language-chevron" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="m2 3.5 3 3 3-3" /></svg>
+      </summary>
+      <ul class="language-options" id="language-options">
+        {languages.map(language => <li>
+          <a href={localePath(currentPath, language.locale)} data-locale-choice={language.locale} lang={language.lang} hreflang={language.lang} aria-current={locale === language.locale ? 'true' : undefined}>
+            <span>{language.label}</span>
+            {locale === language.locale && <svg class="language-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="m3 8 3 3 7-7" /></svg>}
+          </a>
+        </li>)}
+      </ul>
+    </details>
     <a href={href('/collaborate/')} data-route="collaborate" class="nav-contact" aria-current={currentRoute === 'collaborate' ? 'page' : undefined}>{en ? 'Work with us' : '开始合作'} <span aria-hidden="true">↗</span></a>
   </nav>
 </header>
+
+<style>
+  .language-picker { position: relative; flex-shrink: 0; }
+  .language-trigger { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 44px; padding: 8px; list-style: none; color: #bcc3cd; border: 1px solid transparent; cursor: pointer; transition: color .2s, border-color .2s, background-color .2s; }
+  .language-trigger::-webkit-details-marker { display: none; }
+  .language-trigger:hover, .language-picker[open] .language-trigger { color: var(--gold); border-color: var(--line); background: #d6b88105; }
+  .language-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+  .language-globe { width: 20px; height: 20px; }
+  .language-chevron { width: 10px; height: 10px; transition: transform .2s; }
+  .language-picker[open] .language-chevron { transform: rotate(180deg); }
+  .language-options { position: absolute; top: calc(100% + 10px); right: 0; z-index: 1; width: 184px; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--line); background: #10141c; box-shadow: 0 12px 32px #0006; }
+  .language-picker[open] .language-options { animation: language-appear .16s ease-out; }
+  .language-options a { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 10px 12px; color: var(--muted); font: 13px/1.6 var(--sans); transition: color .2s, background-color .2s; }
+  .language-options a:hover, .language-options a:focus-visible { color: var(--text); background: #91b9d50a; }
+  .language-options a[aria-current="true"] { color: var(--gold); background: #d6b8810a; }
+  .language-options a:focus-visible { outline-offset: -2px; }
+  .language-check { width: 16px; height: 16px; flex-shrink: 0; }
+  @keyframes language-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 900px) {
+    .language-picker { align-self: stretch; margin: 8px 0; }
+    .language-trigger { width: fit-content; }
+    .language-options { position: static; width: min(100%, 240px); margin-top: 8px; box-shadow: none; }
+    .language-options a { font-size: 14px; }
+  }
+</style>
