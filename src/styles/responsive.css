@@ -91,9 +91,6 @@ html { -webkit-text-size-adjust: 100%; }
   .hero-subtitle { font-size: clamp(18px, 4.7vw, 23px); letter-spacing: .025em; line-height: 1.65; margin: 24px 0 8px; }
   .hero-english { font-size: 14px; max-width: 330px; margin: 0 auto 22px; line-height: 1.6; }
   .hero-description { font-size: 13px; letter-spacing: 0; line-height: 1.9; }
-  .hero-actions { flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-  .hero .button { min-width: 0; min-height: 48px; padding: 12px 14px; gap: 8px; font-size: 12px; }
-  .hero .button .arrow { margin-left: 2px; }
   .hero-bottom { bottom: max(16px, env(safe-area-inset-bottom)); gap: 12px; align-items: center; }
   .scroll-cue { font-size: 8px; max-width: 94px; gap: 10px; min-height: 44px; }
   .motion-controls { gap: 12px; }
@@ -181,8 +178,6 @@ html { -webkit-text-size-adjust: 100%; }
   .hero-subtitle { font-size: 18px; letter-spacing: .02em; margin: 14px 0 6px; }
   .hero-english { font-size: 13px; max-width: none; margin-bottom: 12px; }
   .hero-description { font-size: 12px; line-height: 1.8; }
-  .hero-actions { margin-top: 18px; gap: 10px; }
-  .hero .button { min-width: 0; min-height: 44px; padding: 10px 14px; font-size: 12px; }
   .coordinates { top: 26px; font-size: 8px; }
   .coordinates .coord-star { font-size: 10px; }
   .hero-bottom { bottom: 12px; }

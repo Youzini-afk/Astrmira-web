@@ -4,6 +4,7 @@ import PaperCarousel from '../PaperCarousel.astro';
 import ProjectCard from '../ProjectCard.astro';
 import OriginArtwork from '../OriginArtwork.astro';
 import StarLink from '../StarLink.astro';
+import HeroActions from '../HeroActions.astro';
 import { getContent } from '../../i18n/content';
 import { localePath, type InternationalLocale } from '../../i18n';
 interface Props { locale: InternationalLocale }
@@ -28,7 +29,7 @@ const strands = Array.from({ length: 72 }, (_, index) => {
     <div class="coordinates hero-particle-mode" lang="en"><span class="coord-star" data-coordinate-line>ο CETI / MIRA</span><span class="coord-line" data-coordinate-line>THE WONDERFUL STAR</span><span class="coord-line" data-coordinate-line>ARTISTIC INTERPRETATION</span></div>
     <div class="hero-copy hero-particle-mode">
       <div class="hero-text-stage"><p class="hero-kicker">{copy.kicker} <span style="color:var(--faint)">/</span> ASTRMIRA</p><h1 lang="en">Astr<em>mira</em></h1><p class="hero-subtitle">{copy.subtitle}</p><p class="hero-english">{copy.supporting}</p><p class="hero-description">{copy.introduction[0]}<br />{copy.introduction[1]}</p></div>
-      <div class="hero-actions"><a href={href('/research/')} data-route="research" class="button button-primary">{copy.explore}<span class="arrow" aria-hidden="true">↗</span></a><a href="#projects" class="button button-quiet">{copy.discover}<span aria-hidden="true">↓</span></a></div>
+      <HeroActions locale={locale} />
     </div>
     <div class="hero-bottom"><a href="#practice" class="scroll-cue">{ui.motion.scroll}</a><div class="motion-controls"><span class="phase-label">MIRA</span><button data-replay aria-label={ui.motion.replayLabel}>↺ {ui.motion.replay}</button><button data-motion-toggle aria-pressed="false"><span class="motion-dot"></span><span data-motion-text>{ui.motion.pause}</span></button></div></div>
   </section>
