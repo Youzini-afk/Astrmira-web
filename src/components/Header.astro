@@ -11,6 +11,13 @@ const ui = getUi(locale);
 const href = (path: string) => localePath(path, locale);
 const languages = LOCALES.map(item => ({ locale: item.id, lang: item.lang, label: item.name, recommendation: item.recommendation }));
 const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(item => item.id === locale)!.name);
+const navigation = [
+  { route: 'home', path: '/', label: ui.nav.home },
+  { route: 'projects', path: '/projects/', label: ui.nav.projects },
+  { route: 'research', path: '/research/', label: ui.nav.research },
+  { route: 'about', path: '/about/', label: ui.nav.about },
+];
+const isCurrent = (route: string) => currentRoute === route || (route !== 'home' && currentRoute.startsWith(route + '/'));
 ---
 
 <header class="site-header">
@@ -24,9 +31,10 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
   </a>
   <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>{ui.nav.menu} <span aria-hidden="true">＋</span></button>
   <nav id="site-nav" class="site-nav" aria-label={ui.nav.navigation}>
-    <a href={href('/projects/')} data-route="projects" aria-current={currentRoute.startsWith('projects') ? 'page' : undefined}>{ui.nav.projects}</a>
-    <a href={href('/research/')} data-route="research" aria-current={currentRoute.startsWith('research') ? 'page' : undefined}>{ui.nav.research}</a>
-    <a href={href('/about/')} data-route="about" aria-current={currentRoute === 'about' ? 'page' : undefined}>{ui.nav.about}</a>
+    <div class="nav-group" data-nav-group>
+      {navigation.map(item => <a href={href(item.path)} data-route={item.route} data-nav-link aria-current={isCurrent(item.route) ? 'page' : undefined}>{item.label}</a>)}
+      <span class="nav-indicator" data-nav-indicator aria-hidden="true"></span>
+    </div>
     <details class="language-picker" data-language-picker>
       <summary class="language-trigger" aria-label={languageLabel} title={ui.nav.language} aria-controls="language-options">
         <svg class="language-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
@@ -51,6 +59,22 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
 </header>
 
 <style>
+  /* Sliding highlight inspired by gleydson_9898's Uiverse.io liquid group.
+     Real links retain native navigation; unequal widths accommodate every locale. */
+  .nav-group { position: relative; display: inline-flex; align-items: stretch; gap: 2px; padding: 5px; border: 1px solid #b3c9df18; border-radius: 15px; background: #0a0d12b3; isolation: isolate; }
+  .nav-group a { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 16px; border-radius: 10px; color: #a7b0bc; font: 500 13px/1.6 var(--sans); letter-spacing: .02em; white-space: nowrap; transition: color .25s ease, transform .15s ease; }
+  .nav-group a[aria-current="page"] { color: #eee7d9; }
+  .nav-group:not(.has-nav-indicator) a[aria-current="page"] { background: #242a32; box-shadow: inset 0 1px #e9eff50d, inset 0 -1px 2px #0005; }
+  .nav-group.has-nav-indicator a[aria-current="page"] { color: #a7b0bc; }
+  .nav-group.has-nav-indicator a.is-highlighted { color: #eee7d9; }
+  .nav-group a:active { transform: scale(.97); }
+  .nav-group a:focus-visible { outline: 2px solid var(--gold); outline-offset: -3px; }
+  .nav-indicator { position: absolute; z-index: 0; left: 0; top: 0; width: var(--nav-width, 0px); height: var(--nav-height, 0px); transform: translate(var(--nav-x, 0px), var(--nav-y, 0px)); border-radius: 10px; pointer-events: none; background: #242a32; box-shadow: inset 0 1px #e9eff50d, inset 0 -1px 2px #0005; opacity: 0; transition: transform .45s cubic-bezier(.22,.9,.25,1), width .45s cubic-bezier(.22,.9,.25,1), height .45s cubic-bezier(.22,.9,.25,1), opacity .2s; }
+  .has-nav-indicator.has-nav-target .nav-indicator { opacity: 1; }
+  .nav-positioning .nav-indicator, :global(html.is-paused) .nav-indicator { transition: none; }
+  @media (hover: hover) and (pointer: fine) { .nav-group a:hover { color: #eee7d9; } }
+  @media (max-width: 1100px) { .nav-group a { padding-inline: 12px; } }
+  @media (pointer: coarse) { .nav-group a { min-height: 44px; } }
   .language-picker { position: relative; flex-shrink: 0; }
   .language-trigger { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 44px; padding: 8px; list-style: none; color: #bcc3cd; border: 1px solid transparent; border-radius: var(--radius-control); cursor: pointer; transition: color .2s, border-color .2s, background-color .2s; }
   .language-trigger::-webkit-details-marker { display: none; }
@@ -70,6 +94,8 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
   .language-recommendation { font-size: 10px; color: var(--gold); }
   @keyframes language-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 900px) {
+    .nav-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; }
+    .nav-group a { min-width: 0; min-height: 46px; padding: 10px 12px; font-size: 14px; }
     .language-picker { align-self: stretch; margin: 8px 0; }
     .language-trigger { width: fit-content; }
     .language-options { position: static; width: min(100%, 240px); margin-top: 8px; box-shadow: none; max-height: none; overflow: visible; }

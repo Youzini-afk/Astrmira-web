@@ -3,6 +3,7 @@ import { mountPaperCarousels } from './paper-carousel.js';
 import { mountPaperBooks } from './paper-books.js';
 import { createMotionController } from './motion-controller.js';
 import { mountSiteMenu } from './site-menu.js';
+import { mountNavigationIndicator } from './navigation-indicator.js';
 import { getUi, countLabel } from './ui.js';
 import { copyContactEmail } from './contact.js';
 
@@ -17,6 +18,7 @@ import { copyContactEmail } from './contact.js';
   let filterResearch = 'all';
   const motion = createMotionController(main);
   const closeMenu = mountSiteMenu();
+  const refreshNavigation = mountNavigationIndicator();
   let disposeArticleTocs = () => {};
   let disposePaperCarousels = () => {};
   let disposePaperBooks = () => {};
@@ -37,6 +39,7 @@ import { copyContactEmail } from './contact.js';
     });
     closeMenu();
     if (focus) main?.focus({ preventScroll: true });
+    refreshNavigation();
     motion.refresh();
   }
 
