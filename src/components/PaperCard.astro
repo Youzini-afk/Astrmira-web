@@ -12,15 +12,13 @@ const ui = getUi(locale);
 
 <article class="paper-card" data-research-item data-theme={paper.themes.join(' ')} data-search={[paper.title, localized.heading, localized.summary, ...paper.authors, ...localized.tags, paper.arxiv].join(' ')}>
   <a class="paper-card-main" href={localePath(paperUrl(paper), locale)} data-route={`research/papers/${paper.slug}`}>
-    <div class="paper-art">
-      <div class="paper-art-meta"><span>{paper.category}</span><time datetime={paper.submitted}>{paper.submitted.slice(0, 7).replace('-', '.')}</time></div>
-      <PaperArtwork kind={paper.artwork} />
-    </div>
+    <div class="paper-art-meta"><span>{paper.category}</span><time datetime={paper.submitted}>{paper.submitted.slice(0, 7).replace('-', '.')}</time></div>
     <div class="paper-copy">
       <Heading>{localized.heading}</Heading>
       {!en && <p class="paper-original-title" lang="en">{paper.title}</p>}
       <p class="paper-summary">{localized.summary}</p>
     </div>
+    <div class="paper-art"><PaperArtwork kind={paper.artwork} /></div>
   </a>
   <div class="paper-card-footer">
     <span>{localized.tags.slice(0, 2).join(' · ')}</span>
@@ -29,28 +27,35 @@ const ui = getUi(locale);
 </article>
 
 <style>
-  .paper-card { min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--line); background: linear-gradient(145deg, #121923a6, #0a0e15c9); transition: border-color .25s, background-color .25s; }
-  .paper-card:hover, .paper-card:focus-within { border-color: #b1c8e052; background-color: #91b9d507; }
-  .paper-card-main { display: flex; flex: 1; flex-direction: column; }
-  .paper-art { height: 222px; padding: 24px 8px 2px; position: relative; border-bottom: 1px solid var(--line); }
-  .paper-art-meta { position: absolute; top: 17px; left: 22px; right: 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--faint); font: 9px var(--mono); letter-spacing: .06em; }
-  .paper-art-meta time { white-space: nowrap; color: var(--gold); }
-  .paper-copy { padding: 26px 25px 22px; overflow-wrap: anywhere; }
+  .paper-card { min-width: 0; display: flex; flex-direction: column; padding-top: 22px; border-top: 1px solid #b3c9df38; transition: border-color .25s; }
+  .paper-card-main { display: flex; flex: 1; flex-direction: column; border-radius: 6px; }
+  .paper-card-main:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+  .paper-art-meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; color: var(--faint); font: 9px/1.8 var(--mono); letter-spacing: .1em; }
+  .paper-art-meta time { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .paper-copy { padding: 20px 0 24px; overflow-wrap: anywhere; }
+  .paper-copy :is(h2, h3) { color: var(--text); font: 400 25px/1.45 var(--serif); letter-spacing: -.012em; text-wrap: pretty; margin: 0 0 15px; transition: color .25s; }
+  .paper-original-title { color: #a9b3c3; font: 14px/1.6 var(--serif); margin: 0 0 18px; }
+  .paper-summary { color: var(--muted); font: 13px/1.95 var(--sans); margin: 0; text-wrap: pretty; }
+  .paper-art { height: 172px; margin-top: auto; padding: 5px 10px; overflow: hidden; border-radius: 12px; background: radial-gradient(ellipse at 50% 60%, #7c9ec511, transparent 75%), #10182250; transition: background-color .3s; }
+  .paper-art > :global(svg) { height: 100%; width: 100%; }
+  .paper-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 13px 0 2px; margin-top: 0; color: var(--faint); font-size: 10px; line-height: 1.8; }
+  .paper-card-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); white-space: nowrap; font: 11px var(--mono); padding-left: 10px; transition: color .2s; }
+  .paper-card-footer a span { margin-left: 8px; color: var(--gold); font-size: 17px; transition: transform .25s var(--ease-ui); }
+  .paper-card:focus-within { border-top-color: var(--gold); }
   :global(html:lang(de)) .paper-copy { hyphens: auto; }
-  .paper-copy :is(h2, h3) { color: var(--text); font: 400 22px/1.55 var(--sans); letter-spacing: .01em; text-wrap: pretty; margin: 0 0 14px; }
-  .paper-original-title { color: #c1c8d2; font: 14px/1.6 var(--serif); margin: 0 0 18px; }
-  .paper-summary { font: 12px/1.95 var(--sans); color: var(--muted); margin: 0; }
-  .paper-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: auto 25px 0; padding: 17px 0 22px; border-top: 1px solid var(--line); color: var(--faint); font-size: 10px; }
-  .paper-card-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--gold); white-space: nowrap; font: 11px var(--mono); padding: 5px 0 5px 12px; }
-  .paper-card-footer a span { margin-left: 6px; font-size: 17px; }
-  @media (max-width: 1100px) {
-    .paper-summary { font-size: 14px; line-height: 1.85; }
-    .paper-original-title { font-size: 15px; }
+  @media (hover: hover) and (pointer: fine) {
+    .paper-card:hover { border-top-color: #d6b88199; }
+    .paper-card-main:hover :is(h2, h3) { color: #e3c796; }
+    .paper-card-main:hover .paper-art { background-color: #1a263d65; }
+    .paper-card-footer a:hover { color: var(--gold); }
+    .paper-card-footer a:hover span { transform: translate(2px, -2px); }
   }
+  @media (max-width: 1100px) { .paper-summary { font-size: 14px; line-height: 1.85; } }
   @media (max-width: 720px) {
-    .paper-art { height: auto; aspect-ratio: 1.65; }
-    .paper-copy { padding: 24px 20px; }
-    .paper-copy :is(h2, h3) { font-size: 21px; }
-    .paper-card-footer { margin-inline: 20px; padding-bottom: 14px; }
+    .paper-card { padding-top: 18px; }
+    .paper-copy { padding: 18px 0 22px; }
+    .paper-copy :is(h2, h3) { font-size: 24px; line-height: 1.5; }
+    .paper-art { height: auto; aspect-ratio: 1.9; padding: 4px 8px; }
+    .paper-card-footer { gap: 12px; padding-top: 10px; }
   }
 </style>

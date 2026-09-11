@@ -52,17 +52,17 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
 
 <style>
   .language-picker { position: relative; flex-shrink: 0; }
-  .language-trigger { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 44px; padding: 8px; list-style: none; color: #bcc3cd; border: 1px solid transparent; cursor: pointer; transition: color .2s, border-color .2s, background-color .2s; }
+  .language-trigger { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 44px; padding: 8px; list-style: none; color: #bcc3cd; border: 1px solid transparent; border-radius: var(--radius-control); cursor: pointer; transition: color .2s, border-color .2s, background-color .2s; }
   .language-trigger::-webkit-details-marker { display: none; }
   .language-trigger:hover, .language-picker[open] .language-trigger { color: var(--gold); border-color: var(--line); background: #d6b88105; }
   .language-trigger:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
   .language-globe { width: 20px; height: 20px; }
   .language-chevron { width: 10px; height: 10px; transition: transform .2s; }
   .language-picker[open] .language-chevron { transform: rotate(180deg); }
-  .language-options { position: absolute; top: calc(100% + 10px); right: 0; z-index: 1; width: 244px; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--line); background: #10141c; box-shadow: 0 12px 32px #0006; }
+  .language-options { position: absolute; top: calc(100% + 10px); right: 0; z-index: 1; width: 244px; margin: 0; padding: 7px; list-style: none; border: 1px solid var(--line); border-radius: 12px; background: #10141c; box-shadow: 0 12px 32px #0006; }
   .language-picker[open] .language-options { animation: language-appear .16s ease-out; }
   .language-options { max-height: min(360px, calc(100dvh - 110px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
-  .language-options a { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 10px 12px; color: var(--muted); font: 13px/1.6 var(--sans); transition: color .2s, background-color .2s; }
+  .language-options a { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 10px 12px; border-radius: 7px; color: var(--muted); font: 13px/1.6 var(--sans); transition: color .2s, background-color .2s; }
   .language-options a:hover, .language-options a:focus-visible { color: var(--text); background: #91b9d50a; }
   .language-options a[aria-current="true"] { color: var(--gold); background: #d6b8810a; }
   .language-options a:focus-visible { outline-offset: -2px; }

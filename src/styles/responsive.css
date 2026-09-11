@@ -27,12 +27,7 @@ html { -webkit-text-size-adjust: 100%; }
 @media (max-width: 1100px) {
   .site-nav { gap: 24px; }
   .site-nav .nav-contact { padding-left: 22px; }
-  .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-  .project-art { height: clamp(195px, 25vw, 245px); }
-  .project-body { padding: 26px 24px; }
-  .project-body h3 { font-size: 24px; }
-  .project-body p { font-size: 14px; line-height: 1.9; }
-  .project-footer { gap: 16px; line-height: 1.8; }
+  .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 28px; }
   .section { padding-block: 85px; }
   .origin-section { gap: 40px; padding-block: 80px; }
   .manifesto { gap: 30px; }
@@ -128,11 +123,7 @@ html { -webkit-text-size-adjust: 100%; }
   .section-heading > .text-link { padding: 8px 0; margin: 0; font-size: 13px; }
   .eyebrow { font-size: 10px; letter-spacing: .1em; }
   .eyebrow .index { margin-right: 10px; }
-  .project-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .project-art { height: auto; aspect-ratio: 1.65; }
-  .project-body { padding: 24px; }
-  .project-body p { min-height: 0; }
-  .project-footer { margin-top: 22px; }
+  .project-grid { grid-template-columns: minmax(0, 1fr); gap: 38px; }
   .lab-tabs { gap: 12px; justify-content: space-between; overflow-x: auto; scrollbar-width: thin; }
   .lab-tab { min-height: 44px; font-size: 12px; padding-bottom: 14px; }
   .lab-panel { min-height: 0; }
@@ -181,7 +172,7 @@ html { -webkit-text-size-adjust: 100%; }
   .value-grid h3 { font-size: 23px; }
   .value-grid p { font-size: 14px; }
   .breadcrumb { font-size: 11px; margin-bottom: 24px; }
-  .archive-note { grid-template-columns: minmax(0, 1fr); padding: 24px; gap: 16px; }
+  .archive-note { grid-template-columns: minmax(0, 1fr); padding: 26px 0 0; gap: 16px; }
   .archive-note p { font-size: 14px; }
   .mobile-note { display: block; }
 }
@@ -192,7 +183,6 @@ html { -webkit-text-size-adjust: 100%; }
   .hero-bottom { gap: 8px; }
   .motion-controls { gap: 8px; }
   .motion-controls button { font-size: 9px; }
-  .project-body { padding: 22px 20px; }
 }
 
 /* Short landscape screens use a compact composition with the star to the side. */
@@ -222,7 +212,4 @@ html { -webkit-text-size-adjust: 100%; }
   .research-search { font-size: 16px; min-height: 48px; }
   .lab-controls input[type="range"] { min-height: 44px; flex: 1; min-width: 120px; }
   .topic-list a.tag { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 12px; }
-}
-@media (hover: none) {
-  .project-card:hover, .project-card:hover .project-art > svg { transform: none; }
 }

@@ -12,6 +12,7 @@ Astrmira-web/
 ├── src/
 │   ├── styles/
 │   │   ├── global.css      # 基础样式与设计变量
+│   │   ├── controls.css    # 按钮、文字链接、筛选和标签的共用样式
 │   │   └── responsive.css  # 手机、平板、横屏、安全区域与触摸适配
 │   ├── layouts/
 │   │   └── Layout.astro    # 统一母版（SEO Meta、JSON-LD、星空微粒子画布）
@@ -99,6 +100,12 @@ npm run preview
 - 手机使用原生触摸滚动和横向翻阅；按钮按触摸设备扩大点击区域，保留页面缩放。横屏和设备安全区域分别适配。
 - 构建后运行 `node scripts/check-responsive-browser.mjs`，检查中英文代表页面在 8 种尺寸下的布局，以及触摸、导航、目录、邮箱复制、旋转与无 JavaScript 导航。需要 Playwright 和已安装的 Edge；可用 `PLAYWRIGHT_MODULE` 指定现有 Playwright 模块路径。可选 `--screenshots=<目录>` 保存截图。
 - 多语言排版可追加 `--locales=zh-hant,ja,ko,fr,de --sizes=320x568,820x1180,1440x900`；`node scripts/check-glyph-clarity.mjs --locales=zh-Hant,ja,ko,fr,de` 验证新增语言的移动端原生像素字形与背景动画隔离。
+
+## 控件与卡片
+
+- `controls.css` 区分浅色主按钮、轻量次按钮和文字链接；筛选、标签为胶囊形，图形区域使用更柔和的圆角。键盘聚焦状态与触摸目标保持可辨认、可操作。
+- 项目卡只为图形提供浅底，标题、说明和标签直接排在页面上；论文卡先展示标题与摘要，再展示研究图形，保留横向翻阅和独立的 arXiv 链接。没有截断正文。
+- 悬停反馈使用 CSS 的颜色、边缘与小幅位移，不增加指针追踪脚本；触摸设备不启用悬停缩放，减少动态偏好继续禁用过渡动画。卡片自身样式集中在各自组件中。
 
 ---
 

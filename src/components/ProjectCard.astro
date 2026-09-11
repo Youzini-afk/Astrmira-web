@@ -20,8 +20,39 @@ const identity = identities[project], copy = locale === 'zh-cn' ? chinese[projec
 const Artwork = identity.artwork;
 ---
 <article class="project-card" data-category={identity.category}>
-  <a href={localePath('/' + identity.route + '/', locale)} data-route={identity.route} aria-label={copy.accessible}>
+  <a class="project-link" href={localePath('/' + identity.route + '/', locale)} data-route={identity.route} aria-label={copy.accessible}>
     <div class="project-art"><span class="art-label">{copy.label}</span><Artwork /></div>
-    <div class="project-body"><h3>{identity.name}</h3><p>{copy.description}</p><div class="project-footer"><span>{copy.tags}</span><span class="arrow" aria-hidden="true">↗</span></div></div>
+    <div class="project-body">
+      <div class="project-title-row"><h3>{identity.name}</h3><span class="project-open" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 15 15 5M5 5h10v10" /></svg></span></div>
+      <p>{copy.description}</p>
+      <div class="project-footer"><span>{copy.tags}</span></div>
+    </div>
   </a>
 </article>
+
+<style>
+  .project-card { min-width: 0; }
+  .project-link { display: flex; flex-direction: column; height: 100%; border-radius: var(--radius-surface); }
+  .project-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 7px; }
+  .project-art { height: 242px; position: relative; overflow: hidden; border-radius: var(--radius-surface); background: radial-gradient(ellipse at 50% 65%, #739bc516, transparent 72%), #121a2580; }
+  .project-art::after { content: ''; position: absolute; inset: 0; border: 1px solid #b3c9df; border-radius: inherit; opacity: .07; pointer-events: none; transition: opacity .3s; }
+  .project-art > :global(svg) { width: 100%; height: 100%; transition: transform .6s var(--ease-ui); }
+  .art-label { position: absolute; z-index: 1; left: 22px; top: 19px; color: var(--faint); font: 9px/1.8 var(--mono); letter-spacing: .12em; }
+  .project-body { flex: 1; display: flex; flex-direction: column; padding: 24px 5px 4px; }
+  .project-title-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 14px; }
+  .project-title-row h3 { font-size: 27px; letter-spacing: -.025em; line-height: 1.3; }
+  .project-open { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #b3c9df26; border-radius: 50%; color: var(--gold); transition: color .25s, background-color .25s, border-color .25s; }
+  .project-open svg { width: 15px; height: 15px; transition: transform .25s var(--ease-ui); }
+  .project-body p { color: var(--muted); font-size: 14px; line-height: 1.95; text-wrap: pretty; }
+  .project-footer { margin-top: auto; padding-top: 22px; color: var(--faint); font: 10px/1.9 var(--mono); letter-spacing: .02em; }
+  .project-link:focus-visible .project-art::after { opacity: .3; }
+  .project-link:focus-visible .project-open { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+  @media (hover: hover) and (pointer: fine) {
+    .project-link:hover .project-art::after { opacity: .24; }
+    .project-link:hover .project-art > :global(svg) { transform: scale(1.025); }
+    .project-link:hover .project-open { background: #d6b88115; border-color: #d6b88165; }
+    .project-link:hover .project-open svg { transform: translate(1px, -1px); }
+  }
+  @media (max-width: 1100px) { .project-art { height: clamp(210px, 27vw, 260px); } .project-title-row h3 { font-size: 25px; } }
+  @media (max-width: 720px) { .project-art { height: auto; aspect-ratio: 1.65; } .project-body { padding: 21px 3px 2px; } .project-title-row { margin-bottom: 12px; } .project-title-row h3 { font-size: 26px; } .project-footer { padding-top: 18px; } }
+</style>
