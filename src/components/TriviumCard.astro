@@ -1,24 +1,7 @@
 ---
-import TriviumArtwork from './TriviumArtwork.astro';
-import { localePath, type Locale } from '../i18n';
+import ProjectCard from './ProjectCard.astro';
+import type { Locale } from '../i18n';
 interface Props { locale?: Locale }
 const { locale = 'zh-cn' } = Astro.props;
-const en = locale === 'en';
 ---
-
-<article class="project-card" data-category="data">
-  <a href={localePath('/projects/data-systems/', locale)} data-route="projects/data-systems" aria-label={en ? 'Explore the TriviumDB embedded database' : '了解 TriviumDB 嵌入式数据库'}>
-    <div class="project-art">
-      <span class="art-label">SYSTEMS</span>
-      <TriviumArtwork />
-    </div>
-    <div class="project-body">
-      <h3>TriviumDB</h3>
-      <p>{en ? 'An AI-native embedded database in Rust that unifies vectors, property graphs, and documents for agent memory and local knowledge.' : '向量、图谱与文档共用一个内核。以 Rust 构建的 AI 原生嵌入式数据库，为 Agent 记忆与本地知识库连接语义、内容和关系。'}</p>
-      <div class="project-footer">
-        <span>VECTOR · GRAPH · DOCUMENT</span>
-        <span class="arrow" aria-hidden="true">↗</span>
-      </div>
-    </div>
-  </a>
-</article>
+<ProjectCard locale={locale} project="trivium" />

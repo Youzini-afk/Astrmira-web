@@ -2,6 +2,7 @@ import { mountArticleTocs } from './article-toc.js';
 import { mountPaperCarousels } from './paper-carousel.js';
 import { createMotionController } from './motion-controller.js';
 import { mountSiteMenu } from './site-menu.js';
+import { getUi, countLabel } from './ui.js';
 
 /* Astrmira — progressive enhancement. No network requests, no external runtime. */
 (() => {
@@ -9,7 +10,7 @@ import { mountSiteMenu } from './site-menu.js';
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
-  const english = document.documentElement.lang === 'en';
+  const ui = getUi();
   const standalone = document.body.dataset.mode === 'standalone';
   const main = $('#main');
   let filterResearch = 'all';
@@ -150,7 +151,7 @@ import { mountSiteMenu } from './site-menu.js';
       if (!card.hidden) count++;
     });
     $$('[data-project-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.projectFilter === value)));
-    const output = $('[data-project-count]'); if (output) output.textContent = english ? `${count} projects` : `${count} 项`;
+    const output = $('[data-project-count]'); if (output) output.textContent = countLabel('projects', count);
   }
   function filterResearchItems() {
     let count = 0;
@@ -162,7 +163,7 @@ import { mountSiteMenu } from './site-menu.js';
     });
     $$('[data-research-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.researchFilter === filterResearch)));
     const empty = $('[data-empty-search]'); if (empty) empty.hidden = count > 0;
-    const output = $('[data-research-count]'); if (output) output.textContent = english ? `${count} papers` : `${count} 篇论文`;
+    const output = $('[data-research-count]'); if (output) output.textContent = countLabel('research', count);
   }
 
   // One delegated listener remains valid after single-file preview navigation.
@@ -190,19 +191,19 @@ import { mountSiteMenu } from './site-menu.js';
       const status = $('[data-brief-status]');
       try {
         await navigator.clipboard.writeText(brief);
-        if (status) status.textContent = english ? 'Copied to the clipboard. The brief has not been sent.' : '已复制到剪贴板。简报仍未发送。';
+        if (status) status.textContent = ui.form.copied;
       } catch (_) {
         const pre = $('[data-brief-text]');
         const selection = window.getSelection(); const range = document.createRange();
         range.selectNodeContents(pre); selection.removeAllRanges(); selection.addRange(range);
-        if (status) status.textContent = english ? 'Automatic copying was unavailable. The text is selected; use your system copy command.' : '浏览器未允许自动复制。已选中文本，请使用系统复制命令。';
+        if (status) status.textContent = ui.form.copyFallback;
       }
       clearTimeout(copiedTimer); return;
     }
     if (target.closest('[data-download-brief]') && brief) {
       const blob = new Blob([brief], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob); const a = document.createElement('a');
-      a.href = url; a.download = english ? 'Astrmira-collaboration-brief.txt' : 'Astrmira-合作简报.txt'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+      a.href = url; a.download = `Astrmira-${ui.form.briefTitle}.txt`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
     }
   });
   document.addEventListener('input', e => {
@@ -222,12 +223,10 @@ import { mountSiteMenu } from './site-menu.js';
     const form=e.target;if(!form.matches?.('[data-brief-form]'))return;
     e.preventDefault(); if(!form.reportValidity())return;
     const data=new FormData(form);
-    brief = english
-      ? `Astrmira · Collaboration brief\n\nName: ${String(data.get('name') || 'Not provided').trim()}\nOrganization / team: ${String(data.get('organization') || 'Not provided').trim()}\nCollaboration area: ${data.get('area')}\n\nProblem and goal:\n${String(data.get('problem') || '').trim()}\n\n—\nThis brief was generated in your browser and has not been sent.`
-      : `Astrmira · 合作简报\n\n称呼：${String(data.get('name')||'未填写').trim()}\n组织 / 团队：${String(data.get('organization')||'未填写').trim()}\n合作方向：${data.get('area')}\n\n问题与目标：\n${String(data.get('problem')||'').trim()}\n\n——\n此简报在当前浏览器中生成，尚未发送。`;
+    brief = `Astrmira · ${ui.form.briefTitle}\n\n${ui.form.briefName}: ${String(data.get('name') || ui.form.notProvided).trim()}\n${ui.form.briefOrganization}: ${String(data.get('organization') || ui.form.notProvided).trim()}\n${ui.form.briefArea}: ${data.get('area')}\n\n${ui.form.briefProblem}:\n${String(data.get('problem') || '').trim()}\n\n—\n${ui.form.briefSuffix}`;
     $('[data-brief-text]').textContent=brief;
     $('[data-brief-result]').hidden=false;
-    $('[data-brief-status]').textContent = english ? 'The brief was generated locally and has not been sent.' : '简报已在本地生成，尚未发送。';
+    $('[data-brief-status]').textContent = ui.form.generated;
     $('[data-brief-result]').scrollIntoView({behavior:motion.paused?'instant':'smooth',block:'nearest'});
   });
 

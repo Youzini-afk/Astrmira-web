@@ -1,3 +1,4 @@
+import { getUi } from './ui.js';
 /** Native scrolling handles touch, trackpads and focus; controls add one-card steps. */
 export function mountPaperCarousels(root, isPaused = () => false) {
   const disposers = [...root.querySelectorAll('[data-paper-carousel]')].map(carousel => {
@@ -45,7 +46,7 @@ export function mountPaperCarousels(root, isPaused = () => false) {
         const rect = card.getBoundingClientRect();
         return rect.left >= bounds.left - 2 && rect.right <= bounds.right + 2;
       });
-      status.textContent = visible.map(card => card.querySelector('h3').textContent).join(document.documentElement.lang === 'en' ? '; ' : '；');
+      status.textContent = visible.map(card => card.querySelector('h3').textContent).join(getUi().carousel.separator);
     };
     previous.addEventListener('click', onPrevious);
     next.addEventListener('click', onNext);

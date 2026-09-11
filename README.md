@@ -16,20 +16,27 @@ Astrmira-web/
 │   ├── layouts/
 │   │   └── Layout.astro    # 统一母版（SEO Meta、JSON-LD、星空微粒子画布）
 │   ├── components/
-│   │   ├── Header.astro    # 悬浮顶部导航（支持移动端折叠）
-│   │   ├── MiraHero.astro  # 首屏中央字标、品牌主张与开场控制
-│   │   ├── StarCompanion.astro # 【核心交互】3D天体 -> 梵高笔触 -> 极简几何蜕变与随屏伴随体
-│   │   ├── ProjectSection.astro # 三大业务方向（数据系统、Agent平台、联合研究）
-│   │   ├── ResearchSection.astro # 可解释原理交互实验室（向量近邻、量化、Agent闭环）
-│   │   ├── OriginSection.astro   # NASA Mira (Omicron Ceti) 13光年星尾与品牌渊源
-│   │   ├── CollabSection.astro   # 合作对话引导
+│   │   ├── Header.astro    # 导航、移动菜单与七语言选择器
+│   │   ├── StarCompanion.astro # 随滚动飞行、留下星尾并停靠的星体
+│   │   ├── ProjectCard.astro # TriviumDB、infOS、Piarium 共用卡片
+│   │   ├── PaperCarousel.astro # 可横向翻阅的论文卡片
+│   │   ├── AboutPage.astro # 关于页共用结构
+│   │   ├── pages/          # 国际化首页、列表、详情和合作页模板
 │   │   └── Footer.astro    # 宏大水印与页脚信息
+│   ├── data/               # 项目、论文元数据与基础文案
+│   ├── i18n/
+│   │   ├── routing.js      # 语言定义、路径转换与首次访问识别
+│   │   ├── base-content.ts # 英文基础内容结构
+│   │   ├── content.ts      # 翻译完整性校验与服务端读取
+│   │   ├── ui.ts           # 中英文共用交互文案
+│   │   └── messages/       # 繁体中文、日、韩、法、德完整翻译
 │   └── pages/
-│       ├── index.astro     # 官网首页
-│       ├── projects.astro  # 项目与系统研发专门列表与详情
-│       ├── research.astro  # 学术研究论文与方向检索
-│       ├── about.astro     # 公司使命、价值与变星之源
-│       └── contact.astro   # 深度合作与简报生成页
+│       ├── index.astro     # 简体中文首页
+│       ├── projects/       # 简体中文项目列表与详情
+│       ├── research/       # 简体中文论文、研究方向与详情
+│       ├── about.astro     # 关于页入口
+│       ├── collaborate.astro # 合作简报生成页
+│       └── [locale]/[...path].astro # 六种带语言前缀的静态页面
 ├── astro.config.mjs        # Astro 配置文件（默认纯静态输出）
 ├── wrangler.toml           # Cloudflare Pages 配置文件
 └── package.json
@@ -55,10 +62,14 @@ npm run preview
 ## 国际化
 
 - 默认语言为简体中文，继续使用现有的 `/`、`/projects/`、`/research/` 等 URL。
-- 英文页面使用 `/en/` 前缀，并为现有页面提供一一对应的静态路由。
-- 首次访问根据 `navigator.languages` 在中文和英文间选择；导航中的语言开关会记录用户选择，并覆盖后续自动识别。
-- 页面输出独立的 `lang`、canonical 与 `hreflang`，语言链接通过 `src/i18n.ts` 统一生成。
-- 新增语言时应先补齐页面内容和对应静态路由，再加入 `astro.config.mjs` 的 `i18n.locales`。
+- 其余语言分别使用 `/zh-hant/`（繁體中文）、`/en/`（English）、`/ja/`（日本語）、`/ko/`（한국어）、`/fr/`（Français）、`/de/`（Deutsch）。每种语言有 20 个页面，共 140 个静态路由。
+- 访问无语言前缀的 URL 时，按 `navigator.languages` 的顺序选择第一个支持的语言，无匹配时使用英文。中文优先遵循 `Hans` / `Hant` 脚本；没有脚本时，台湾、香港、澳门使用繁体，其他中文环境使用简体。日、韩、法、德、英语的地区变体使用对应语言。
+- 地球图标打开语言菜单，手动选择保存在 `localStorage`，后续优先于浏览器环境。显式带语言前缀的链接始终打开对应版本。切换保留页面路径、查询参数和锚点；存储不可用时仍可切换，禁用 JavaScript 时仍有原生菜单与链接。
+- 每页输出独立的 `lang`、canonical、七语言 `hreflang` 以及默认入口 `x-default`。语言定义、路径生成和浏览器识别共用 `src/i18n/routing.js`，Astro 配置直接读取同一份定义。
+- 英文与五种新语言共用 `src/components/pages/` 模板，由动态路由在构建时生成。页面长文案只参与静态构建，浏览器仅接收当前语言的交互文案，不下载所有翻译。原有简体中文页面保留。
+- 翻译文件在 `src/i18n/messages/`，对应 `base-content.ts` 的结构。品牌、仓库、许可证标识、论文原题和作者等元数据共用；展示文案全部提供翻译，数组长度和 `{count}`、`{language}` 等占位符必须一致，缺失会直接使构建失败。
+- 增加内容时同步更新五份翻译；新增语言需补齐翻译、扩展 `src/i18n.ts` 类型并加入 `routing.js` 的 `LOCALES`，路由和菜单会自动生成。
+- 验证：`node --test tests/*.test.js`；构建后运行 `node scripts/check-i18n-browser.mjs`，检查全部路由、语言识别、选择记忆、链接、移动菜单、无 JS 导航、本地化筛选、目录与合作简报。需要现有 Playwright 和 Edge，可设置 `PLAYWRIGHT_MODULE` 指向模块路径。
 
 ## 手机与平板
 
@@ -66,6 +77,7 @@ npm run preview
 - 首屏使用稳定的小视口高度，背景画布使用大视口高度，地址栏伸缩不重建粒子。真正的窗口尺寸、方向或像素密度变化仍会重新测量字形和星尾。
 - 手机使用原生触摸滚动和横向翻阅；按钮按触摸设备扩大点击区域，保留页面缩放。横屏和设备安全区域分别适配。
 - 构建后运行 `node scripts/check-responsive-browser.mjs`，检查中英文代表页面在 8 种尺寸下的布局，以及触摸、导航、目录、表单、旋转与无 JavaScript 导航。需要 Playwright 和已安装的 Edge；可用 `PLAYWRIGHT_MODULE` 指定现有 Playwright 模块路径。可选 `--screenshots=<目录>` 保存截图。
+- 多语言排版可追加 `--locales=zh-hant,ja,ko,fr,de --sizes=320x568,820x1180,1440x900`；`node scripts/check-glyph-clarity.mjs --locales=zh-Hant,ja,ko,fr,de` 验证新增语言的移动端原生像素字形与背景动画隔离。
 
 ---
 

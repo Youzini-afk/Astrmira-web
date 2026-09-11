@@ -1,5 +1,6 @@
 import { createCometPath, setCometDock, cometPoint } from './comet-path.js';
 import { captureGlyphs, glyphSurfaceBounds } from './motion-layout.js';
+import { getUi } from './ui.js';
 
 // The document never receives per-particle data or GPU frame acknowledgements.
 // It owns navigation and the companion transform; the worker owns the scene.
@@ -9,7 +10,7 @@ export function createMotionController(main) {
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const smoothstep = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
   const reduced = matchMedia('(prefers-reduced-motion: reduce)'), finePointer = matchMedia('(pointer: fine)');
-  const english = document.documentElement.lang === 'en';
+  const motionLabels = getUi().motion;
   const companion = $('.mira-object'), canvas = $('#particlefield'), root = document.documentElement;
   const glyphCanvas = document.createElement('canvas');
   glyphCanvas.className = 'hero-glyph-surface';
@@ -311,6 +312,7 @@ export function createMotionController(main) {
 
   function onHeroWheel(event) {
     if (event.defaultPrevented) return;
+    if (event.target.closest?.('.site-nav.is-open, [data-language-picker][open]')) return;
     if (event.ctrlKey || event.deltaY < 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
       cancelHeroDeparture();
       return;
@@ -383,9 +385,7 @@ export function createMotionController(main) {
       button.setAttribute('aria-pressed', String(paused));
       button.disabled = reduced.matches;
     });
-    $$('[data-motion-text]').forEach(el => el.textContent = english
-      ? reduced.matches ? 'Reduced motion' : paused ? 'Enable motion' : 'Pause motion'
-      : reduced.matches ? '已减少动态' : paused ? '启用动效' : '静止动效');
+    $$('[data-motion-text]').forEach(el => el.textContent = reduced.matches ? motionLabels.reduced : paused ? motionLabels.enable : motionLabels.pause);
     $$('[data-replay]').forEach(button => button.disabled = reduced.matches);
   }
 

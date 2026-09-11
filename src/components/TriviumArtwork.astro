@@ -1,13 +1,13 @@
 ---
-interface Props { decorative?: boolean; }
-const { decorative = true } = Astro.props;
+interface Props { decorative?: boolean; label?: string }
+const { decorative = true, label = '向量、图谱与文档共享同一节点标识，汇入 TriviumDB 存储内核。' } = Astro.props;
 const vectors = [[45,88],[57,62],[67,101],[76,78],[87,55],[96,92],[108,67],[114,104],[60,120],[92,117]];
 const graph = [[272,69],[312,59],[332,98],[298,116],[264,101]];
 ---
 
 <svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
   role={decorative ? undefined : 'img'}
-  aria-label={decorative ? undefined : '向量、图谱与文档共享同一节点标识，汇入 TriviumDB 存储内核。'}>
+  aria-label={decorative ? undefined : label}>
   <g stroke="#91b9d5" stroke-width=".7">
     <path d="M22 224H358M190 24V226" stroke-opacity=".1" />
     <ellipse cx="190" cy="124" rx="133" ry="74" stroke-opacity=".12" stroke-dasharray="2 7" />

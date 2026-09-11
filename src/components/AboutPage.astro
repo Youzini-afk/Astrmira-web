@@ -1,13 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import OriginArtwork from './OriginArtwork.astro';
-import { aboutCopy } from '../data/about';
+import { getAbout, getContent, getUi } from '../i18n/content';
 import { localePath, type Locale } from '../i18n';
 
 interface Props { locale?: Locale }
 const { locale = 'zh-cn' } = Astro.props;
-const copy = aboutCopy[locale];
-const en = locale === 'en';
+const copy = getAbout(locale);
+const ui = getUi(locale);
+const cjk = locale.startsWith('zh') || locale === 'ja' || locale === 'ko';
+const closingHeading = locale === 'zh-cn' ? ['A wonderful star.', 'A lasting curiosity.'] : getContent(locale).home.nameHeading;
 const href = (path: string) => localePath(path, locale);
 const source = 'https://apod.nasa.gov/apod/ap070817.html';
 ---
@@ -15,14 +17,14 @@ const source = 'https://apod.nasa.gov/apod/ap070817.html';
 <Layout locale={locale} title={copy.title} description={copy.description} route="about">
   <div class="wrap">
     <section class="page-title about-introduction">
-      <p class="eyebrow">ABOUT / ASTRMIRA</p>
-      <h1 class:list={['about-title', { 'about-title-zh': !en }]}>{copy.headline[0]}<br /><em>{copy.headline[1]}</em></h1>
+      <p class="eyebrow">{ui.nav.about} / ASTRMIRA</p>
+      <h1 class:list={['about-title', { 'about-title-zh': cjk }]}>{copy.headline[0]}<br /><em>{copy.headline[1]}</em></h1>
       <p>{copy.introduction}</p>
     </section>
 
     <article class="article-layout about-layout">
       <aside class="article-aside about-aside">
-        <p class="eyebrow">ASTRONOMICAL RECORD</p>
+        <p class="eyebrow">{ui.common.astronomicalRecord}</p>
         <dl class="astronomical-record">
           {copy.record.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
         </dl>
@@ -40,7 +42,7 @@ const source = 'https://apod.nasa.gov/apod/ap070817.html';
               <div>
                 <h3>{entry.heading}</h3>
                 {entry.paragraphs.map(paragraph => <p>{paragraph}</p>)}
-                {entry.term === 'Mira' && <a class="record-source" href={source} target="_blank" rel="noopener noreferrer">{en ? 'Astronomical source: NASA · The Tail of a Wonderful Star' : '天文资料：NASA · The Tail of a Wonderful Star'} <span aria-hidden="true">↗</span></a>}
+                {entry.term === 'Mira' && <a class="record-source" href={source} target="_blank" rel="noopener noreferrer">{ui.common.astronomySource} · NASA / The Tail of a Wonderful Star <span aria-hidden="true">↗</span></a>}
               </div>
             </section>)}
           </div>
@@ -68,7 +70,7 @@ const source = 'https://apod.nasa.gov/apod/ap070817.html';
               <span class="system-description">{project.description}</span>
             </a>)}
           </div>
-          <a class="text-link" href={href('/research/')} data-route="research">{en ? 'Read our research' : '阅读我们的研究'} <span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="text-link" href={href('/research/')} data-route="research">{ui.common.readResearch} <span class="arrow" aria-hidden="true">↗</span></a>
         </section>
 
         <section class="about-chapter" aria-labelledby="about-collaboration">
@@ -82,11 +84,11 @@ const source = 'https://apod.nasa.gov/apod/ap070817.html';
   <section class="wrap origin-section about-closing" data-star-anchor="origin" aria-labelledby="about-curiosity">
     <OriginArtwork />
     <div class="origin-copy">
-      <p class="eyebrow">A LASTING CURIOSITY</p>
-      <h2 id="about-curiosity">A wonderful star.<br /><em>A lasting curiosity.</em></h2>
+      <p class="eyebrow">{ui.common.lastingCuriosity}</p>
+      <h2 id="about-curiosity">{closingHeading[0]}<br /><em>{closingHeading[1]}</em></h2>
       <p class="origin-cn">{copy.motto}</p>
       <p>{copy.closing}</p>
-      <a class="button button-primary" href={href('/collaborate/')} data-route="collaborate">{en ? 'Begin with a question' : '从一个问题，开启对话'} <span class="arrow" aria-hidden="true">↗</span></a>
+      <a class="button button-primary" href={href('/collaborate/')} data-route="collaborate">{ui.common.beginQuestion} <span class="arrow" aria-hidden="true">↗</span></a>
     </div>
   </section>
 </Layout>

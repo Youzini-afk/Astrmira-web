@@ -1,23 +1,24 @@
 ---
 import { localePath, type Locale } from '../i18n';
+import { getUi } from '../i18n/content';
 interface Props { locale?: Locale }
 const { locale = 'zh-cn' } = Astro.props;
-const en = locale === 'en';
+const ui = getUi(locale);
 const href = (path: string) => localePath(path, locale);
 ---
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-top">
-      <span>RESEARCH-DRIVEN. POSSIBILITY-BOUND.</span>
-      <a href="#main" data-back-top>{en ? 'Back to top' : '回到顶部'} ↑</a>
+      <span>{ui.footer.motto}</span>
+      <a href="#main" data-back-top>{ui.footer.back} ↑</a>
     </div>
     <div class="footer-wordmark" aria-hidden="true">Astrmira</div>
     <div class="footer-bottom">
-        <span>© 2026 Astrmira · {en ? 'A wonderful star' : '幻梦星芒'}</span>
+        <span>© 2026 Astrmira · {ui.footer.star}</span>
       <div class="footer-links">
-        <a href={href('/projects/')} data-route="projects">{en ? 'Projects' : '项目'}</a>
-        <a href={href('/research/')} data-route="research">{en ? 'Research' : '研究'}</a>
-        <a href={href('/collaborate/')} data-route="collaborate">{en ? 'Contact' : '合作联系'}</a>
+        <a href={href('/projects/')} data-route="projects">{ui.nav.projects}</a>
+        <a href={href('/research/')} data-route="research">{ui.nav.research}</a>
+        <a href={href('/collaborate/')} data-route="collaborate">{ui.nav.contact}</a>
       </div>
     </div>
   </div>

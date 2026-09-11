@@ -1,0 +1,27 @@
+---
+import TriviumArtwork from './TriviumArtwork.astro';
+import InfosArtwork from './InfosArtwork.astro';
+import PiariumArtwork from './PiariumArtwork.astro';
+import { getContent } from '../i18n/content';
+import { localePath, type Locale } from '../i18n';
+interface Props { locale?: Locale; project: 'trivium' | 'infos' | 'piarium' }
+const { locale = 'zh-cn', project } = Astro.props;
+const identities = {
+  trivium: { name: 'TriviumDB', route: 'projects/data-systems', category: 'data', artwork: TriviumArtwork },
+  infos: { name: 'infOS', route: 'projects/agent-platform', category: 'agents', artwork: InfosArtwork },
+  piarium: { name: 'Piarium', route: 'projects/piarium', category: 'harness', artwork: PiariumArtwork },
+};
+const chinese = {
+  trivium: { label: 'SYSTEMS', accessible: '了解 TriviumDB 嵌入式数据库', description: '向量、图谱与文档共用一个内核。以 Rust 构建的 AI 原生嵌入式数据库，为 Agent 记忆与本地知识库连接语义、内容和关系。', tags: 'VECTOR · GRAPH · DOCUMENT' },
+  infos: { label: 'INTELLIGENCE', accessible: '了解 infOS AI 伙伴运行时', description: '面向 AI 伙伴的开源运行时，连接长期记忆、上下文与工具能力。以 TriviumDB 为记忆底座，为 PeroperoChat 承载持续对话与桌面交互。', tags: 'MEMORY · CONTEXT · TOOLS' },
+  piarium: { label: 'AGENT HARNESS', accessible: '了解 Piarium Agent Harness', description: '面向复杂工程任务的完整 Agent Harness，贯通代码检索、上下文与记忆、多 Agent 协作和结果验证，让任务从理解问题持续推进到交付。', tags: 'CONTEXT · EXECUTION · VERIFICATION' },
+};
+const identity = identities[project], copy = locale === 'zh-cn' ? chinese[project] : getContent(locale).cards[project];
+const Artwork = identity.artwork;
+---
+<article class="project-card" data-category={identity.category}>
+  <a href={localePath('/' + identity.route + '/', locale)} data-route={identity.route} aria-label={copy.accessible}>
+    <div class="project-art"><span class="art-label">{copy.label}</span><Artwork /></div>
+    <div class="project-body"><h3>{identity.name}</h3><p>{copy.description}</p><div class="project-footer"><span>{copy.tags}</span><span class="arrow" aria-hidden="true">↗</span></div></div>
+  </a>
+</article>

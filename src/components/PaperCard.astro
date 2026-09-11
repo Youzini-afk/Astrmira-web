@@ -1,11 +1,13 @@
 ---
 import PaperArtwork from './PaperArtwork.astro';
-import { paperUrl, arxivUrl, paperEnglish, type Paper } from '../data/papers';
+import { paperUrl, arxivUrl, type Paper } from '../data/papers';
+import { getContent, getUi } from '../i18n/content';
 import { localePath, type Locale } from '../i18n';
 interface Props { paper: Paper; headingLevel?: 'h2' | 'h3'; locale?: Locale }
 const { paper, headingLevel: Heading = 'h3', locale = 'zh-cn' } = Astro.props;
 const en = locale === 'en';
-const localized = en ? paperEnglish[paper.slug] : paper;
+const localized = locale === 'zh-cn' ? paper : getContent(locale).papers[paper.slug];
+const ui = getUi(locale);
 ---
 
 <article class="paper-card" data-research-item data-theme={paper.themes.join(' ')} data-search={[paper.title, localized.heading, localized.summary, ...paper.authors, ...localized.tags, paper.arxiv].join(' ')}>
@@ -22,7 +24,7 @@ const localized = en ? paperEnglish[paper.slug] : paper;
   </a>
   <div class="paper-card-footer">
     <span>{localized.tags.slice(0, 2).join(' · ')}</span>
-    <a href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer" aria-label={en ? `Read ${paper.title} on arXiv (new window)` : `在 arXiv 阅读 ${paper.title}（新窗口）`}>arXiv <span aria-hidden="true">↗</span></a>
+    <a href={arxivUrl(paper)} target="_blank" rel="noopener noreferrer" aria-label={ui.research.arxivLabel.replace('{title}', paper.title)}>arXiv <span aria-hidden="true">↗</span></a>
   </div>
 </article>
 
@@ -33,7 +35,8 @@ const localized = en ? paperEnglish[paper.slug] : paper;
   .paper-art { height: 222px; padding: 24px 8px 2px; position: relative; border-bottom: 1px solid var(--line); }
   .paper-art-meta { position: absolute; top: 17px; left: 22px; right: 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--faint); font: 9px var(--mono); letter-spacing: .06em; }
   .paper-art-meta time { white-space: nowrap; color: var(--gold); }
-  .paper-copy { padding: 26px 25px 22px; }
+  .paper-copy { padding: 26px 25px 22px; overflow-wrap: anywhere; }
+  :global(html:lang(de)) .paper-copy { hyphens: auto; }
   .paper-copy :is(h2, h3) { color: var(--text); font: 400 22px/1.55 var(--sans); letter-spacing: .01em; text-wrap: pretty; margin: 0 0 14px; }
   .paper-original-title { color: #c1c8d2; font: 14px/1.6 var(--serif); margin: 0 0 18px; }
   .paper-summary { font: 12px/1.95 var(--sans); color: var(--muted); margin: 0; }

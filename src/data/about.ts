@@ -1,5 +1,3 @@
-import type { Locale } from '../i18n';
-
 interface AboutCopy {
   title: string;
   description: string;
@@ -22,7 +20,7 @@ interface AboutCopy {
   closing: string;
 }
 
-export const aboutCopy: Record<Locale, AboutCopy> = {
+export const aboutCopy: Record<'zh-cn' | 'en', AboutCopy> = {
   'zh-cn': {
     title: '关于我们 · 变星、幻梦与求索 — Astrmira 幻梦星芒',
     description: '了解 Astrmira 幻梦星芒的名字与研究理念：对未知保持好奇，从第一性原理出发，以推导、实验和系统实践积累新的理解。',

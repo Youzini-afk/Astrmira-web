@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PaperCard from '../PaperCard.astro';
+import { papers } from '../../data/papers';
+import { getContent } from '../../i18n/content';
+import { localePath, type InternationalLocale } from '../../i18n';
+interface Props { locale: InternationalLocale }
+const { locale } = Astro.props;
+const { researchPage: copy, fields, ui } = getContent(locale);
+const href = (path: string) => localePath(path, locale);
+---
+<Layout locale={locale} title={copy.title} description={copy.description} route="research">
+  <div class="wrap">
+    <section class="page-title"><p class="eyebrow">{copy.label}</p><h1>{copy.heading[0]}<br /><em>{copy.heading[1]}</em></h1><p>{copy.introduction}</p></section>
+    <section class="directory-content" data-research-directory aria-label={ui.research.label}>
+      <div class="directory-toolbar"><div class="filters" aria-label={ui.research.filter}>{(['all', 'vectors', 'llms', 'theory'] as const).map(key => <button class="filter-button" data-research-filter={key} aria-pressed={key === 'all' ? 'true' : 'false'}>{ui.research[key]}</button>)}</div><input class="research-search" data-research-search placeholder={ui.research.search} type="search" aria-label={ui.research.search} /></div>
+      <div class="publication-grid">{papers.map(paper => <PaperCard paper={paper} headingLevel="h2" locale={locale} />)}</div>
+      <p class="empty-search" data-empty-search hidden>{ui.research.empty}</p><p class="publication-count" data-research-count aria-live="polite">{ui.research.count.replace('{count}', String(papers.length))}</p>
+    </section>
+    <section class="research-exploration" aria-labelledby="exploration-title"><div class="section-heading"><div><p class="eyebrow">{copy.fieldsLabel}</p><h2 id="exploration-title">{copy.fieldsHeading}</h2><p class="sub">{copy.fieldsNote}</p></div></div><nav class="research-fields topic-list" aria-label={ui.research.browseFields}>{Object.entries(fields).map(([slug, [name]]) => <a class="tag" href={href(`/research/${slug}/`)} data-route={`research/${slug}`}>{name}<span aria-hidden="true">↗</span></a>)}</nav></section>
+    <section class="research-contact"><p>{copy.question}</p><a class="text-link" href={href('/collaborate/')} data-route="collaborate">{copy.contact}<span class="arrow" aria-hidden="true">↗</span></a></section>
+  </div>
+</Layout>
+<style>
+  .publication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
+  .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
+  .research-exploration { padding: 70px 0; border-top: 1px solid var(--line); }
+  .research-fields { margin-top: 28px; }
+  .research-fields .tag:hover { color: var(--gold); border-color: var(--gold); }
+  .research-fields .tag span { margin-left: 8px; }
+  .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
+  @media (max-width: 720px) { .publication-grid { grid-template-columns: 1fr; gap: 22px; } .research-exploration { padding: 50px 0; } .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; } }
+</style>

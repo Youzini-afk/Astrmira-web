@@ -1,0 +1,708 @@
+{
+  "ui": {
+    "nav": {
+      "home": "Startseite",
+      "projects": "Projekte",
+      "research": "Forschung",
+      "about": "Über uns",
+      "collaborate": "Zusammenarbeiten",
+      "contact": "Kontakt",
+      "menu": "Menü",
+      "navigation": "Hauptnavigation",
+      "language": "Sprache",
+      "currentLanguage": "Sprache wählen, aktuell: {language}",
+      "homeLabel": "Astrmira-Startseite"
+    },
+    "footer": {
+      "motto": "Aus Forschung entstehen neue Möglichkeiten.",
+      "back": "Nach oben",
+      "star": "Ein wunderbarer Stern"
+    },
+    "motion": {
+      "replay": "Wiederholen",
+      "replayLabel": "Sternbewegung und Partikelschrift erneut abspielen",
+      "pause": "Pausieren",
+      "enable": "Animieren",
+      "reduced": "Bewegung reduziert",
+      "scroll": "Scrollen und entdecken"
+    },
+    "toc": {
+      "title": "Auf dieser Seite",
+      "overview": "Überblick"
+    },
+    "carousel": {
+      "label": "Forschungsartikel, horizontal scrollbar",
+      "note": "Artikel · Erkenntnisse · Fortschritt",
+      "browse": "Blättern",
+      "previous": "Vorherige Artikel ansehen",
+      "next": "Nächste Artikel ansehen",
+      "separator": "; "
+    },
+    "common": {
+      "openSource": "Open Source",
+      "license": "Lizenz",
+      "github": "Auf GitHub ansehen",
+      "documentation": "Dokumentation lesen",
+      "releases": "Versionen ansehen",
+      "discuss": "Über Anwendung oder Zusammenarbeit sprechen",
+      "readResearch": "Unsere Forschung entdecken",
+      "astronomicalRecord": "Astronomische Daten",
+      "astronomySource": "Astronomische Quelle",
+      "lastingCuriosity": "Bleibende Neugier",
+      "beginQuestion": "Mit einer Frage beginnen",
+      "newWindow": "öffnet sich in einem neuen Fenster"
+    },
+    "projects": {
+      "all": "Alle Projekte",
+      "data": "Datensysteme",
+      "agents": "Agenten",
+      "harness": "Agenten-Infrastruktur",
+      "filter": "Projekte filtern",
+      "count": "{count} Projekte",
+      "countOne": "{count} Projekt"
+    },
+    "research": {
+      "all": "Alle Artikel",
+      "vectors": "Vektorsuche",
+      "llms": "LLM-Quantisierung",
+      "theory": "Repräsentationen und Theorie",
+      "filter": "Artikel filtern",
+      "label": "Forschungsartikel",
+      "search": "Artikel, Autoren oder Stichwörter suchen…",
+      "empty": "Keine passenden Artikel gefunden. Versuchen Sie ein anderes Stichwort oder Forschungsgebiet.",
+      "count": "{count} Artikel",
+      "countOne": "{count} Artikel",
+      "browseFields": "Forschungsgebiete erkunden",
+      "arxivLabel": "{title} auf arXiv lesen (neues Fenster)"
+    },
+    "paper": {
+      "details": "Angaben zum Artikel",
+      "authors": "Autoren",
+      "submitted": "Erstmals eingereicht",
+      "revised": "Zuletzt überarbeitet",
+      "version": "Öffentliche Version",
+      "arxiv": "Auf arXiv lesen",
+      "pdf": "PDF dieser Version öffnen",
+      "readCite": "Lesen und zitieren",
+      "continue": "Im Originalartikel weiterlesen.",
+      "original": "Vollständige Herleitungen, Versuchsaufbau und Ergebnisse finden Sie im öffentlich zugänglichen Manuskript.",
+      "versions": "Zusammenfassung und Versionsverlauf",
+      "fullPdf": "Vollständiger Artikel als PDF",
+      "related": "Verwandte Artikel"
+    },
+    "form": {
+      "name": "Ihr Name (optional)",
+      "namePlaceholder": "Name",
+      "organization": "Organisation oder Team (optional)",
+      "organizationPlaceholder": "Universität, Labor oder Unternehmen",
+      "area": "Bereich der Zusammenarbeit",
+      "areas": [
+        "Gemeinsame Forschung",
+        "Datenbanken und Suchsysteme",
+        "Agentenplattformen und Anwendungen",
+        "Eine weitere Frage für den Austausch"
+      ],
+      "problem": "Welches Problem möchten Sie gemeinsam lösen? *",
+      "placeholder": "Hintergrund, vorhandene Grundlagen und gewünschtes Ergebnis…",
+      "submit": "Kooperationsskizze erstellen",
+      "note": "Sie können die Skizze kopieren oder herunterladen. Es wird nichts automatisch versendet.",
+      "result": "Ihre Kooperationsskizze",
+      "copy": "Text kopieren",
+      "download": "Als .txt speichern",
+      "generated": "Die Skizze wurde lokal erstellt und nicht versendet.",
+      "copied": "In die Zwischenablage kopiert. Die Skizze wurde nicht versendet.",
+      "copyFallback": "Automatisches Kopieren ist nicht verfügbar. Der Text ist markiert; verwenden Sie den Kopierbefehl Ihres Systems.",
+      "notProvided": "Nicht angegeben",
+      "briefTitle": "Kooperationsskizze",
+      "briefName": "Name",
+      "briefOrganization": "Organisation / Team",
+      "briefArea": "Bereich der Zusammenarbeit",
+      "briefProblem": "Problem und Ziel",
+      "briefSuffix": "Diese Skizze wurde in Ihrem Browser erstellt und nicht versendet."
+    }
+  },
+  "home": {
+    "title": "Astrmira · Forschung, Systeme und bleibende Neugier",
+    "description": "Astrmira erforscht grundlegende Fragen zu Daten und Intelligenz und entwickelt offene Systeme, die Forschung in die Praxis bringen.",
+    "kicker": "Ein wunderbarer Stern",
+    "subtitle": "Das Unbekannte erkunden. Über den Horizont hinaus gestalten.",
+    "supporting": "Von ersten Prinzipien zu Intelligenz in der Praxis.",
+    "introduction": [
+      "Wir erforschen die Grundlagen von Daten, Berechnung und Intelligenz",
+      "und machen aus fundierten Ideen nutzbare Systeme."
+    ],
+    "explore": "Forschung entdecken",
+    "discover": "Projekte ansehen",
+    "researchLabel": "Unsere Forschung",
+    "researchHeading": [
+      "Von einer Frage",
+      "zu neuer Erkenntnis."
+    ],
+    "researchNote": "Wir formulieren Fragen, entwickeln Methoden und prüfen Ideen durch Herleitung und Experiment. Jede Erkenntnis wird zum Ausgangspunkt der nächsten Untersuchung.",
+    "papersLabel": "Forschung offen teilen",
+    "papersHeading": [
+      "Das Unbekannte",
+      "weiter hinterfragen."
+    ],
+    "papersNote": "Von grundlegenden Problemen bis zu neuen Erkenntnissen in unterschiedlichen Gebieten: Hier dokumentieren wir unsere Artikel und Forschungsfortschritte.",
+    "allResearch": "Alle Forschung",
+    "practiceLabel": "Unsere Praxis",
+    "practiceHeading": [
+      "Die Erkundung geht",
+      "über den Artikel hinaus."
+    ],
+    "practiceNote": "Grundlagenforschung erweitert das Mögliche. Mit Systemen geben wir realen Problemen die Gelegenheit, darauf zu antworten.",
+    "projectsLabel": "Ideen werden greifbar",
+    "projectsHeading": [
+      "Forschung",
+      "Wirklichkeit werden lassen."
+    ],
+    "projectsNote": "Von Datengrundlagen und intelligenten Begleitern bis zur verlässlichen Ausführung komplexer Aufgaben.",
+    "nameLabel": "Die Geschichte unseres Namens",
+    "nameHeading": [
+      "Ein wunderbarer Stern.",
+      "Bleibende Neugier."
+    ],
+    "nameMotto": "Sterne verändern sich. Neugier bleibt.",
+    "nameStory": "Astr steht für den fernen Himmel, Mira für einen realen veränderlichen Stern und Mirage für einen vorgestellten, noch unerreichten Horizont. Diese Bilder verbinden sich in unserem chinesischen Namen 幻梦星芒.",
+    "nameMeaning": "Mira verändert ihre Helligkeit und hinterlässt einen langen Schweif im Ultraviolett. Das erinnert uns daran, dem Unbekannten mit Vorstellungskraft zu begegnen und Spuren zu hinterlassen, an die andere anknüpfen können.",
+    "nameSource": "Inspiration für den Namen · NASA",
+    "ctaLabel": "Stellen wir die nächste Frage",
+    "ctaHeading": [
+      "Die nächste lohnende Forschungsfrage",
+      "kommt vielleicht von Ihnen."
+    ],
+    "ctaText": "Datenbanken und intelligente Systeme · Gemeinsame Forschung · Hochschulkooperationen",
+    "ctaNote": "Eine sinnvolle Zusammenarbeit beginnt mit einem konkreten Problem.",
+    "cta": "Ein Gespräch beginnen"
+  },
+  "cards": {
+    "trivium": {
+      "label": "Systeme",
+      "accessible": "Die eingebettete Datenbank TriviumDB entdecken",
+      "description": "Eine in Rust entwickelte, auf KI ausgerichtete eingebettete Datenbank. Sie verbindet Vektoren, Eigenschaftsgraphen und Dokumente für Agentengedächtnis und lokales Wissen.",
+      "tags": "Vektoren · Graphen · Dokumente"
+    },
+    "infos": {
+      "label": "Intelligenz",
+      "accessible": "infOS, die Laufzeitumgebung für KI-Begleiter, entdecken",
+      "description": "Eine offene Laufzeitumgebung für KI-Begleiter, die Langzeitgedächtnis, Kontext und Werkzeuge für fortlaufende Gespräche und Desktop-Interaktion verbindet.",
+      "tags": "Gedächtnis · Kontext · Werkzeuge"
+    },
+    "piarium": {
+      "label": "Agenten-Infrastruktur",
+      "accessible": "Den Piarium Agent Harness entdecken",
+      "description": "Ein umfassender Agent Harness für komplexe Entwicklungsarbeit: Codesuche, Kontext und Gedächtnis, Koordination mehrerer Agenten und überprüfbare Ergebnisse.",
+      "tags": "Kontext · Ausführung · Prüfung"
+    }
+  },
+  "projectPage": {
+    "title": "Projekte · Offene Systeme — Astrmira",
+    "description": "Entdecken Sie die Astrmira-Projekte TriviumDB, infOS und den Agent Harness Piarium.",
+    "label": "Projekte / Open Source",
+    "heading": [
+      "Ideen",
+      "werden greifbar."
+    ],
+    "introduction": "Vom Datenkern in TriviumDB über die Begleiter-Laufzeit infOS bis zur kontinuierlichen Ausführung in Piarium: Wir machen aus Forschung nutzbare Systeme.",
+    "noteHeading": "Forschung und Produkte entwickeln sich wechselseitig.",
+    "note": "Forschung gibt Systemen neue Methoden. Reale Nutzung stellt der Forschung neue Fragen."
+  },
+  "researchPage": {
+    "title": "Forschung und Publikationen — Astrmira",
+    "description": "Lesen Sie die Artikel von Astrmira und entdecken Sie die Fragen, Methoden und Erkenntnisse dahinter.",
+    "label": "Forschung / Publikationen",
+    "heading": [
+      "Fragen.",
+      "Belege. Fortschritt."
+    ],
+    "introduction": "Unsere Forschung beginnt mit lohnenden Fragen und entwickelt in unterschiedlichen Gebieten Methoden und Belege. Diese Seite vereint Artikel, aktuelle Richtungen und neue Fragen, die aus jedem Ergebnis entstehen.",
+    "fieldsLabel": "Forschungsrichtungen erkunden",
+    "fieldsHeading": "Einer Frage in ihr Fachgebiet folgen.",
+    "fieldsNote": "Entdecken Sie die Grundlagen unserer Arbeit an Datensystemen, Informationssuche, Repräsentationen, effizienter Intelligenz und Mathematik.",
+    "question": "Eine Frage, die wir gemeinsam verfolgen sollten?",
+    "contact": "Sprechen wir darüber"
+  },
+  "fieldPage": {
+    "label": "Forschungsgebiet",
+    "unfolding": "eine Frage, die sich weiter entfaltet.",
+    "direction": "Forschungsrichtung",
+    "questions": "Offene Fragen",
+    "begin": "Mit der Frage beginnen.",
+    "approach": "Wir legen Annahmen offen, verbinden Methoden mit messbarem Verhalten und lassen Experimente und Systeme auch die Frage selbst präzisieren.",
+    "conversation": "Ein Forschungsgespräch beginnen"
+  },
+  "partnerships": {
+    "title": "Forschungskooperationen",
+    "description": "Arbeiten Sie mit Astrmira an gemeinsamen wissenschaftlichen Fragen zu Datensystemen, effizienter Intelligenz und Mathematik.",
+    "heading": [
+      "Wo eine gute Frage",
+      "auf gemeinsame Neugier trifft."
+    ],
+    "introduction": "Kooperationen mit Forschung und Hochschulen sind eine zentrale Richtung. Wir verbinden unsere Arbeit an Datenbanken, Suche, Quantisierung, Nachtraining und Mathematik mit wissenschaftlichen Fragen, die von unterschiedlichen Erfahrungen profitieren.",
+    "label": "Gemeinsame Forschung",
+    "planning": "Forschungsplanung",
+    "prototypes": "Prototypen und Evaluation",
+    "sections": [
+      {
+        "title": "Mit der Frage selbst beginnen.",
+        "text": "Fragen, die eine längerfristige Untersuchung verdienen, brauchen oft theoretische Einsicht, experimentelle Methoden und Systemerfahrung zugleich. Die Zusammenarbeit beginnt beim Problem, bevor eine technische Antwort feststeht."
+      },
+      {
+        "title": "Formen der Zusammenarbeit.",
+        "text": "Gemeinsame Themenwahl, Forschungsprototypen, experimentelle Evaluation, fachlicher Austausch und Wege in die Praxis. Umfang, Rechte und Veröffentlichung werden für jede Zusammenarbeit ausdrücklich vereinbart."
+      },
+      {
+        "title": "So beginnt der Austausch.",
+        "text": "Bringen Sie eine Frage, einen Forschungsplan oder eine fachübergreifende Herausforderung mit. Zuerst besprechen wir Ziel, vorhandene Grundlagen und teilbare Inhalte, dann entwerfen wir einen passenden Weg."
+      }
+    ],
+    "discuss": "Diese Richtung besprechen"
+  },
+  "collaborate": {
+    "title": "Mit Astrmira zusammenarbeiten",
+    "description": "Beginnen Sie eine Zusammenarbeit mit Astrmira in Forschung oder Entwicklung.",
+    "label": "Zusammenarbeit / Mit einer Frage beginnen",
+    "heading": [
+      "Die nächste Frage",
+      "beginnt mit Ihnen."
+    ],
+    "introduction": "Bringen Sie einen realen Anwendungsfall, eine offene Frage oder einen Forschungsplan mit. Wir klären zuerst das Problem und entscheiden dann, wie wir gemeinsam vorankommen.",
+    "sideTitle": "Beginnen wir mit dem Problem.",
+    "sideNote": "Beschreiben Sie Hintergrund, vorhandene Grundlagen und gewünschtes Ergebnis, um eine kurze Kooperationsskizze zu erstellen.",
+    "aspects": [
+      "Datenbanken und Suche",
+      "Agentenanwendungen",
+      "Forschung und Hochschulen"
+    ]
+  },
+  "fields": {
+    "databases": [
+      "Datenbanken",
+      "Datenorganisation, Anfrageausführung und Systementwurf verbinden grundlegende Methoden mit realen Arbeitslasten.",
+      "Wie kann ein Datensystem bei einer konkreten Arbeitslast und einem gegebenen Ressourcenbudget besser funktionieren?"
+    ],
+    "retrieval": [
+      "Informationssuche",
+      "Informationen finden, filtern und ordnen, damit relevante Inhalte im richtigen Moment verfügbar sind.",
+      "Wie definieren wir Relevanz und verbinden Suchqualität durch überprüfbare Belege mit Systemkosten?"
+    ],
+    "vectors": [
+      "Vektoren",
+      "Vektorrepräsentationen, Ähnlichkeit und Suchstrukturen machen Beziehungen in Datenräumen berechenbar.",
+      "Wie beeinflussen Repräsentation, Metrik und Suchstruktur gemeinsam eine konkrete Aufgabe?"
+    ],
+    "quantization": [
+      "Quantisierung",
+      "Diskrete Repräsentationen unter Ressourcenbeschränkungen und das Verhältnis zwischen Kompaktheit und erhaltener Information.",
+      "Was muss bei einer kompakteren Repräsentation erhalten bleiben, und wie sollte ihr Fehler gemessen werden?"
+    ],
+    "post-training": [
+      "Nachtraining",
+      "Methoden und Evaluation nach dem Vortraining untersuchen das Zusammenspiel von Modellfähigkeiten, Verhalten und Zielen.",
+      "Wie können explizite Daten, Ziele und Evaluation das Modellverhalten auf die gewünschte Aufgabe ausrichten?"
+    ],
+    "mathematics": [
+      "Mathematik",
+      "Definitionen, Strukturen und Herleitungen als Mittel, Forschungsfragen klarer auszudrücken.",
+      "Welche Strukturen, Annahmen und Grenzen können eine empirische Beobachtung besser erklären?"
+    ]
+  },
+  "about": {
+    "title": "Über Astrmira · Staunen, Forschung und erste Prinzipien",
+    "description": "Die Geschichte und Forschungshaltung von Astrmira: Neugier auf das Unbekannte, Denken aus ersten Prinzipien und Verständnis durch Belege und funktionierende Systeme.",
+    "headline": [
+      "In der Forschung verwurzelt.",
+      "Offen für das Staunen."
+    ],
+    "introduction": "Astrmira — auf Chinesisch 幻梦星芒 — ist ein Unternehmen mit Schwerpunkt auf Spitzenforschung und Systementwicklung. Wir untersuchen grundlegende Fragen zu Daten, Berechnung und Intelligenz und bauen Systeme, die diese Ideen nutzbar machen. Vorstellungskraft hilft uns, neue Fragen zu stellen; das Denken aus ersten Prinzipien hilft uns auf dem Weg zu Antworten.",
+    "record": [
+      [
+        "OBJEKT",
+        "Omikron Ceti / Mira"
+      ],
+      [
+        "TYP",
+        "Langperiodischer pulsierender Veränderlicher"
+      ],
+      [
+        "HELLIGKEITSZYKLUS",
+        "Etwa 11 Monate"
+      ],
+      [
+        "ULTRAVIOLETTER SCHWEIF",
+        "Fast 13 Lichtjahre"
+      ],
+      [
+        "OBSERVATORIUM",
+        "GALEX · UV-Himmelsdurchmusterung"
+      ]
+    ],
+    "motto": "Sterne verändern sich. Neugier bleibt.",
+    "nameTitle": "Die Geschichte unseres Namens: Astr · Mira · Mirage",
+    "nameIntro": "Unser Name verbindet den Himmel, einen veränderlichen Stern und einen vorgestellten Horizont. Diese Bilder stehen für das, was uns in der Forschung wichtig ist: die Neugier auf ferne Fragen und die Geduld, genau hinzusehen, erneut zu beobachten und eine Idee zu prüfen.",
+    "names": [
+      {
+        "heading": "Der Himmel hält die Fragen offen.",
+        "paragraphs": [
+          "Der Himmel vermittelt, wie viel jenseits unseres Verständnisses liegt. Ein funktionierendes System kann unerklärte Muster enthalten; ein vertrautes Problem kann in einem anderen Maßstab eine neue Struktur zeigen. Astr ist der nach außen gerichtete Teil unseres Namens, der Raum für Grundlagenfragen und anhaltende Erkundung lässt."
+        ]
+      },
+      {
+        "heading": "Ein veränderlicher Stern, ein wachsendes Verständnis.",
+        "paragraphs": [
+          "Mira, auch Omikron Ceti genannt, ist ein veränderlicher Stern, dessen Helligkeit über etwa 11 Monate zu- und abnimmt. 2007 veröffentlichte Ultraviolettaufnahmen von GALEX zeigten einen fast 13 Lichtjahre langen Schweif. Als „wunderbarer Stern“ verbindet Mira für uns Wandel und Anreicherung.",
+          "Ihr wechselndes Licht erinnert daran, unser Verständnis zu überarbeiten. Ihr langer Schweif zeigt, was wiederholte Erkundung hinterlassen kann. Neue Belege können eine Schlussfolgerung verändern; sorgfältig dokumentierte Überlegungen, Experimente und Code geben der nächsten Untersuchung einen Ausgangspunkt."
+        ]
+      },
+      {
+        "heading": "Die Vorstellungskraft darf den ersten Schritt tun.",
+        "paragraphs": [
+          "Bevor sich eine Idee belegen lässt, steht oft eine unvollständige Intuition. Wir lassen Raum für neue Repräsentationen, andere Strukturen und Zweifel an vertrauten Voraussetzungen. Daraus entwickeln wir eine ausdrückliche Hypothese, die durch Überlegung, Experiment und praktische Nutzung Gestalt annimmt."
+        ]
+      }
+    ],
+    "nameClose": "Zusammen werden diese Bilder zu 幻梦星芒. Staunen und sorgfältiges Forschen gehören gleichermaßen zur Forschungskultur, die wir aufbauen möchten.",
+    "attitudeTitle": "Unsere Haltung zur Forschung",
+    "attitudeIntro": "Bei einer lohnenden Frage untersuchen wir die grundlegenden Beziehungen, die Reichweite bisheriger Erklärungen und mögliche Wege zu verlässlicherem Verständnis.",
+    "principles": [
+      {
+        "label": "ERSTE PRINZIPIEN",
+        "heading": "Bei den Grundlagen beginnen.",
+        "text": "Frage, Annahmen und Bedingungen klären, bevor wir eine Methode wählen. Warum funktioniert ein Suchpfad? Was bleibt in einer komprimierten Repräsentation erhalten? Wie bringt ein Agent eine lange Aufgabe zuverlässig voran? Diese Fragen führen zu Beziehungen zwischen Daten, Berechnung und Entscheidungen. Wer den Mechanismus versteht, kann beurteilen, wann eine Methode nützlich ist."
+      },
+      {
+        "label": "BELEGE UND KORREKTUR",
+        "heading": "Belege dürfen das Urteil verändern.",
+        "text": "Herleitungen machen Gedankengänge nachvollziehbar; Experimente prüfen ihre Vorhersagen. Vergleiche, Replikation und Fälle, in denen eine Methode scheitert, sind uns wichtig. Ein unerwartetes Ergebnis ist ein Hinweis. Widersprechen Beobachtungen einer Hypothese, prüfen wir sie erneut und suchen eine genauere Erklärung."
+      },
+      {
+        "label": "THEORIE UND PRAXIS",
+        "heading": "Zwischen Theorie und Entwicklung wechseln.",
+        "text": "Ein reales System macht weitere Bedingungen sichtbar: Ressourcen, Latenz, Zustand, Wartung und Veränderungen im dauerhaften Einsatz. Solche technischen Details können neue theoretische Fragen aufwerfen. Die Arbeit in beide Richtungen vertieft unser Verständnis einer Idee und hilft, ein verlässlicheres System zu bauen."
+      },
+      {
+        "label": "BLEIBENDE NEUGIER",
+        "heading": "Dauerhaften Fragen Zeit geben.",
+        "text": "Fortschritt kann aus einer neuen Idee oder einem genaueren Blick auf ein altes Problem entstehen. Wir schätzen Arbeit, auf die andere aufbauen können: klare Herleitungen, nachvollziehbare Experimente und dauerhaft nützliche Implementierungen. Jeder Schritt gibt künftigen Erkundungen eine festere Grundlage."
+      }
+    ],
+    "practiceTitle": "Forschung und Systeme voneinander lernen lassen.",
+    "practice": [
+      "Unsere Forschungsrichtungen entwickeln sich mit den Fragen. Aktuell interessieren uns Datenbanken und Suche, Vektorrepräsentationen und Modellquantisierung sowie Grundlagenfragen zu Nachtraining und Mathematik. Artikel halten Erkenntnisse fest; Systeme setzen Ideen über längere Zeit der Praxis aus.",
+      "Diese Haltung prägt auch unsere offenen Projekte: von der Organisation von Daten über die Verbindung von Gedächtnis und Handlung bis zur kontinuierlichen Arbeit an komplexen Aufgaben."
+    ],
+    "projects": [
+      {
+        "description": "Ein gemeinsamer Kern für Vektoren, Graphen und Dokumente als Grundlage für Such-, Gedächtnis- und Wissensanwendungen."
+      },
+      {
+        "description": "Langzeitgedächtnis, Kontext und Werkzeuge verbinden sich zu der Frage, wie ein KI-Begleiter über fortlaufende Gespräche und Handlungen hinweg konsistent bleibt."
+      },
+      {
+        "description": "Ein Agent Harness für komplexe Entwicklungsaufgaben, der Codesuche, Kontext, Zusammenarbeit und Prüfung zu kontinuierlichem Arbeitsfortschritt verbindet."
+      }
+    ],
+    "collaborationTitle": "Unterschiedliche Erfahrung für eine gemeinsame Frage.",
+    "collaboration": [
+      "Grundlagenforschung, Entwicklung und reale Nutzung bieten unterschiedliche Perspektiven. Wir begrüßen den Austausch mit Forschenden, Hochschulteams, Entwicklern und Industriepartnern, um Fragen genauer zu fassen und Methoden unter vielfältigeren Bedingungen zu prüfen.",
+      "Eine Zusammenarbeit kann mit einer Artikeldiskussion, einer Replikation, einem Systemexperiment oder einem bislang ungelösten konkreten Problem beginnen. Mit einer klaren Frage und gemeinsamen Erwartungen an die Beiträge können wir Verständnis aufbauen und geeignete Ergebnisse zum Lesen, Prüfen und Weiterentwickeln zugänglich machen."
+    ],
+    "closing": "Wir hoffen, dass jede sorgfältige Erkundung etwas hinterlässt, das sich weitertragen lässt. Ein Artikel, ein Stück Code oder eine neue Frage können Teil dieser fortlaufenden Spur werden."
+  },
+  "projectDetails": {
+    "data-systems": {
+      "eyebrow": "TRIVIUMDB / EINGEBETTETE DATENBANK",
+      "title": "Vektoren, Graphen und Dokumente in einem Gedächtniskern.",
+      "description": "Eine auf KI ausgerichtete eingebettete Datenbank in Rust, in der semantische Vektoren, JSON-Dokumente und Graphbeziehungen auf denselben Daten arbeiten. Sie bietet eine einheitliche Grundlage für langfristiges Agentengedächtnis, RAG und lokale Wissensbasen.",
+      "tags": [
+        "Rust",
+        "Python",
+        "Node.js"
+      ],
+      "figure": "Vektoren finden Ähnlichkeit, Dokumente bewahren Details und Graphen verbinden den Kontext.",
+      "sections": [
+        {
+          "title": "Ein Datensatz, drei Sichtweisen.",
+          "paragraphs": [
+            "Ein Gespräch enthält Bedeutung, Quelltext, Zeit und Beziehungen. TriviumDB bindet Vektordaten, JSON-Dokumente und beschriftete Graphkanten an dieselbe Knotenidentität. Das verringert Synchronisation und das Zusammenfügen von Ergebnissen aus getrennten Datenbanken."
+          ]
+        },
+        {
+          "title": "Die Suche als Pfad organisieren.",
+          "features": [
+            [
+              "SUCHE",
+              "Über Bedeutung und Schlüsselwörter finden",
+              "Dichte Vektoren mit BM25-Textsuche verbinden; QuIVer beschleunigt die approximative Suche nach nächsten Nachbarn."
+            ],
+            [
+              "BEZIEHUNGEN",
+              "Beziehungen in den Kontext folgen",
+              "Von einem gefundenen Knoten über beschriftete, gewichtete Kanten Personen, Ereignisse, Dokumente und Begriffe verbinden."
+            ],
+            [
+              "ABFRAGESPRACHE",
+              "Hybride Abfragen mit TQL kombinieren",
+              "Eine Sprache verbindet Vektorsuche, Eigenschaftsfilter, Graphexpansion, Mengenoperationen und Aggregation."
+            ],
+            [
+              "PERSISTENZ",
+              "Ein Lebenszyklus für alle Sichtweisen",
+              "Write-Ahead-Logging, Transaktionen und atomare Veröffentlichung verwalten Vektoren, Dokumente und Graphbeziehungen gemeinsam."
+            ]
+          ]
+        },
+        {
+          "title": "Die Datenbank einbetten und Daten nah halten.",
+          "paragraphs": [
+            "TriviumDB läuft über Rust, Python oder Node.js im Prozess. Der Rom-Modus speichert Daten in einer portablen .tdb-Datei; der Mmap-Modus trennt Vektor- und Dokumentenspeicher für bedarfsgesteuertes Memory-Mapping.",
+            "Dasselbe Modell kann Gesprächsgedächtnis, persönliches Wissen, RAG-Dokumentensuche und Beziehungsgedächtnis für Spielfiguren organisieren."
+          ]
+        }
+      ]
+    },
+    "agent-platform": {
+      "eyebrow": "INFOS / LAUFZEIT FÜR KI-BEGLEITER",
+      "title": "Erinnerung bewahren. Begleitung in den Alltag bringen.",
+      "description": "Eine offene Laufzeitumgebung mit einem primären KI-Begleiter im Mittelpunkt. Sie organisiert Identität, Langzeitgedächtnis, Arbeitsbereiche, Gespräche und Werkzeuge und ermöglicht fortlaufende Dialoge und Desktop-Interaktion in PeroperoChat.",
+      "tags": [
+        "TypeScript",
+        "Rust",
+        "Desktop"
+      ],
+      "figure": "Identität, Gedächtnis, Kontext und Werkzeuge arbeiten in einer gemeinsamen Laufzeitumgebung.",
+      "sections": [
+        {
+          "title": "Vom einzelnen Gespräch zur fortlaufenden Beziehung.",
+          "paragraphs": [
+            "Ein Begleiter muss gemeinsame Erlebnisse erinnern und die aktuelle Situation verstehen. infOS organisiert Identität, Gedächtnis, Kontext und Fähigkeiten um einen primären Agenten und hält Ressourcengrenzen für jede Sitzung und Situation ausdrücklich fest."
+          ]
+        },
+        {
+          "title": "Erinnern, nachdenken und weiterarbeiten.",
+          "features": [
+            [
+              "GEDÄCHTNIS",
+              "Gemeinsame Erlebnisse zu Erinnerungen machen",
+              "Gespräche als Ereignisse mit Quellen strukturieren und relevante Erfahrungen über Semantik und Beziehungen wiederfinden."
+            ],
+            [
+              "KONTEXT",
+              "Jeden Prompt mit Herkunftsnachweisen aufbauen",
+              "Identität, aktuelle Nachrichten, abgerufene Erinnerungen und verfügbare Werkzeuge kombinieren und dabei genutzte Ressourcen dokumentieren."
+            ],
+            [
+              "AUSFÜHRUNG",
+              "Absichten in ausführbare Schritte übersetzen",
+              "Ein Werkzeugprotokoll unterstützt Bedingungen, Schleifen, parallele Arbeit und Fehlerbehandlung. Fähigkeiten werden durch Rolle und Kontext bestimmt."
+            ],
+            [
+              "ERWEITERBARKEIT",
+              "Den Begleiter durch Fähigkeiten erweitern",
+              "Skills, Werkzeuge, Hooks und MCP-Dienste ergänzen Verhalten, ohne alles in einer einzigen Anwendung zusammenzufassen."
+            ]
+          ]
+        },
+        {
+          "title": "Ein Kern für verschiedene Erlebnisse.",
+          "paragraphs": [
+            "Die Architektur aus TypeScript und Rust unterstützt Desktop, Web und ein unabhängig bereitgestelltes Backend. Unter der Gedächtnisschicht verbindet TriviumDB Vektorsuche, Ereignisse und Beziehungen.",
+            "PeroperoChat bildet die direkte Begleitererfahrung: Live2D-Figuren, individuelle Identität, Gespräche und Langzeitgedächtnis werden Teil der täglichen Desktop-Interaktion."
+          ]
+        }
+      ]
+    },
+    "piarium": {
+      "eyebrow": "PIARIUM / AGENT HARNESS",
+      "title": "Modellfähigkeiten in vollständige Ausführung überführen.",
+      "description": "Ein umfassender Agent Harness für komplexe Softwareentwicklung. Piarium verbindet Codeverständnis, Kontext und Gedächtnis, Werkzeugausführung, Koordination mehrerer Agenten, Prüfung und Wiederherstellung des Arbeitsbereichs — von der ersten Untersuchung bis zum überprüfbaren Ergebnis.",
+      "tags": [
+        "Code-Intelligenz",
+        "Mehrere Agenten",
+        "Desktop",
+        "Web"
+      ],
+      "figure": "Kontext verstehen, Ausführung organisieren und Prüfungsergebnisse in die nächste Handlung einfließen lassen.",
+      "sections": [
+        {
+          "title": "Ein System, mit dem Modelle die Arbeit abschließen.",
+          "paragraphs": [
+            "Ein Harness bestimmt, wie ein Modell Belege findet, Werkzeuge nutzt, Kontext erhält und Ergebnisse prüft. Piarium verbindet dieses Ausführungssystem mit aktuellem Code, Editorentwürfen, Terminals, Aufgabenbranches und Prüfbelegen."
+          ]
+        },
+        {
+          "title": "Entwicklungsfähigkeiten über die gesamte Aufgabe hinweg.",
+          "features": [
+            [
+              "KONTEXT",
+              "Lange Aufgaben zusammenhängend halten",
+              "Stabile Anweisungen, Sitzungsverlauf und dynamischen Zustand schichten; Quellen und Abdeckung bei der Kontextkompression erhalten."
+            ],
+            [
+              "CODE-INTELLIGENZ",
+              "Die Implementierung hinter einer Frage finden",
+              "Exakte Suche, Symbole, semantische Suche und vom Modell ausgewählte Ausschnitte mit ihren Quellpositionen verbinden."
+            ],
+            [
+              "WERKZEUGE",
+              "Vollständige Ausführung unterstützen",
+              "Terminals, Dateibearbeitung, Sprachdiagnostik und Netzwerkwerkzeuge vereinen, einschließlich Hintergrundbefehlen und gemeinsamem Terminalzugriff."
+            ],
+            [
+              "KOORDINATION",
+              "Parallele Arbeit organisieren",
+              "Rollen und Modelle nach Aufgabe wählen, dauerhafte Arbeitsstränge verfolgen und isolierte Änderungen durch überprüfbare Integration koordinieren."
+            ],
+            [
+              "PRÜFUNG",
+              "Ergebnisse nachvollziehbar machen",
+              "Befehle, Tests, Builds, Diagnosen und automatische Reviews mit der Aufgabe und Artefaktversion verknüpfen, die sie belegen."
+            ],
+            [
+              "WIEDERHERSTELLUNG",
+              "Änderungen prüfbar und wiederherstellbar halten",
+              "Checkpoints, Rollback und Rückgängig-Funktionen koordinieren verfolgte Dateien, Editorentwürfe, Agentenergebnisse und dauerhaften Arbeitszustand."
+            ]
+          ]
+        },
+        {
+          "title": "Arbeitszustand über ein Gespräch hinaus.",
+          "paragraphs": [
+            "Pläne, Aufgabenstränge, Befehlsausgaben, dauerhaftes Wissen und Arbeitsbereichsversionen werden getrennt festgehalten. Im nächsten Schritt lassen sich relevante Inhalte wiederfinden und Ergebnis und Beleg verbunden halten.",
+            "TriviumDB stellt eingebettetes Wissen und Suche unterhalb des Harness bereit und verbindet Projektwissen, Codebelege und angesammeltes Arbeitsgedächtnis."
+          ]
+        }
+      ]
+    }
+  },
+  "papers": {
+    "low-bit-decisions": {
+      "heading": "Wann treffen komprimierte Vektoren dieselben Entscheidungen?",
+      "summary": "Untersucht Quantisierungsfehler in den tatsächlichen Rang- und Graphbeschneidungsentscheidungen der Vektorsuche und verbindet deren Zuverlässigkeit mit Vergleichsmargen, korrelierten Residuen und Ausführungsspuren.",
+      "tags": [
+        "Vektorsuche",
+        "Entscheidungsstabilität",
+        "Quantisierungstheorie"
+      ],
+      "caption": "Ein Vergleich ändert sich erst, wenn der Quantisierungsfehler seine Entscheidungsgrenze überschreitet.",
+      "sections": [
+        {
+          "title": "Vom Distanzfehler zur konkreten Wahl",
+          "paragraphs": [
+            "Die Vektorsuche entscheidet wiederholt, welcher Kandidat näher liegt und welche Kante bleibt. Mittlerer Fehler und globale Rangkorrelation erklären nicht, warum diese lokalen Entscheidungen scheitern. Deshalb untersucht die Arbeit die tatsächlich ausgeführten Vergleiche.",
+            "Entscheidend sind die ursprüngliche Marge zwischen Kandidaten und die Frage, ob der Fehler sie überschreiten kann. Die Analyse trennt das Risiko nahe der Entscheidungsgrenze vom Randverhalten kalibrierter Residuen, einschließlich Korrelationen durch gemeinsame Anfragen oder Graphknoten."
+          ]
+        },
+        {
+          "title": "Lokale Entscheidungen mit einer Graphspur verbinden",
+          "paragraphs": [
+            "Für die Vamana-Nachbarauswahl bei fester Kandidatenreihenfolge verbindet der Artikel die Übereinstimmung einzelner Beschneidungsentscheidungen mit der Übereinstimmung der endgültigen Nachbarliste in einem eingefrorenen exakten Zustand.",
+            "Sind Verteilungsannahmen unzuverlässig, liefern unabhängige zurückgehaltene Blöcke Risikoschätzungen für eine feste Quantisierungsregel. Binärcodes, RaBitQ, Lucene BBQ und Produktquantisierung lassen sich über dieselbe Entscheidungsschnittstelle untersuchen."
+          ]
+        },
+        {
+          "title": "Quantisierung für den Suchprozess wählen",
+          "paragraphs": [
+            "Bei gelernten, klassischen und synthetischen Repräsentationen sagen normierte Vergleichsmargen Rang- und Beschneidungswechsel besser voraus als globale Rangkorrelation. Die Untersuchung gilt für feste Kandidatenmengen und eingefrorene Spuren; der gesamte Such-Recall hängt zusätzlich von der Kandidatenabdeckung ab."
+          ]
+        }
+      ]
+    },
+    "contextual-quantization": {
+      "heading": "Warum verändert sich der Nutzen derselben Quantisierungsänderung?",
+      "summary": "Untersucht den tatsächlichen Nutzen diskreter Schritte in LLMs mit extrem niedriger Bitbreite, indem jeder Schritt entlang seines Weges und im sich verändernden Modellzustand bewertet wird.",
+      "tags": [
+        "LLM-Quantisierung",
+        "Nachtraining",
+        "Diskrete Optimierung"
+      ],
+      "caption": "Ein Schritt wird von seinem Weg und vom Zustand geprägt, den frühere Schritte erzeugt haben.",
+      "sections": [
+        {
+          "title": "Bessere Rekonstruktion bedeutet nicht immer ein besseres Modell",
+          "paragraphs": [
+            "Quantisierung nach dem Training verändert einen endlichen Code, um Rekonstruktionsfehler von Gewichten oder Aktivierungen zu reduzieren. Bewertet wird das Modell jedoch über Vorhersageverlust und Aufgabenleistung. Die Arbeit fragt, wie sich bei fester Bitbreite der tatsächliche Nutzen eines zulässigen Codeschritts erkennen lässt.",
+            "Der Nutzen hängt von der Verschiebung des Schritts ab. Ein Gradient nur am Start übersieht die Krümmung des Weges; die Auswertung am Mittelpunkt schätzt das Vorzeichen der Verluständerung am Endpunkt besser. Experimente mit niedrig quantisiertem Llama-3.2 prüfen diesen Unterschied."
+          ]
+        },
+        {
+          "title": "Quantisierungsschritte beeinflussen einander",
+          "paragraphs": [
+            "Die Aufzählung zulässiger quantisierter Zustände zeigt einen näherungsweise quadratischen Gesamtnutzen. Selbst kleine paarweise Wechselwirkungen können den besten Kompromiss zwischen mehreren Zielen verändern. Derselbe Schritt kann in einem anderen Zustand von hilfreich zu schädlich wechseln.",
+            "Mittelpunktbewertungen korrigieren lokale Entscheidungen. Bei größeren Kombinationen bewertet die Methode aus tatsächlich erreichten Zuständen neu und prüft exakte Endpunkte. Eine Beam Search mit Endpunktbewertung findet sparsame Aktualisierungen, die größere einmalige Änderungen übertreffen."
+          ]
+        },
+        {
+          "title": "Von statischen Werten zur zustandsabhängigen Optimierung",
+          "paragraphs": [
+            "Die Arbeit verlagert Quantisierungsoptimierung auf einzelne Codeänderungen: das Ziel festlegen, jeden Schritt entlang seines Weges bewerten und Schritte im sich entwickelnden Zustand neu kombinieren. Experimente verbinden diese Entscheidungen mit Aufgabengenauigkeit und Perplexität auf zurückgehaltenen Daten."
+          ]
+        }
+      ]
+    },
+    "covariance-binary-quantization": {
+      "heading": "Was bleibt bei einem oder zwei Bits erhalten?",
+      "summary": "Erklärt Rangverhalten bei niedriger Bitbreite durch Kovarianz und unterschiedliche Koordinatenskalen, einschließlich der unterschiedlichen Wirkung eines zusätzlichen Betragsbits und zufälliger Rotation auf verschiedene Repräsentationen.",
+      "tags": [
+        "Repräsentationsgeometrie",
+        "Binäre Quantisierung",
+        "Kovarianz"
+      ],
+      "caption": "Koordinatenskalen und Beziehungen zwischen Koordinaten bestimmen gemeinsam, welche Ranginformation die Kompression übersteht.",
+      "sections": [
+        {
+          "title": "Warum können gegensätzliche Entwürfe beide funktionieren?",
+          "paragraphs": [
+            "Einige binäre Quantisierungssysteme rotieren Vektoren zufällig, andere behalten die ursprünglichen Achsen. Bei gleicher Bitbreite variiert die Suchqualität zwischen Repräsentationen stark. Der Artikel untersucht diese Beobachtungen anhand der Statistik kontrastiver Embeddings."
+          ]
+        },
+        {
+          "title": "Kovarianz und Koordinatenheterogenität trennen",
+          "paragraphs": [
+            "Im gaußschen Modell beeinflusst die gesamte Kovarianzstruktur die Rangtreue. Randvarianzen allein erfassen das aufsummierte Signal zwischen Koordinaten nicht. Ungleiche Koordinatenvarianzen bestimmen, wie viel ein Betragsbit beiträgt und ob zufällige Rotation hilft oder nützliche Struktur entfernt.",
+            "Rotation gleicht Varianzen an und kann eine isotrope Distanzkorrektur ermöglichen. Sie kann aber auch Heterogenität auslöschen, die ein anderer Code nutzt. Die Arbeit leitet Näherungen für die Rangtreue und empirische Skalierungsbeziehungen über Modelle und Dimensionen hinweg her."
+          ]
+        },
+        {
+          "title": "Repräsentationsstruktur als Entwurfshinweis nutzen",
+          "paragraphs": [
+            "Experimente mit neun Embedding-Familien und achtzehn Datensätzen untersuchen Kovarianz, Betragsbits und Rotation. Die Ergebnisse geben statistische Orientierung für Kodierung und Vorverarbeitung unter den angegebenen gaußschen Annahmen und Näherungsbedingungen."
+          ]
+        }
+      ]
+    },
+    "quiver": {
+      "heading": "QuIVer: den Suchgraphen direkt im binären Raum aufbauen",
+      "summary": "Baut, beschneidet und durchsucht einen ANN-Graphen in einem trainingsfreien Zweibit-Raum. Vollständige Vektoren werden nur zur abschließenden Neusortierung gelesen; die Arbeit zeigt, für welche Daten diese kompakte Topologie geeignet ist.",
+      "tags": [
+        "Approximative nächste Nachbarn",
+        "Graphindizes",
+        "Binäre Quantisierung"
+      ],
+      "caption": "Mit einem kompakten Binärgraphen navigieren und eine kleine Kandidatenmenge mit den ursprünglichen Vektoren neu ordnen.",
+      "sections": [
+        {
+          "title": "Quantisierung den Graphen formen lassen",
+          "paragraphs": [
+            "QuIVer fragt, ob binäre Quantisierung den metrischen Raum des Graphindex selbst bilden kann. Ein trainingsfreier Zweibit-Code kombiniert Vorzeichen und Betrag, sodass Vamana-Kantenauswahl, Diversitätsbeschneidung und Anfragenavigation vollständig im quantisierten Raum arbeiten."
+          ]
+        },
+        {
+          "title": "Kompakte Navigation, exakte Neusortierung",
+          "paragraphs": [
+            "Anfragen werden zu Binärsignaturen kodiert und Kandidaten mit Bitoperationen durchlaufen. Vollständige float32-Vektoren werden erst am Ende zur Neusortierung gelesen. Häufig genutzte Signaturen und Nachbarschaftslisten bleiben so von selten gelesenen Daten voller Genauigkeit getrennt.",
+            "Weder ein gelerntes Codebuch noch eine Rotationsmatrix ist nötig. Da Quantisierung Aufbau und Navigation mitbestimmt, lassen sich Topologie, Berechnung und Speicherlayout gemeinsam auf die kompakte Repräsentation ausrichten."
+          ]
+        },
+        {
+          "title": "Systeme zusammen mit der Datengeometrie bewerten",
+          "paragraphs": [
+            "Experimente mit zwölf Datensätzen im Millionenmaßstab zeigen eine starke Verteilungsabhängigkeit: Kontrastive Embeddings im Kosinusraum passen am besten, einige multimodale Repräsentationen folgen; ursprünglich euklidische oder unstrukturierte Daten schneiden schlecht ab.",
+            "Die Arbeit macht den Kompromiss zwischen Kompression, Durchsatz und Dateneignung deutlich und schafft eine Systemgrundlage für spätere Forschung zur Quantisierungstheorie."
+          ]
+        }
+      ]
+    }
+  }
+}

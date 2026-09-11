@@ -1,3 +1,5 @@
+import { getUi } from './ui.js';
+
 export function headingSlug(text) {
   return text.normalize('NFKC').toLowerCase().trim()
     .replace(/[^\p{Letter}\p{Number}]+/gu, '-').replace(/^-+|-+$/g, '') || 'heading';
@@ -20,7 +22,7 @@ export function activeHeadingAt(positions, line, currentId, preferredId) {
 export function mountArticleTocs(root, isPaused = () => false) {
   if (!root) return () => {};
   const compact = matchMedia('(max-width: 1000px)');
-  const english = document.documentElement.lang === 'en';
+  const ui = getUi().toc;
   const cleanups = [];
   const usedIds = new Set([...document.querySelectorAll('[id]')].map(node => node.id));
   for (const article of root.querySelectorAll('.article-layout')) {
@@ -39,7 +41,7 @@ export function mountArticleTocs(root, isPaused = () => false) {
     toc.className = 'article-toc';
     toc.open = !compact.matches;
     const summary = document.createElement('summary');
-    summary.textContent = english ? 'On this page' : '本页目录';
+    summary.textContent = ui.title;
     const nav = document.createElement('nav');
     nav.setAttribute('aria-label', summary.textContent);
     const list = document.createElement('ul');
@@ -48,7 +50,7 @@ export function mountArticleTocs(root, isPaused = () => false) {
     aside.classList.add('has-article-toc');
 
     const entries = headings.map(heading => {
-      const label = heading === overview ? (english ? 'Overview' : '概览') : heading.textContent.trim().replace(/\s+/g, ' ');
+      const label = heading === overview ? ui.overview : heading.textContent.trim().replace(/\s+/g, ' ');
       if (!heading.id) {
         const base = `section-${heading === overview ? 'overview' : headingSlug(label)}`;
         let id = base, suffix = 2;

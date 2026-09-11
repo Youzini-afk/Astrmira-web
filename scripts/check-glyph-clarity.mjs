@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { serveMotionBuild } from './motion-browser-server.mjs';
+import { localePath, matchLocale } from '../src/i18n/routing.js';
 
 const { chromium } = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const output = process.argv.find(a => a.startsWith('--screenshots='))?.slice(14);
@@ -37,9 +38,11 @@ async function compareInk(worker) {
 }
 
 try {
-  for (const [dpr, locale] of [[1.25, 'zh-CN'], [2, 'zh-CN'], [3, 'zh-CN'], [3, 'en']]) {
+  const localeArgument = process.argv.find(arg => arg.startsWith('--locales='))?.slice(10);
+  const cases = localeArgument ? localeArgument.split(',').map(locale => [3, locale]) : [[1.25, 'zh-CN'], [2, 'zh-CN'], [3, 'zh-CN'], [3, 'en']];
+  for (const [dpr, locale] of cases) {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: dpr, isMobile: true, hasTouch: true, locale });
-    await page.goto(new URL(locale === 'en' ? '/en/' : '/', server.url).href);
+    await page.goto(new URL(localePath('/', matchLocale(locale)), server.url).href);
     await page.waitForFunction(() => document.documentElement.dataset.particleRenderer === 'scene-worker');
     await page.waitForFunction(() => document.querySelector('.hero-copy').classList.contains('is-solidified'));
     const worker = page.workers().find(w => w.url().includes('particle-worker'));

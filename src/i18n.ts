@@ -1,20 +1,5 @@
-export type Locale = 'zh-cn' | 'en';
-
-export const DEFAULT_LOCALE: Locale = 'zh-cn';
-export const SUPPORTED_LOCALES: Locale[] = ['zh-cn', 'en'];
-
-export function localePath(pathname: string, locale: Locale) {
-  const [pathWithQuery, hash = ''] = pathname.split('#');
-  const [rawPath, query = ''] = pathWithQuery.split('?');
-  let path = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
-  path = path.replace(/^\/en(?=\/|$)/, '') || '/';
-  if (!path.endsWith('/') && !/\.[a-z0-9]+$/i.test(path)) path += '/';
-  const localized = locale === 'en' ? `/en${path === '/' ? '/' : path}` : path;
-  return localized + (query ? `?${query}` : '') + (hash ? `#${hash}` : '');
-}
-
-export const localeName: Record<Locale, string> = {
-  'zh-cn': '简体中文',
-  en: 'English'
-};
-
+import { LOCALES } from './i18n/routing.js';
+export type Locale = 'zh-cn' | 'zh-hant' | 'en' | 'ja' | 'ko' | 'fr' | 'de';
+export type InternationalLocale = Exclude<Locale, 'zh-cn'>;
+export { LOCALES, DEFAULT_LOCALE, SUPPORTED_LOCALES, localePath } from './i18n/routing.js';
+export const localeName = Object.fromEntries(LOCALES.map(locale => [locale.id, locale.name])) as Record<Locale, string>;

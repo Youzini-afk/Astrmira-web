@@ -1,0 +1,36 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getContent } from '../../i18n/content';
+import { localePath, type InternationalLocale } from '../../i18n';
+interface Props { slug: 'databases' | 'retrieval' | 'vectors' | 'quantization' | 'post-training' | 'mathematics'; locale: InternationalLocale }
+const { slug, locale } = Astro.props;
+const { fields, fieldPage: copy, ui } = getContent(locale);
+const [name, description, question] = fields[slug];
+const href = (path: string) => localePath(path, locale);
+---
+
+<Layout locale={locale} title={`${name} · ${ui.nav.research} — Astrmira`} description={description} route={`research/${slug}`}>
+  <div class="wrap">
+    <section class="page-title">
+      <div class="breadcrumb"><a href={href('/')} data-route="home">{ui.nav.home}</a><span>/</span><a href={href('/research/')} data-route="research">{ui.nav.research}</a><span>/</span><span>{name}</span></div>
+      <p class="eyebrow">{copy.label} / {name}</p>
+      <h1>{name}<br /><em>{copy.unfolding}</em></h1>
+      <p>{description}</p>
+    </section>
+    <article class="article-layout">
+      <aside class="article-aside"><p class="eyebrow">{name}</p><p>{copy.direction}<br />{copy.questions}</p></aside>
+      <div class="article-content">
+        <h2>{copy.begin}</h2>
+        <p class="field-question">{question}</p>
+        <p>{copy.approach}</p>
+        <div class="product-links"><a class="button button-primary" href={href('/collaborate/')} data-route="collaborate">{copy.conversation} <span class="arrow" aria-hidden="true">↗</span></a></div>
+      </div>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .field-question { color: var(--text); font: 400 clamp(22px, 2.5vw, 34px)/1.55 var(--serif); max-width: 850px; margin: 24px 0 34px; }
+  .product-links { margin-top: 38px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .product-links .button { margin-top: 0; }
+</style>

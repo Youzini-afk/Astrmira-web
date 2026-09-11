@@ -1,0 +1,35 @@
+---
+import { LOCALES, type InternationalLocale } from '../../i18n';
+import { papers } from '../../data/papers';
+import { projectDetails, researchFields } from '../../data/english';
+import HomePage from '../../components/pages/HomePage.astro';
+import ProjectDirectoryPage from '../../components/pages/ProjectDirectoryPage.astro';
+import ProjectDetailPage from '../../components/pages/ProjectDetailPage.astro';
+import ResearchDirectoryPage from '../../components/pages/ResearchDirectoryPage.astro';
+import ResearchFieldPage from '../../components/pages/ResearchFieldPage.astro';
+import PaperPage from '../../components/pages/PaperPage.astro';
+import PartnershipPage from '../../components/pages/PartnershipPage.astro';
+import CollaboratePage from '../../components/pages/CollaboratePage.astro';
+import AboutPage from '../../components/AboutPage.astro';
+
+export function getStaticPaths() {
+  const paths = ['', 'about', 'projects', 'research', 'collaborate', 'contact', 'projects/research-partnerships',
+    ...Object.keys(projectDetails).map(slug => `projects/${slug}`),
+    ...Object.keys(researchFields).map(slug => `research/${slug}`),
+    ...papers.map(paper => `research/papers/${paper.slug}`)];
+  return LOCALES.filter(locale => locale.id !== 'zh-cn').flatMap(locale => paths.map(path => ({ params: { locale: locale.id, path: path || undefined }, props: { locale: locale.id, path } })));
+}
+interface Props { locale: InternationalLocale; path: string }
+const { locale, path } = Astro.props;
+const project = path.slice('projects/'.length) as keyof typeof projectDetails;
+const field = path.slice('research/'.length) as keyof typeof researchFields;
+---
+{path === '' && <HomePage locale={locale} />}
+{path === 'about' && <AboutPage locale={locale} />}
+{path === 'projects' && <ProjectDirectoryPage locale={locale} />}
+{path === 'research' && <ResearchDirectoryPage locale={locale} />}
+{['collaborate', 'contact'].includes(path) && <CollaboratePage locale={locale} />}
+{path === 'projects/research-partnerships' && <PartnershipPage locale={locale} />}
+{path.startsWith('projects/') && project in projectDetails && <ProjectDetailPage locale={locale} slug={project} />}
+{path.startsWith('research/') && field in researchFields && <ResearchFieldPage locale={locale} slug={field} />}
+{path.startsWith('research/papers/') && <PaperPage locale={locale} slug={path.slice('research/papers/'.length)} />}

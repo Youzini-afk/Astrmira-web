@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { serveMotionBuild } from './motion-browser-server.mjs';
+import { localePath } from '../src/i18n/routing.js';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
@@ -11,7 +12,9 @@ const screenshotDir = process.argv.find(arg => arg.startsWith('--screenshots='))
 if (screenshotDir) await mkdir(screenshotDir, { recursive: true });
 const server = await serveMotionBuild();
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
-const sizes = [[320, 568], [390, 844], [600, 960], [768, 1024], [820, 1180], [1024, 768], [844, 390], [1440, 900]];
+const sizeArgument = process.argv.find(arg => arg.startsWith('--sizes='))?.slice(8);
+const sizes = sizeArgument ? sizeArgument.split(',').map(size => size.split('x').map(Number)) : [[320, 568], [390, 844], [600, 960], [768, 1024], [820, 1180], [1024, 768], [844, 390], [1440, 900]];
+const locales = process.argv.find(arg => arg.startsWith('--locales='))?.slice(10).split(',') || ['zh-cn', 'en'];
 const routes = ['/', '/projects/', '/research/', '/projects/data-systems/', '/research/papers/low-bit-decisions/', '/about/', '/collaborate/'];
 const failures = [];
 let checked = 0;
@@ -168,15 +171,16 @@ try {
     const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'zh-CN', reducedMotion: 'reduce' });
     const page = await context.newPage();
     page.on('pageerror', error => failures.push({ size: `${width}x${height}`, error: error.message }));
-    for (const prefix of ['', '/en']) for (const route of routes) {
-      await page.goto(new URL(prefix + route, server.url).href);
+    for (const locale of locales) for (const route of routes) {
+      const localizedRoute = localePath(route, locale);
+      await page.goto(new URL(localizedRoute, server.url).href);
       await page.waitForFunction(() => document.querySelector('.article-layout') ? document.querySelector('.article-toc') : true);
       const result = await page.evaluate(layoutEvidence);
       checked++;
-      if (result.outside.length || result.textOverflow.length) failures.push({ size: `${width}x${height}`, route: prefix + route, ...result });
-      if (screenshotDir && !prefix && [390, 820, 844].includes(width) && ['/', '/projects/data-systems/', '/collaborate/'].includes(route)) {
-        await page.screenshot({ path: path.join(screenshotDir, `${width}-${route === '/' ? 'home' : route.split('/').filter(Boolean).at(-1)}.png`), fullPage: route !== '/' });
-        if (route === '/') await page.locator('#projects').screenshot({ path: path.join(screenshotDir, `${width}-projects.png`) });
+      if (result.outside.length || result.textOverflow.length) failures.push({ size: `${width}x${height}`, route: localizedRoute, ...result });
+      if (screenshotDir && [390, 820, 844].includes(width) && ['/', '/projects/data-systems/', '/collaborate/'].includes(route)) {
+        await page.screenshot({ path: path.join(screenshotDir, `${locale}-${width}-${route === '/' ? 'home' : route.split('/').filter(Boolean).at(-1)}.png`), fullPage: route !== '/' });
+        if (route === '/') await page.locator('#projects').screenshot({ path: path.join(screenshotDir, `${locale}-${width}-projects.png`) });
       }
     }
     await context.close();

@@ -1,0 +1,20 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProjectCard from '../ProjectCard.astro';
+import { getContent } from '../../i18n/content';
+import { localePath, type InternationalLocale } from '../../i18n';
+interface Props { locale: InternationalLocale }
+const { locale } = Astro.props;
+const { projectPage: copy, home, ui } = getContent(locale);
+---
+<Layout locale={locale} title={copy.title} description={copy.description} route="projects">
+  <div class="wrap">
+    <section class="page-title"><p class="eyebrow">{copy.label}</p><h1>{copy.heading[0]}<br /><em>{copy.heading[1]}</em></h1><p>{copy.introduction}</p></section>
+    <section class="directory-content" data-project-directory>
+      <div class="directory-toolbar"><div class="filters" aria-label={ui.projects.filter}>{(['all', 'data', 'agents', 'harness'] as const).map(key => <button class="filter-button" data-project-filter={key} aria-pressed={key === 'all' ? 'true' : 'false'}>{ui.projects[key]}</button>)}</div><p class="tiny-note" data-project-count aria-live="polite">{ui.projects.count.replace('{count}', '3')}</p></div>
+      <div class="project-grid"><ProjectCard project="trivium" locale={locale} /><ProjectCard project="infos" locale={locale} /><ProjectCard project="piarium" locale={locale} /></div>
+      <div class="archive-note"><h2>{copy.noteHeading}</h2><p>{copy.note}</p></div>
+    </section>
+    <div class="collaborate-block"><div><p class="eyebrow">{home.ctaLabel}</p><h2>{home.ctaHeading[0]}<br />{home.ctaHeading[1]}</h2><p>{home.ctaText}<br />{home.ctaNote}</p></div><a class="button button-primary" href={localePath('/collaborate/', locale)} data-route="collaborate">{home.cta}<span class="arrow" aria-hidden="true">↗</span></a></div>
+  </div>
+</Layout>

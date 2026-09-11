@@ -1,6 +1,6 @@
 ---
-interface Props { decorative?: boolean; }
-const { decorative = true } = Astro.props;
+interface Props { decorative?: boolean; label?: string }
+const { decorative = true, label = 'infOS 运行时连接人格、长期记忆、上下文与工具能力。' } = Astro.props;
 const resources = [
   { x: 67, y: 73, label: 'IDENTITY', labelY: 48 },
   { x: 313, y: 73, label: 'MEMORY', labelY: 48 },
@@ -11,7 +11,7 @@ const resources = [
 
 <svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
   role={decorative ? undefined : 'img'}
-  aria-label={decorative ? undefined : 'infOS 运行时连接人格、长期记忆、上下文与工具能力。'}>
+  aria-label={decorative ? undefined : label}>
   <g stroke="#91b9d5" stroke-width=".7">
     <path d="M22 225H358M190 30V225" stroke-opacity=".1" />
     <ellipse cx="190" cy="134" rx="135" ry="70" stroke-opacity=".16" stroke-dasharray="2 7" />

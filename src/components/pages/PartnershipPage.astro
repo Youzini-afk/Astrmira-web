@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getContent } from '../../i18n/content';
+import { localePath, type InternationalLocale } from '../../i18n';
+interface Props { locale: InternationalLocale }
+const { locale } = Astro.props;
+const { partnerships: copy, ui } = getContent(locale);
+const href = (path: string) => localePath(path, locale);
+---
+<Layout locale={locale} title={`${copy.title} — Astrmira`} description={copy.description} route="projects/research-partnerships">
+  <div class="wrap"><section class="page-title"><div class="breadcrumb"><a href={href('/')} data-route="home">{ui.nav.home}</a><span>/</span><a href={href('/projects/')} data-route="projects">{ui.nav.projects}</a><span>/</span><span>{copy.title}</span></div><p class="eyebrow">{copy.title}</p><h1>{copy.heading[0]}<br /><em>{copy.heading[1]}</em></h1><p>{copy.introduction}</p></section>
+    <article class="article-layout"><aside class="article-aside"><p class="eyebrow">{copy.label}</p><p>{copy.planning}<br />{copy.prototypes}</p></aside><div class="article-content">{copy.sections.map(section => <section class="partnership-section"><h2>{section.title}</h2><p>{section.text}</p></section>)}<a href={href('/collaborate/')} class="button button-primary" data-route="collaborate">{copy.discuss}<span class="arrow" aria-hidden="true">↗</span></a></div></article>
+  </div>
+</Layout>
+<style>.partnership-section + .partnership-section { margin-top: 42px; }</style>

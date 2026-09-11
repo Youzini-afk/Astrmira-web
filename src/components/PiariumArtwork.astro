@@ -1,12 +1,12 @@
 ---
-interface Props { decorative?: boolean; }
-const { decorative = true } = Astro.props;
+interface Props { decorative?: boolean; label?: string }
+const { decorative = true, label = 'Piarium 将上下文送入执行环境，分派并行任务，汇集验证结果，并把反馈带回后续执行。' } = Astro.props;
 const branches = [77, 125, 173];
 ---
 
 <svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
   role={decorative ? undefined : 'img'}
-  aria-label={decorative ? undefined : 'Piarium 将上下文送入执行环境，分派并行任务，汇集验证结果，并把反馈带回后续执行。'}>
+  aria-label={decorative ? undefined : label}>
   <g stroke="#91b9d5" stroke-width=".7">
     <path d="M22 224H358M190 30V225" stroke-opacity=".1" />
     <path d="M42 99L66 87L90 99L66 111ZM42 111L66 123L90 111M42 123L66 135L90 123M42 135L66 147L90 135M42 147L66 159L90 147" stroke-opacity=".55" />
