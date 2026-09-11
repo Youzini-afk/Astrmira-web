@@ -24,7 +24,7 @@ const ui = getUi(locale).carousel;
 </div>
 
 <style>
-  .paper-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 64px) / 3); gap: 32px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding: 44px 8px; scroll-padding-inline: 8px; }
+  .paper-track { display: grid; grid-auto-flow: column; grid-auto-columns: min(360px, calc((100% - 64px) / 3)); gap: 32px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--line) transparent; padding: 44px 8px; scroll-padding-inline: 8px; }
   .paper-track :global(.paper-card) { scroll-snap-align: start; }
   .paper-track:focus-visible { outline: 1px solid var(--gold); outline-offset: 5px; border-radius: 8px; }
   .paper-carousel-bottom { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -36,9 +36,9 @@ const ui = getUi(locale).carousel;
   @media (hover: hover) and (pointer: fine) { .paper-carousel-controls button:hover:enabled { border-color: var(--gold); background: var(--gold); color: var(--bg); } }
   .paper-carousel-controls button:disabled { opacity: .28; cursor: default; }
   .paper-carousel-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  @media (max-width: 1050px) { .paper-track { grid-auto-columns: calc((100% - 28px) / 2); gap: 28px; } }
+  @media (max-width: 1050px) { .paper-track { grid-auto-columns: min(340px, calc((100% - 28px) / 2)); gap: 28px; } }
   @media (max-width: 720px) {
-    .paper-track { grid-auto-columns: 91%; gap: 24px; }
+    .paper-track { grid-auto-columns: min(340px, 88%); gap: 24px; }
     .paper-carousel-note { font-size: 10px; max-width: 150px; line-height: 1.8; }
     .paper-carousel-controls > span { display: none; }
   }

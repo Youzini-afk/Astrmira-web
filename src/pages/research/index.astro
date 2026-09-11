@@ -55,7 +55,7 @@ const fields = [
 </Layout>
 
 <style>
-  .publication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .publication-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); justify-items: center; gap: 40px 32px; }
   .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
   .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
   .research-exploration { padding: 70px 0; border-top: 1px solid var(--line); }
@@ -65,7 +65,7 @@ const fields = [
   .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
   .research-contact .text-link { margin-top: 0; }
   @media (max-width: 720px) {
-    .publication-grid { grid-template-columns: 1fr; gap: 22px; }
+    .publication-grid { grid-template-columns: minmax(0, 360px); justify-content: center; gap: 32px; }
     .research-exploration { padding: 50px 0; }
     .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; }
   }

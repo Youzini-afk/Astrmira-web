@@ -56,6 +56,6 @@ const pdf = `https://arxiv.org/pdf/${paper.arxiv}${paper.version}`;
   .source-note { margin-top: 58px; padding-top: 30px; border-top: 1px solid var(--line); }
   .source-note .eyebrow { color: var(--gold); }
   .related-papers { padding: 20px 0 95px; border-top: 1px solid var(--line); }
-  .related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 25px; }
-  @media(max-width:720px){.related-grid{grid-template-columns:1fr}.paper-figure{padding:12px 14px 20px}}
+  .related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); gap: 32px; margin-top: 25px; }
+  @media(max-width:720px){.related-grid{grid-template-columns:minmax(0,360px);justify-content:center}.paper-figure{padding:12px 14px 20px}}
 </style>
