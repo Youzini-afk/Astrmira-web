@@ -1,13 +1,13 @@
-// Also embedded as a classic head script, so first-visit detection runs before
-// page paint. Keep this module self-contained: server and browser share it.
+// Shared by the static build and the browser. Language recommendations never
+// redirect a URL away from its published language while a reader is loading it.
 export const LOCALES = [
-  { id: 'zh-cn', lang: 'zh-CN', name: '简体中文' },
-  { id: 'zh-hant', lang: 'zh-Hant', name: '繁體中文' },
-  { id: 'en', lang: 'en', name: 'English' },
-  { id: 'ja', lang: 'ja', name: '日本語' },
-  { id: 'ko', lang: 'ko', name: '한국어' },
-  { id: 'fr', lang: 'fr', name: 'Français' },
-  { id: 'de', lang: 'de', name: 'Deutsch' },
+  { id: 'zh-cn', lang: 'zh-CN', name: '简体中文', recommendation: '推荐' },
+  { id: 'zh-hant', lang: 'zh-Hant', name: '繁體中文', recommendation: '推薦' },
+  { id: 'en', lang: 'en', name: 'English', recommendation: 'Recommended' },
+  { id: 'ja', lang: 'ja', name: '日本語', recommendation: 'おすすめ' },
+  { id: 'ko', lang: 'ko', name: '한국어', recommendation: '추천' },
+  { id: 'fr', lang: 'fr', name: 'Français', recommendation: 'Recommandé' },
+  { id: 'de', lang: 'de', name: 'Deutsch', recommendation: 'Empfohlen' },
 ];
 export const DEFAULT_LOCALE = 'zh-cn';
 export const SUPPORTED_LOCALES = LOCALES.map(locale => locale.id);
@@ -46,18 +46,24 @@ export function bootstrapLocale() {
   const current = document.documentElement.dataset.locale;
   let saved;
   try { saved = localStorage.getItem(key); } catch (_) {}
-  if (current === DEFAULT_LOCALE) {
+  const recommend = () => {
     const preferred = SUPPORTED_LOCALES.includes(saved) ? saved : preferredLocale(navigator.languages?.length ? navigator.languages : [navigator.language]);
-    if (preferred !== current) {
-      location.replace(localePath(location.pathname + location.search + location.hash, preferred));
-      return;
+    for (const choice of document.querySelectorAll('[data-locale-choice]')) {
+      const recommended = preferred !== current && choice.dataset.localeChoice === preferred;
+      choice.toggleAttribute('data-recommended', recommended);
+      const marker = choice.querySelector('[data-locale-recommendation]');
+      if (marker) marker.hidden = !recommended;
     }
-  }
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', recommend, { once: true });
+  else recommend();
   document.addEventListener('click', event => {
     const choice = event.target.closest?.('[data-locale-choice]');
     const locale = choice?.dataset.localeChoice;
     if (!SUPPORTED_LOCALES.includes(locale)) return;
     try { localStorage.setItem(key, locale); } catch (_) {}
+    saved = locale;
+    recommend();
     choice.href = localePath(location.pathname + location.search + location.hash, locale);
   });
 }

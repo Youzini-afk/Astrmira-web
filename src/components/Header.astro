@@ -9,7 +9,7 @@ interface Props {
 const { currentRoute = 'home', locale = 'zh-cn', currentPath = '/' } = Astro.props;
 const ui = getUi(locale);
 const href = (path: string) => localePath(path, locale);
-const languages = LOCALES.map(item => ({ locale: item.id, lang: item.lang, label: item.name }));
+const languages = LOCALES.map(item => ({ locale: item.id, lang: item.lang, label: item.name, recommendation: item.recommendation }));
 const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(item => item.id === locale)!.name);
 ---
 
@@ -40,6 +40,7 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
         {languages.map(language => <li>
           <a href={localePath(currentPath, language.locale)} data-locale-choice={language.locale} lang={language.lang} hreflang={language.lang} aria-current={locale === language.locale ? 'true' : undefined}>
             <span>{language.label}</span>
+            <span class="language-recommendation" data-locale-recommendation hidden>{language.recommendation}</span>
             {locale === language.locale && <svg class="language-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="m3 8 3 3 7-7" /></svg>}
           </a>
         </li>)}
@@ -58,7 +59,7 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
   .language-globe { width: 20px; height: 20px; }
   .language-chevron { width: 10px; height: 10px; transition: transform .2s; }
   .language-picker[open] .language-chevron { transform: rotate(180deg); }
-  .language-options { position: absolute; top: calc(100% + 10px); right: 0; z-index: 1; width: 184px; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--line); background: #10141c; box-shadow: 0 12px 32px #0006; }
+  .language-options { position: absolute; top: calc(100% + 10px); right: 0; z-index: 1; width: 244px; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--line); background: #10141c; box-shadow: 0 12px 32px #0006; }
   .language-picker[open] .language-options { animation: language-appear .16s ease-out; }
   .language-options { max-height: min(360px, calc(100dvh - 110px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
   .language-options a { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 44px; padding: 10px 12px; color: var(--muted); font: 13px/1.6 var(--sans); transition: color .2s, background-color .2s; }
@@ -66,6 +67,7 @@ const languageLabel = ui.nav.currentLanguage.replace('{language}', LOCALES.find(
   .language-options a[aria-current="true"] { color: var(--gold); background: #d6b8810a; }
   .language-options a:focus-visible { outline-offset: -2px; }
   .language-check { width: 16px; height: 16px; flex-shrink: 0; }
+  .language-recommendation { font-size: 10px; color: var(--gold); }
   @keyframes language-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 900px) {
     .language-picker { align-self: stretch; margin: 8px 0; }

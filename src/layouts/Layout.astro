@@ -8,6 +8,9 @@ import Starfield from '../components/Starfield.astro';
 import { LOCALES, localePath, type Locale } from '../i18n';
 import { getUi } from '../i18n/content';
 import localeBootstrap from '../i18n/routing.js?raw';
+import { canonicalPath, markdownPath } from '../seo/paths.js';
+import { structuredData } from '../seo/metadata';
+import { papers } from '../data/papers';
 
 interface Props {
   title?: string;
@@ -18,15 +21,18 @@ interface Props {
 
 const {
   title = 'Astrmira · 幻梦星芒 — 于未知处求索，向星穹间开拓',
-  description = 'Astrmira（幻梦星芒）是一家偏研究型企业，研究方向涵盖数据库、检索、向量、量化、后训练与数学，并探索数据系统、Agent 平台与科研合作。',
+  description = 'Astrmira（幻梦星芒）围绕数据、计算与智能开展基础研究，构建 TriviumDB、infOS 与 Piarium 等开源系统，连接理论探索与实际应用。',
   route = 'home',
   locale = 'zh-cn'
 } = Astro.props;
 const ui = getUi(locale);
 const language = LOCALES.find(item => item.id === locale)!;
-const canonicalPath = localePath(Astro.url.pathname, locale);
-const canonical = new URL(canonicalPath, Astro.site || Astro.url.origin);
-const zhUrl = new URL(localePath(Astro.url.pathname, 'zh-cn'), canonical);
+const site = new URL(Astro.site || Astro.url.origin);
+const canonical = new URL(canonicalPath(Astro.url.pathname, locale), site);
+const zhUrl = new URL(localePath(canonical.pathname, 'zh-cn'), site);
+const schema = structuredData({ title, description, route, locale, canonical, site });
+const paper = route.startsWith('research/papers/') ? papers.find(p => p.slug === route.split('/').at(-1)) : undefined;
+const image = new URL('/social-card.png', site);
 const localeScript = `(function(){${localeBootstrap.replace(/^export /gm, '')}\nbootstrapLocale();})();`;
 ---
 
@@ -36,20 +42,41 @@ const localeScript = `(function(){${localeBootstrap.replace(/^export /gm, '')}\n
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#090c12" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {LOCALES.map(item => <link rel="alternate" hreflang={item.lang} href={new URL(localePath(Astro.url.pathname, item.id), canonical)} />)}
+    {LOCALES.map(item => <link rel="alternate" hreflang={item.lang} href={new URL(localePath(canonical.pathname, item.id), site)} />)}
     <link rel="alternate" hreflang="x-default" href={zhUrl} />
+    <link rel="alternate" type="text/markdown" href={new URL(markdownPath(canonical.pathname), site)} title={`${title} — Markdown`} />
+    <link rel="sitemap" type="application/xml" href={new URL('/sitemap.xml', site)} />
+    <meta property="og:type" content={paper ? 'article' : 'website'} />
+    <meta property="og:site_name" content="Astrmira" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Astrmira · Research. Systems. Lasting curiosity." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    {paper && <>
+      <meta name="citation_title" content={paper.title} />
+      {paper.authors.map(author => <meta name="citation_author" content={author} />)}
+      <meta name="citation_publication_date" content={paper.submitted} />
+      <meta name="citation_arxiv_id" content={paper.arxiv} />
+      <meta name="citation_pdf_url" content={`https://arxiv.org/pdf/${paper.arxiv}${paper.version}`} />
+      <meta property="article:published_time" content={paper.submitted} />
+      <meta property="article:modified_time" content={paper.updated} />
+    </>}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <title>{title}</title>
-    <script type="application/ld+json" set:html={JSON.stringify({
-      '@context': 'https://schema.org', '@type': 'Organization', name: 'Astrmira', alternateName: '幻梦星芒',
-      url: 'https://www.astrmira.com', description
-    })} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema).replace(/</g, '\\u003c')} />
     <script is:inline set:html={localeScript} />
     <script is:inline id="site-ui" type="application/json" set:html={JSON.stringify(ui).replace(/</g, '\\u003c')} />
   </head>

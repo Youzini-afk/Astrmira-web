@@ -17,5 +17,9 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "parse5": "^8.0.1",
+    "turndown": "^7.2.4"
   }
 }

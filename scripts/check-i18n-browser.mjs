@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { serveMotionBuild } from './motion-browser-server.mjs';
 import { LOCALES, localePath } from '../src/i18n/routing.js';
+import { canonicalPath } from '../src/seo/paths.js';
 import { baseContent } from '../src/i18n/base-content.ts';
 import { uiChinese } from '../src/i18n/ui.ts';
 
@@ -33,9 +34,9 @@ try {
     assert.equal(response.status(), 200, localized);
     const html = await response.text();
     assert.ok(html.includes('<html lang="' + locale.lang + '"'), localized);
-    assert.ok(html.includes('rel="canonical" href="https://www.astrmira.com' + localized + '"'), localized);
-    for (const alt of LOCALES) assert.ok(html.includes('hreflang="' + alt.lang + '" href="https://www.astrmira.com' + localePath(route, alt.id) + '"'), localized);
-    assert.ok(html.includes('hreflang="x-default" href="https://www.astrmira.com' + route + '"'), localized);
+    assert.ok(html.includes('rel="canonical" href="https://www.astrmira.com' + canonicalPath(route, locale.id) + '"'), localized);
+    for (const alt of LOCALES) assert.ok(html.includes('hreflang="' + alt.lang + '" href="https://www.astrmira.com' + canonicalPath(route, alt.id) + '"'), localized);
+    assert.ok(html.includes('hreflang="x-default" href="https://www.astrmira.com' + canonicalPath(route, 'zh-cn') + '"'), localized);
     for (const match of html.matchAll(/<a\b[^>]*href="([^"#]+)"[^>]*>/g)) {
       if (match[0].includes('data-locale-choice') || !match[1].startsWith('/')) continue;
       const href = match[1].split(/[?#]/)[0];
@@ -46,8 +47,7 @@ try {
   }
   await requests.close();
 
-  // Exercise the actual head script, including region/script distinctions
-  // and preference ordering when the first browser language is unsupported.
+  // Detect preferences without redirecting stable, language-specific URLs.
   for (const [languages, expected] of [
     [['zh-CN'], 'zh-cn'], [['zh-TW'], 'zh-hant'], [['zh-HK'], 'zh-hant'],
     [['zh-Hans-TW'], 'zh-cn'], [['ja-JP'], 'ja'], [['ko-KR'], 'ko'],
@@ -59,8 +59,11 @@ try {
     const page = await ctx.newPage();
     const suffix = '/about/?from=language-test#about-name';
     await page.goto(origin + suffix);
-    await page.waitForURL(origin + localePath(suffix, expected));
-    assert.equal(await page.locator('html').getAttribute('data-locale'), expected);
+    assert.equal(page.url(), origin + suffix);
+    assert.equal(await page.locator('html').getAttribute('data-locale'), 'zh-cn');
+    const recommended = page.locator('[data-locale-choice][data-recommended]');
+    if (expected === 'zh-cn') assert.equal(await recommended.count(), 0);
+    else assert.equal(await recommended.getAttribute('data-locale-choice'), expected);
     await ctx.close();
   }
 
@@ -79,7 +82,8 @@ try {
     assert.equal(await choice.locator('html').getAttribute('lang'), locale.lang);
     assert.ok(await choice.locator('#about-name').count());
     await choice.goto(origin + suffix);
-    await choice.waitForURL(origin + localePath(suffix, locale.id));
+    assert.equal(choice.url(), origin + suffix, 'A direct URL remains in its published language.');
+    if (locale.id !== 'zh-cn') assert.equal(await choice.locator('[data-recommended]').getAttribute('data-locale-choice'), locale.id, 'An explicit saved choice overrides the browser recommendation.');
   }
   await choice.goto(origin + '/ja/about/');
   assert.equal(await choice.locator('html').getAttribute('lang'), 'ja', 'Explicit language URLs override saved preference.');
@@ -96,7 +100,8 @@ try {
   await blockedStorage.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } }));
   const privatePage = await blockedStorage.newPage();
   await privatePage.goto(origin + '/projects/piarium/');
-  await privatePage.waitForURL('**/fr/projects/piarium/');
+  assert.equal(new URL(privatePage.url()).pathname, '/projects/piarium/');
+  assert.equal(await privatePage.locator('[data-recommended]').getAttribute('data-locale-choice'), 'fr');
   await privatePage.locator('.language-trigger').click();
   await privatePage.locator('[data-locale-choice="ko"]').click();
   await privatePage.waitForURL('**/ko/projects/piarium/');

@@ -1,0 +1,31 @@
+---
+import { LOCALES, localePath } from '../i18n';
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, follow" />
+    <meta name="theme-color" content="#090c12" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>页面不存在 · Page not found — Astrmira</title>
+  </head>
+  <body>
+    <main>
+      <a class="brand" href="/">Astrmira</a>
+      <p class="code">404</p>
+      <h1>这个页面，尚未抵达。</h1>
+      <p lang="en">This page could not be found.</p>
+      <p>你可以从首页继续探索我们的研究与项目。</p>
+      <nav aria-label="选择首页语言 / Choose a home page language">
+        {LOCALES.map(locale => <a href={localePath('/', locale.id)} lang={locale.lang}>{locale.name}<span aria-hidden="true"> ↗</span></a>)}
+      </nav>
+    </main>
+  </body>
+</html>
+<style>
+  * { box-sizing: border-box; } body { margin: 0; color: #eeeae1; background: radial-gradient(ellipse at 80% 20%, #1b263b66, transparent 65%), #090c12; font: 16px/1.9 Arial, "Microsoft YaHei", sans-serif; min-height: 100svh; display: grid; align-items: center; }
+  main { width: min(820px, 100%); padding: 50px clamp(24px, 6vw, 80px); margin: auto; } a { color: inherit; text-decoration: none; } .brand { font: 36px Georgia, serif; } .code { margin: 70px 0 12px; color: #d6b881; font: 13px monospace; letter-spacing: .2em; }
+  h1 { font-size: clamp(26px, 4vw, 40px); font-weight: 400; margin: 12px 0; } p { color: #9ba5b6; } nav { display: flex; flex-wrap: wrap; gap: 12px 30px; border-top: 1px solid #b3c3db29; margin-top: 40px; padding-top: 24px; } nav a { min-height: 44px; padding: 8px 0; } nav span { color: #d6b881; } a:focus-visible { outline: 2px solid #d6b881; outline-offset: 6px; }
+</style>
