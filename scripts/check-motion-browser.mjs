@@ -74,6 +74,14 @@ try {
   await page.locator('[data-replay]').click();
   await settled(page);
   assert.ok((await glyphs(page)).every(alpha => alpha > 0));
+  const heroBottom = await page.locator('.hero').evaluate(element => element.getBoundingClientRect().bottom + scrollY);
+  await page.mouse.wheel(0, 120);
+  await page.waitForTimeout(420);
+  const departureY = await page.evaluate(() => scrollY);
+  assert.ok(departureY > 0 && departureY < heroBottom, 'hero departure must animate through an intermediate scroll position');
+  if (output) await page.screenshot({ path: path.join(output, 'departure.png') });
+  await page.waitForTimeout(650);
+  assert.ok(Math.abs(await page.evaluate(() => scrollY) - heroBottom) < 2, 'hero departure must land at the next section');
   await page.evaluate(() => { const r = document.querySelector('[data-comet-dock]').getBoundingClientRect(); scrollTo({ top: r.y + r.height / 2 + scrollY - innerHeight * .48, behavior: 'instant' }); });
   await page.waitForFunction(() => document.querySelector('.mira-object').classList.contains('is-docked'));
   assert.ok(await page.evaluate(() => {

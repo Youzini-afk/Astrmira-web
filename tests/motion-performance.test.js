@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createMotionQuality, nextFrameTime } from '../src/scripts/motion-quality.js';
+import { createMotionQuality, nextFrameTime, chooseAnimationRate, createFramePacer } from '../src/scripts/motion-quality.js';
 import { createParticleGrid } from '../src/scripts/particle-grid.js';
 
 function feed(controller, start, duration, { interval = 1000 / 60, cost = 2, busy = true } = {}) {
@@ -56,7 +56,7 @@ test('quality recovery requires sustained active animation, never just an idle s
 });
 
 test('frame pacing retains close to 60 draws on 60 Hz and high refresh displays', () => {
-  for (const rate of [60, 60.24, 90, 120, 144]) {
+  for (const rate of [60, 60.24, 90, 120, 144, 180, 240]) {
     let last = 0, draws = 0;
     for (let i = 1; i <= rate * 10; i++) {
       const next = nextFrameTime(last, i * 1000 / rate);
@@ -64,6 +64,38 @@ test('frame pacing retains close to 60 draws on 60 Hz and high refresh displays'
     }
     assert.ok(draws >= 590 && draws <= 610, `${rate} Hz produced ${draws} draws in ten seconds`);
   }
+});
+
+test('animation cadence uses an even divisor across common display refresh rates', () => {
+  assert.equal(chooseAnimationRate(60, 'full'), 60);
+  assert.equal(chooseAnimationRate(75, 'full'), 75);
+  assert.equal(chooseAnimationRate(90, 'full'), 90);
+  assert.equal(chooseAnimationRate(120, 'full'), 60);
+  assert.equal(chooseAnimationRate(144, 'full'), 72);
+  assert.equal(chooseAnimationRate(165, 'full'), 82.5);
+  assert.equal(chooseAnimationRate(180, 'full'), 90);
+  assert.equal(chooseAnimationRate(240, 'full'), 80);
+  assert.equal(chooseAnimationRate(180, 'balanced'), 60);
+  assert.equal(chooseAnimationRate(180, 'light'), 60);
+});
+
+test('frame pacer learns a high-refresh display without running every panel refresh', () => {
+  const pacer = createFramePacer();
+  let draws = 0;
+  for (let i = 1; i <= 180; i++) if (pacer.next(i * 1000 / 180, 'full') !== null) draws++;
+  assert.equal(pacer.displayRate, 180);
+  assert.equal(pacer.targetRate, 90);
+  assert.ok(draws >= 84 && draws <= 92, `expected about 90 draws, got ${draws}`);
+});
+
+test('persistent worker backpressure lowers detail even when main-thread work is cheap', () => {
+  const controller = createMotionQuality();
+  const changes = [];
+  for (let now = 0; now <= 1500; now += 16) {
+    const next = controller.sample(now, 2, true, true, true);
+    if (next) changes.push(next.name);
+  }
+  assert.deepEqual(changes, ['balanced', 'light']);
 });
 
 test('a frame is either entirely skipped or available to scroll and paint together', () => {

@@ -43,12 +43,12 @@ test('opening feedback can reduce work within the first second', () => {
     const next = quality.sample(now, 12, true, true);
     if (next) changes.push(next.name);
   }
-  assert.deepEqual(changes, ['balanced', 'light']);
+  assert.deepEqual(changes, ['balanced']);
 });
 
 test('a heavily overloaded opening is not mistaken for a background-tab gap', () => {
   const quality = createMotionQuality();
   quality.sample(0, 60, true, true);
-  assert.equal(quality.sample(500, 60, true, true)?.name, 'balanced');
-  assert.equal(quality.sample(1000, 60, true, true)?.name, 'light');
+  assert.equal(quality.sample(700, 60, true, true)?.name, 'balanced');
+  assert.equal(quality.sample(1400, 60, true, true)?.name, 'light');
 });

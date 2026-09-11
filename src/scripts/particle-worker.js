@@ -17,7 +17,7 @@ self.onmessage = ({ data }) => {
   } else if (data.type === 'frame') {
     let rendered = false;
     try {
-      if (renderer) rendered = renderer.draw(new Float32Array(data.buffer), data.count, data.width, data.height, data.dpr);
+      if (renderer) rendered = renderer.draw(new Float32Array(data.buffer), data.count, data.width, data.height, data.dpr, data.detailPasses);
     } catch (_) { renderer = null; self.postMessage({ type: 'unavailable' }); }
     finally {
       // Return the same storage for reuse. There is no growing queue of stale

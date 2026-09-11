@@ -1,5 +1,5 @@
 import { createCometPath, setCometDock, cometPoint, createCometTrail, recordCometMotion, fadeCometTrail, visibleCometTrailSegments, cometTurnOpacity } from './comet-path.js';
-import { createMotionQuality, nextFrameTime } from './motion-quality.js';
+import { createMotionQuality, createFramePacer } from './motion-quality.js';
 import { createParticleGrid } from './particle-grid.js';
 import { mountArticleTocs } from './article-toc.js';
 import { mountPaperCarousels } from './paper-carousel.js';
@@ -268,7 +268,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
   let cometStrands = [];
   let cometTrail = createCometTrail(Math.hypot(innerWidth, innerHeight) * .82);
   let trailPaintState = null;
-  let introStart = 0, raf = 0, lastFrame = 0;
+  let introStart = 0, raf = 0;
   let starX = innerWidth * .78, starY = innerHeight * .31, targetX = starX, targetY = starY;
   let prevStarX = starX, prevStarY = starY;
   let cometWorld = { x: starX, y: starY, depth: 1 };
@@ -285,12 +285,13 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
   let heroElement = $('.hero'), heroCopy = $('.hero-copy'), frameHeroRect = null;
   let particleGrid = createParticleGrid([]), activeTextParticles = new Set();
   const motionQuality = createMotionQuality({ cores: navigator.hardwareConcurrency, memory: navigator.deviceMemory });
+  const framePacer = createFramePacer();
   let quality = motionQuality.current, sampledTextDensity = quality.text;
-  let renderStars = [], renderStrands = [], cometSparkBudget = 0, textSparkBudget = 0;
+  let renderStars = [], renderStrands = [], renderTailBatches = [], cometSparkBudget = 0, textSparkBudget = 0;
   let sceneBusy = false, pendingQuality = null;
   let textOriginX = 0, textOriginY = 0;
   let stardustSparks = [];
-  let lastPaint = 0;
+  let lastPaint = 0, lastGlyphUpdate = 0;
   const INTRO_DURATION = 4800;
   const smoothstep = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
 
@@ -370,6 +371,23 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     allIntroQueue = textParticles.filter(p => !p.sourceStar).sort((a, b) => a.delay - b.delay);
   }
 
+  function batchCometStrands(strands) {
+    const buckets = new Map();
+    for (const strand of strands) {
+      const key = `${strand.color}:${strand.width < .85 ? 0 : 1}:${strand.alpha < .062 ? 0 : 1}`;
+      if (!buckets.has(key)) buckets.set(key, { color: strand.color, strands: [], width: 0, alpha: 0 });
+      const bucket = buckets.get(key);
+      bucket.strands.push(strand);
+      bucket.width += strand.width;
+      bucket.alpha += strand.alpha;
+    }
+    return [...buckets.values()].map(bucket => ({
+      ...bucket,
+      width: bucket.width / bucket.strands.length,
+      alpha: bucket.alpha / bucket.strands.length
+    }));
+  }
+
   function createGlyphLayer(hero, glyph, left, top, width, height, dpr, isTitle, visible) {
     const canvas = document.createElement('canvas');
     canvas.width = glyph.width;
@@ -427,11 +445,14 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     }
   }
 
-  function updateGlyphLayers(heroLeft, heroTop, frameStep) {
+  function updateGlyphLayers(heroLeft, heroTop, frameStep, now) {
+    if (!paused && lastGlyphUpdate && now - lastGlyphUpdate < 1000 / 36) return;
+    const glyphStep = lastGlyphUpdate ? clamp((now - lastGlyphUpdate) / (1000 / 60), 0, 3) : frameStep;
+    lastGlyphUpdate = now;
     for (const layer of glyphLayers) {
       if (!introStart && !layer.active && !layer.needsPaint) continue;
       let changing = false;
-      const downBlend = 1 - Math.exp(-frameStep / 4), upBlend = 1 - Math.exp(-frameStep / 7);
+      const downBlend = 1 - Math.exp(-glyphStep / 4), upBlend = 1 - Math.exp(-glyphStep / 7);
       for (const cell of layer.cells) {
         if (!cell.count) continue;
         const target = clamp(cell.sum / cell.count, 0, 1);
@@ -469,6 +490,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
   function sampleTextParticles() {
     glyphLayers.forEach(layer => layer.canvas.remove());
     glyphLayers = [];
+    lastGlyphUpdate = 0;
     activeTextParticles.clear();
     allTextParticles = []; allIntroQueue = []; introQueue = []; introCursor = 0; appliedTextBudget = null;
     particleGrid = createParticleGrid([]);
@@ -740,6 +762,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     document.documentElement.dataset.motionQuality = next.name;
     renderStars = stars.filter(star => star.detailRank < next.stars);
     renderStrands = cometStrands.filter((_, i) => i % next.strandStep === 0);
+    renderTailBatches = batchCometStrands(renderStrands);
     applyTextBudget();
     // Changing detail must not rebuild glyphs or restart the comet's history.
     resizeStarBuffer();
@@ -880,6 +903,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       }));
     }
     renderStrands = cometStrands.filter((_, i) => i % quality.strandStep === 0);
+    renderTailBatches = batchCometStrands(renderStrands);
     cometPath = createCometPath(opening, { width: document.documentElement.clientWidth, height: vh, heroBottom: rect ? rect.bottom + window.scrollY : 0 });
     cometDockElement = $('[data-comet-dock]');
     cometDockSurface = cometDockElement?.closest('.origin-art');
@@ -944,7 +968,14 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
   function updateStarTarget(immediate = false, now = performance.now()) {
     if (!cometPath) return;
     const hero = heroElement;
-    frameHeroRect = hero?.getBoundingClientRect() || null;
+    if (hero && heroDeparture?.hero === hero && heroDeparture.heroBox) {
+      const box = heroDeparture.heroBox;
+      frameHeroRect = {
+        left: box.left - window.scrollX, right: box.left + box.width - window.scrollX,
+        top: box.top - window.scrollY, bottom: box.top + box.height - window.scrollY,
+        width: box.width, height: box.height
+      };
+    } else frameHeroRect = hero?.getBoundingClientRect() || null;
     const previous = cometParam;
     const desired = Math.min(cometPath.dock?.end ?? Infinity, cometPath.heroLength + Math.max(0, window.scrollY));
     if (introStart) cometParam = cometPath.heroLength * smoothstep((now - introStart - 200) / 3300);
@@ -1003,7 +1034,8 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
 
   function beginHeroDeparture(hero) {
     const from = window.scrollY;
-    const distance = hero.getBoundingClientRect().bottom;
+    const rect = hero.getBoundingClientRect();
+    const distance = rect.bottom;
     // Yield the opening to the visitor's navigation intent. The glyph masks
     // still blend into their settled state while the whole hero fades away.
     introStart = 0;
@@ -1016,7 +1048,11 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       return;
     }
     const duration = 920 * Math.min(1, Math.sqrt(distance / Math.max(innerHeight, 1)));
-    heroDeparture = { hero, from, destination: from + distance, cometFrom: cometParam, started: performance.now(), duration, progress: 0 };
+    heroDeparture = {
+      hero, from, destination: from + distance, cometFrom: cometParam,
+      heroBox: { left: rect.left + window.scrollX, top: rect.top + window.scrollY, width: rect.width, height: rect.height },
+      started: performance.now(), duration, progress: 0
+    };
   }
 
   function advanceHeroDeparture(now) {
@@ -1027,8 +1063,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     // Scroll before painting in the same frame: the DOM tail and fixed canvas
     // must use the same scroll position, including frames under rendering load.
     departure.progress = t * t * t * (t * (t * 6 - 15) + 10);
-    const end = departure.hero.getBoundingClientRect().bottom + window.scrollY;
-    window.scrollTo({ top: departure.from + (end - departure.from) * departure.progress, behavior: 'instant' });
+    window.scrollTo({ top: departure.from + (departure.destination - departure.from) * departure.progress, behavior: 'instant' });
     return t === 1;
   }
 
@@ -1139,8 +1174,8 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       const fromAlpha = smoothstep((a.distance - rear) / feather);
       const toAlpha = smoothstep((b.distance - rear) / feather);
       const gradients = new Map();
-      for (const strand of renderStrands) {
-        let color = strand.color;
+      for (const batch of renderTailBatches) {
+        let color = batch.color;
         if (fromAlpha < 1) {
           if (!gradients.has(color)) {
             const gradient = starCtx.createLinearGradient(a.x, a.y, b.x, b.y);
@@ -1152,13 +1187,15 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
           color = gradients.get(color);
         }
         starCtx.beginPath();
-        part.forEach((point, i) => {
-          const x = point.x + point.nx * strand.offset * point.spread;
-          const y = point.y + point.ny * strand.offset * point.spread;
-          if (i) starCtx.lineTo(x, y); else starCtx.moveTo(x, y);
-        });
-        starCtx.lineWidth = strand.width;
-        starCtx.globalAlpha = strand.alpha * Math.sqrt(quality.strandStep) * opacity;
+        for (const strand of batch.strands) {
+          part.forEach((point, i) => {
+            const x = point.x + point.nx * strand.offset * point.spread;
+            const y = point.y + point.ny * strand.offset * point.spread;
+            if (i) starCtx.lineTo(x, y); else starCtx.moveTo(x, y);
+          });
+        }
+        starCtx.lineWidth = batch.width;
+        starCtx.globalAlpha = batch.alpha * Math.sqrt(quality.strandStep) * opacity;
         starCtx.strokeStyle = color;
         starCtx.stroke();
       }
@@ -1167,7 +1204,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
   }
 
   function paintParticlesAndStars(now) {
-    if (!starCtx) return;
+    if (!starCtx) return false;
     const frameStep = lastPaint ? clamp((now - lastPaint) / (1000 / 60), 0, 3) : 1;
     lastPaint = now;
     if (!particlePainter.accelerated) starCtx.clearRect(0, 0, vw, vh);
@@ -1398,7 +1435,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       }
     }
 
-    if (heroVisible) updateGlyphLayers(heroLeft, heroTop, frameStep);
+    if (heroVisible) updateGlyphLayers(heroLeft, heroTop, frameStep, now);
 
     // 3. A sparse travelling star becomes a glyph; nearby detail fades in only
     // as it arrives, keeping empty space clear during the opening.
@@ -1426,6 +1463,8 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
         if (p.glyphCell) alpha *= 1 - p.glyphBlend;
         alpha *= heroContentOpacity;
         if (alpha <= 0.01) continue;
+        const grainDetail = introStart ? quality.grain * (.65 + (1 - arrival) * .35)
+          : p.dislodged ? quality.grain * .45 : 0;
 
         let red, green, blue;
         if (isSolidified) {
@@ -1444,12 +1483,12 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
         // Settled small text retains its dense glyph sampling.
         if (p.settled && p.isSmall) {
           // High-definition subpixel rasterization: 100% crisp typography
-          particlePainter.dot(p.x, p.y, -.55, red, green, blue, alpha);
+          particlePainter.dot(p.x, p.y, -.55, red, green, blue, alpha, grainDetail, p.detailRank);
         } else {
           const startRadius = p.sourceStar ? p.sourceStar.r : p.radius * 0.65;
           const renderRadius = (introStart ? startRadius + (p.radius - startRadius) * arrival : p.radius) * (1 + p.glow * 0.35);
 
-          particlePainter.dot(p.x, p.y, renderRadius, red, green, blue, alpha);
+          particlePainter.dot(p.x, p.y, renderRadius, red, green, blue, alpha, grainDetail, p.detailRank);
 
           if (p.glow > 0.25 || p.vx * p.vx + p.vy * p.vy > 1.44) {
             particlePainter.dot(p.x, p.y, Math.max(.4, renderRadius * .45), 255, 252, 242, alpha * .85);
@@ -1501,12 +1540,14 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
       }
       stardustSparks.length = kept;
     }
-    particlePainter.flush();
-    sceneBusy = Boolean(introStart || heroDeparture || cometMovingSpeed > .6 || (heroVisible && activeTextParticles.size));
+    const rendererDelayed = particlePainter.flush();
+    sceneBusy = Boolean(!paused && (renderStars.length || introStart || heroDeparture
+      || cometMovingSpeed > .6 || (heroVisible && activeTextParticles.size)));
     if (!paused) {
       mouseVx *= Math.pow(0.86, frameStep);
       mouseVy *= Math.pow(0.86, frameStep);
     }
+    return rendererDelayed;
   }
 
   function startIntro() {
@@ -1526,6 +1567,7 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
     }
     maskRadius = 0; targetMaskRadius = 0;
     stardustSparks = [];
+    lastGlyphUpdate = 0;
     activeTextParticles = new Set(textParticles.filter(p => p.sourceStar));
     introCursor = 0;
     cometParam = 0;
@@ -1563,26 +1605,27 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
 
   function tick(now) {
     raf = 0;
-    const frameTime = nextFrameTime(lastFrame, now);
+    const frameTime = framePacer.next(now, quality.name);
     let renderCost = null;
+    let rendererDelayed = false;
     if (frameTime !== null) {
-      lastFrame = frameTime;
       if (pendingQuality) { applyMotionQuality(pendingQuality); pendingQuality = null; }
       const started = performance.now();
       const departed = advanceHeroDeparture(now);
       placeStar(false, now);
-      paintParticlesAndStars(now);
+      rendererDelayed = paintParticlesAndStars(now);
       if (departed) heroDeparture = null;
       renderCost = performance.now() - started;
     }
-    pendingQuality = motionQuality.sample(now, renderCost, sceneBusy, Boolean(introStart)) || pendingQuality;
+    pendingQuality = motionQuality.sample(now, renderCost, sceneBusy, Boolean(introStart), rendererDelayed) || pendingQuality;
     if (!paused) raf = requestAnimationFrame(tick);
   }
 
   function startLoop() {
     if (raf) cancelAnimationFrame(raf); raf = 0;
     motionQuality.reset();
-    lastFrame = lastPaint = 0;
+    framePacer.reset();
+    lastPaint = 0;
     if (!document.hidden) {
       if (paused) { placeStar(true); paintParticlesAndStars(performance.now()); }
       else raf = requestAnimationFrame(tick);

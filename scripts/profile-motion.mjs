@@ -7,7 +7,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const args = Object.fromEntries(process.argv.slice(2).map(arg => arg.replace(/^--/, '').split('=')));
 const rate = Number(args.rate || 1);
 const viewport = { width: Number(args.width || 2550), height: Number(args.height || 1275) };
-const names = ['sampleTextParticles', 'prepareTextIntro', 'prepareHeroTail', 'resizeStars', 'updateGlyphLayers', 'paintCometTrail', 'paintParticlesAndStars', 'placeStar', 'tick'];
+const names = ['sampleTextParticles', 'prepareTextIntro', 'prepareHeroTail', 'resizeStars', 'applyMotionQuality', 'updateGlyphLayers', 'paintCometTrail', 'paintParticlesAndStars', 'placeStar', 'tick'];
 const browser = await chromium.launch({ headless: true, channel: args.browser || 'msedge' });
 try {
   const page = await browser.newPage({ viewport, deviceScaleFactor: Number(args.dpr || 1.25) });
@@ -29,7 +29,8 @@ try {
       window.__motionProbe = () => ({ calls: __calls, started: __started, particles: textParticles.length,
         active: activeTextParticles.size, stars: stars.length, glyphs: glyphLayers.length,
         cells: glyphLayers.reduce((n, l) => n + l.cells.length, 0), quality: quality.name,
-        settled: heroCopy?.classList.contains('is-solidified'), renderer: document.documentElement.dataset.particleRenderer });
+        settled: heroCopy?.classList.contains('is-solidified'), renderer: document.documentElement.dataset.particleRenderer,
+        displayRate: framePacer.displayRate, targetRate: framePacer.targetRate });
     `;
     body = body.replace(marker, injection + '\n' + marker);
     await route.fulfill({ response, body });
@@ -68,6 +69,7 @@ try {
   if (args.output) await writeFile(args.output, JSON.stringify(result, null, 2));
   console.log(JSON.stringify(args.summary === 'true' ? {
     rate, renderer: state.renderer, particles: state.particles, quality: state.quality,
+    displayRate: state.displayRate, targetRate: state.targetRate,
     longestTask: Math.max(0, ...state.longTasks.map(task => task.duration)),
     longTasks: state.longTasks.length, openingFrames: result.openingFrames,
     frameGaps: result.frameGaps, errors

@@ -21,10 +21,11 @@ function createDotAtlas() {
 }
 
 export function createParticlePainter(ctx, canvas, onContextChange) {
-  let worker, ready = false, presented = false, pending = false, recycled, atlas;
-  let width = 1, height = 1, dpr = 1, count = 0;
+  const stride = 9;
+  let worker, ready = false, presented = false, pending = false, pendingMisses = 0, recycled, atlas;
+  let width = 1, height = 1, dpr = 1, count = 0, detailPasses = 0;
   let displayed = '';
-  let data = new Float32Array(7 * 256);
+  let data = new Float32Array(stride * 256);
   const fallbackStyles = new Map();
   const status = () => {
     const mode = presented ? 'webgl-worker' : 'canvas';
@@ -50,6 +51,7 @@ export function createParticlePainter(ctx, canvas, onContextChange) {
         } else if (message.type === 'unavailable') unavailable();
         else if (message.type === 'frame') {
           pending = false;
+          pendingMisses = 0;
           recycled = new Float32Array(message.buffer);
           if (message.rendered && ready) {
             const first = !presented;
@@ -66,7 +68,7 @@ export function createParticlePainter(ctx, canvas, onContextChange) {
   const fallback = () => {
     if (!ctx || !count) return;
     atlas ||= createDotAtlas();
-    for (let i = 0; i < count; i += 7) {
+    for (let i = 0; i < count; i += stride) {
       const x = data[i], y = data[i + 1], radius = data[i + 2];
       const r = Math.round(data[i + 3] * 15), g = Math.round(data[i + 4] * 15), b = Math.round(data[i + 5] * 15);
       const colour = (r << 8) | (g << 4) | b;
@@ -86,27 +88,33 @@ export function createParticlePainter(ctx, canvas, onContextChange) {
   return {
     get accelerated() { return presented; },
     resize(w, h, ratio) { width = w; height = h; dpr = ratio; },
-    dot(x, y, radius, red, green, blue, opacity) {
+    dot(x, y, radius, red, green, blue, opacity, detail = 0, seed = 0) {
       if (opacity <= .01) return;
-      if (count + 7 > data.length) {
+      if (count + stride > data.length) {
         const next = new Float32Array(data.length * 2);
         next.set(data); data = next;
       }
       data[count++] = x; data[count++] = y; data[count++] = radius;
       data[count++] = red / 255; data[count++] = green / 255; data[count++] = blue / 255;
-      data[count++] = opacity;
+      data[count++] = opacity; data[count++] = detail; data[count++] = seed;
+      if (detail > .82) detailPasses = 3;
+      else if (detail > .45) detailPasses = Math.max(detailPasses, 2);
+      else if (detail > 0) detailPasses = Math.max(detailPasses, 1);
     },
     flush() {
       status();
       if (!presented) fallback();
+      const backpressured = ready && pending && ++pendingMisses >= 2;
       if (ready && !pending) {
         const buffer = data.buffer, length = data.length;
         data = recycled?.length >= length ? recycled : new Float32Array(length);
         recycled = null;
         pending = true;
-        worker.postMessage({ type: 'frame', buffer, count, width, height, dpr }, [buffer]);
+        pendingMisses = 0;
+        worker.postMessage({ type: 'frame', buffer, count, width, height, dpr, detailPasses }, [buffer]);
       }
-      count = 0;
+      count = detailPasses = 0;
+      return backpressured;
     }
   };
 }
