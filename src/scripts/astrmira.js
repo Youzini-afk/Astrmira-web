@@ -795,6 +795,9 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
           wanderSpeed: 0.0015 + rand() * 0.003,
           wanderRadiusX: wander * (0.5 + rand()),
           wanderRadiusY: wander * (0.4 + rand() * 0.6),
+          breathPhase: rand() * Math.PI * 2,
+          breathPeriod: 4600 + rand() * 6200,
+          breathAmount: .045 + depth * .075,
           glow: 0,
           depth,
           detailRank: (index * .61803398875) % 1,
@@ -1306,9 +1309,12 @@ import { setGlyphCoverage, sampleGlyphCoverage } from './glyph-coverage.js';
 
       // Recruited stars are drawn once, by their moving glyph particle.
       if (hero && s.textParticle) continue;
-      const twinkle = paused ? 1 : (0.86 + 0.14 * Math.sin(now / (2600 + s.depth * 3100) + s.p)) + s.glow * 0.3;
+      const breathWave = paused ? 0 : Math.sin(now / s.breathPeriod * Math.PI * 2 + s.breathPhase) * .72
+        + Math.sin(now / s.breathPeriod * Math.PI * 3.4 + s.breathPhase * 1.7) * .28;
+      const breath = 1 + breathWave * s.breathAmount;
+      const twinkle = paused ? 1 : (0.88 + 0.12 * Math.sin(now / (2600 + s.depth * 3100) + s.p)) * breath + s.glow * 0.3;
       const alpha = clamp(s.o * twinkle, 0, 1);
-      particlePainter.dot(s.x + pointerX * (.05 + s.depth * .1), s.y + pointerY * (.05 + s.depth * .1), s.r * (1 + s.glow * .35), s.isGold ? 238 : 176, s.isGold ? 215 : 202, s.isGold ? 172 : 230, alpha);
+      particlePainter.dot(s.x + pointerX * (.05 + s.depth * .1), s.y + pointerY * (.05 + s.depth * .1), s.r * breath * (1 + s.glow * .35), s.isGold ? 238 : 176, s.isGold ? 215 : 202, s.isGold ? 172 : 230, alpha);
 
       if (s.glow > 0.35 || (s.depth > 0.90 && alpha > 0.6)) {
         particlePainter.dot(s.x, s.y, s.r * .45, 255, 252, 240, clamp(alpha * .95, 0, 1));
