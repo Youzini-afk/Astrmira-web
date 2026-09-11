@@ -1,5 +1,5 @@
 export const uiEnglish = {
-  nav: { home: 'Home', projects: 'Projects', research: 'Research', about: 'About', collaborate: 'Work with us', contact: 'Contact', menu: 'Menu', navigation: 'Main navigation', language: 'Language', currentLanguage: 'Choose language, current: {language}', homeLabel: 'Astrmira home' },
+  nav: { home: 'Home', projects: 'Projects', research: 'Research', about: 'About', collaborate: 'Work with us', contact: 'Contact', careers: 'Join us', menu: 'Menu', navigation: 'Main navigation', language: 'Language', currentLanguage: 'Choose language, current: {language}', homeLabel: 'Astrmira home' },
   footer: { motto: 'Research-driven. Possibility-bound.', back: 'Back to top', star: 'A wonderful star' },
   motion: { replay: 'Replay', replayLabel: 'Replay the moving star and particle typography', pause: 'Pause motion', enable: 'Enable motion', reduced: 'Reduced motion', scroll: 'Scroll to discover' },
   toc: { title: 'On this page', overview: 'Overview' },
@@ -12,7 +12,7 @@ export const uiEnglish = {
 };
 
 export const uiChinese: typeof uiEnglish = {
-  nav: { home: '首页', projects: '项目', research: '研究', about: '关于我们', collaborate: '开始合作', contact: '合作联系', menu: '菜单', navigation: '主导航', language: '选择语言', currentLanguage: '选择语言，当前：{language}', homeLabel: 'Astrmira 幻梦星芒 首页' },
+  nav: { home: '首页', projects: '项目', research: '研究', about: '关于我们', collaborate: '开始合作', contact: '合作联系', careers: '加入我们', menu: '菜单', navigation: '主导航', language: '选择语言', currentLanguage: '选择语言，当前：{language}', homeLabel: 'Astrmira 幻梦星芒 首页' },
   footer: { motto: '以研究为起点，向可能性延伸。', back: '回到顶部', star: '幻梦星芒' },
   motion: { replay: '重播星芒', replayLabel: '重播星芒移动与文字凝聚', pause: '静止动效', enable: '启用动效', reduced: '已减少动态', scroll: '下滑探索' },
   toc: { title: '本页目录', overview: '概览' },

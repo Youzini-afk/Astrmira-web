@@ -10,10 +10,11 @@ import ResearchFieldPage from '../../components/pages/ResearchFieldPage.astro';
 import PaperPage from '../../components/pages/PaperPage.astro';
 import PartnershipPage from '../../components/pages/PartnershipPage.astro';
 import ContactPage from '../../components/ContactPage.astro';
+import CareersPage from '../../components/CareersPage.astro';
 import AboutPage from '../../components/AboutPage.astro';
 
 export function getStaticPaths() {
-  const paths = ['', 'about', 'projects', 'research', 'collaborate', 'contact', 'projects/research-partnerships',
+  const paths = ['', 'about', 'projects', 'research', 'collaborate', 'contact', 'careers', 'projects/research-partnerships',
     ...Object.keys(projectDetails).map(slug => `projects/${slug}`),
     ...Object.keys(researchFields).map(slug => `research/${slug}`),
     ...papers.map(paper => `research/papers/${paper.slug}`)];
@@ -29,6 +30,7 @@ const field = path.slice('research/'.length) as keyof typeof researchFields;
 {path === 'projects' && <ProjectDirectoryPage locale={locale} />}
 {path === 'research' && <ResearchDirectoryPage locale={locale} />}
 {['collaborate', 'contact'].includes(path) && <ContactPage locale={locale} />}
+{path === 'careers' && <CareersPage locale={locale} />}
 {path === 'projects/research-partnerships' && <PartnershipPage locale={locale} />}
 {path.startsWith('projects/') && project in projectDetails && <ProjectDetailPage locale={locale} slug={project} />}
 {path.startsWith('research/') && field in researchFields && <ResearchFieldPage locale={locale} slug={field} />}

@@ -1,4 +1,124 @@
 {
+  "careers": {
+    "title": "Nous rejoindre — Astrmira",
+    "description": "Rejoignez Astrmira en science des données, développement full stack ou test produit. Découvrez nos exigences communes, les postes ouverts et comment présenter vos réalisations.",
+    "label": "Rejoindre Astrmira",
+    "heading": [
+      "Votre discernement.",
+      "Des idées qui prennent forme."
+    ],
+    "introduction": "Nous cherchons des personnes qui pensent par elles-mêmes, créent de leur propre initiative et savent travailler avec des agents IA. Recherche, ingénierie et produit se rencontrent ici : comprendre le problème, vérifier le résultat et construire des réalisations qui résistent à l’usage.",
+    "remote": "Collaboration en ligne privilégiée",
+    "workLink": "Découvrir nos projets",
+    "rolesLink": "Voir les postes",
+    "coreLabel": "Fondements communs",
+    "coreTitle": "Ce que chaque poste exige.",
+    "coreNote": "Ces exigences s’appliquent aux trois postes. Merci de les examiner une à une avant de postuler.",
+    "core": [
+      {
+        "title": "Diriger les agents avec intention.",
+        "text": "Vous devez être un utilisateur expérimenté et intensif des agents IA. Définissez les besoins et critères d’acceptation, rédigez des contrats documentaires explicites pour prévenir les erreurs, puis guidez l’agent vers le résultat attendu. Sachez repérer et corriger rapidement les hallucinations. Une seule consigne suivie d’une acceptation sans recul ne suffit pas."
+      },
+      {
+        "title": "Connaître les limites de la compréhension.",
+        "text": "Une forte métacognition permet de savoir ce que vous comprenez, mais aussi ce qui manque à l’IA. Sortez du cadre du prompt pour interroger les prémisses, compléter le contexte et examiner le problème réel. Associez votre discernement à la vitesse de l’agent, en assumant la responsabilité du résultat."
+      },
+      {
+        "title": "Créer de votre propre initiative.",
+        "text": "Accordez de l’importance à ce que vous allez faire exister. Identifiez des problèmes utiles, faites des choix et portez une idée jusqu’à un résultat utilisable. Montrez-nous vos réalisations et les décisions que vous avez prises pour les construire."
+      },
+      {
+        "title": "Laisser parler le travail.",
+        "text": "Les bonnes publications et l’expérience open source comptent, mais nous évaluons le fond. Une prépublication, un sujet de niche ou un dépôt peu connu peuvent témoigner d’une rigueur et d’une qualité d’ingénierie équivalentes. Nous regardons la profondeur de compréhension et votre contribution personnelle."
+      },
+      {
+        "title": "Collaborer à distance.",
+        "text": "Vous devez être à l’aise avec des lieux de travail non traditionnels et une collaboration principalement en ligne. Rendez vos avancées, décisions et questions compréhensibles pour les autres, afin de faire progresser ensemble la recherche et l’ingénierie."
+      },
+      {
+        "title": "Prendre la création au sérieux.",
+        "text": "Il n’est pas nécessaire de tout réinventer. Comprenez les outils existants, choisissez-les à bon escient et créez quelque chose d’utile à partir d’eux. Apportez curiosité, soin et une idée claire de ce que votre travail ajoute."
+      }
+    ],
+    "rolesLabel": "Postes ouverts",
+    "rolesTitle": "Trois façons de contribuer.",
+    "rolesNote": "Les exigences communes s’appliquent à chaque poste. Ouvrez une fiche pour consulter ses missions et son profil.",
+    "responsibilities": "Vos missions",
+    "requirements": "Votre profil",
+    "applyRole": "Comment postuler",
+    "roles": [
+      {
+        "title": "Ingénieur·e en science des données",
+        "focus": "Expériences · Analyse · Évaluation",
+        "summary": "Transformer les questions de recherche en expériences et preuves fiables.",
+        "responsibilities": [
+          "Travailler avec les chercheurs pour valider et évaluer leurs travaux de pointe, en construisant des benchmarks rigoureux et équitables.",
+          "Utiliser les agents pour préparer les jeux de données et concevoir les cadres expérimentaux, afin d’accélérer les itérations sans compromettre la qualité des preuves."
+        ],
+        "requirements": [
+          "De solides bases en analyse de données et statistiques, ainsi qu’une maîtrise de Python et des outils de science des données. Savoir utiliser les agents pour produire des visualisations, des rapports d’évaluation et des figures scientifiques claires.",
+          "Une expérience approfondie en Experiment, Analysis & Benchmark (E.A.B.), permettant de concevoir en autonomie des scripts expérimentaux fiables et des évaluations équitables.",
+          "Des connaissances en bases de données, apprentissage automatique et recherche d’information pour échanger avec l’équipe. Savoir lire des théories mathématiques avancées et les traduire en logiques d’évaluation académiques et industrielles.",
+          "Un respect de l’intégrité scientifique : repérer les hallucinations des agents, les comparaisons biaisées, les hypothèses expérimentales invalides et les résultats trompeurs."
+        ]
+      },
+      {
+        "title": "Ingénieur·e full stack",
+        "focus": "Produit · Ingénierie · Agent Harness",
+        "summary": "Faire d’une idée open source un système utilisable et maintenable.",
+        "responsibilities": [
+          "Piloter l’ingénierie de nos applications open source sur l’ensemble du cycle de développement. Utiliser les agents pour itérer rapidement et valider les prototypes.",
+          "Écrire les tests unitaires des modules, coordonner les résultats de recherche et les plans d’implémentation avec les chercheurs, et produire une documentation claire."
+        ],
+        "requirements": [
+          "Un excellent jugement UI/UX : raisonner à partir des principes fondamentaux sur les comportements des utilisateurs, les défauts de conception et les choix produit, au-delà du code.",
+          "Une réflexion approfondie sur les harness d’agents : gestion du contexte et des prompts, interfaces des outils, mémoire à long terme et communication entre agents (A2A).",
+          "De bonnes pratiques de génie logiciel et une pensée architecturale claire. L’expérience de maintenance de grands dépôts est un atout.",
+          "Une veille active des communautés open source et forums techniques, en particulier des bibliothèques frontend et UI/UX, avec votre propre appréciation des orientations techniques.",
+          "Un usage intensif des produits à base d’agents et une compréhension concrète des forces et limites des modèles, pour choisir les approches adaptées au design, au raisonnement et à l’implémentation."
+        ]
+      },
+      {
+        "title": "Ingénieur·e test produit",
+        "focus": "Usage · Intégration · Fiabilité",
+        "summary": "Détecter les problèmes importants avant que les utilisateurs ne les rencontrent.",
+        "responsibilities": [
+          "Concevoir et exécuter les tests de bout en bout des applications open source ; construire et maintenir les pipelines CI/CD ainsi que des matrices réalistes de tests d’intégration, de limites et de charge.",
+          "Utiliser personnellement les produits, évaluer l’expérience du point de vue utilisateur et transformer les défauts en constats reproductibles et en documentation utile."
+        ],
+        "requirements": [
+          "Une solide maîtrise de la conception et de la pratique des tests, ainsi que des frameworks associés.",
+          "Une approche factuelle et un sens précis des limites du produit. Choisir la bonne granularité de test et éviter la surconception.",
+          "Guider les agents vers des tests capables de révéler des défauts, plutôt que de reformuler l’implémentation, et protéger les comportements essentiels lors des évolutions.",
+          "Localiser rapidement les anomalies, en déterminer précisément la cause et documenter le raisonnement ainsi que les étapes de reproduction.",
+          "Une forte métacognition et une réflexion sur l’interaction humain-machine : adopter les points de vue d’un utilisateur occasionnel, d’un développeur et d’un utilisateur intensif pour découvrir les problèmes négligés."
+        ]
+      }
+    ],
+    "evidenceLabel": "Atouts supplémentaires",
+    "evidenceTitle": "Montrez ce que vous avez rendu possible.",
+    "evidenceNote": "Si vous disposez de ces expériences, joignez à votre candidature les éléments qui montrent votre contribution réelle.",
+    "evidence": [
+      "Une participation substantielle à la recherche ou à l’ingénierie dans un laboratoire universitaire ou industriel, avec un rôle personnel clairement identifié.",
+      "Des résultats significatifs en compétition dans les domaines de l’informatique, des mathématiques, de la science des données, de l’électronique ou des disciplines voisines.",
+      "La participation à une publication de premier plan, ou un travail de recherche comparable. Les excellents travaux en cours d’évaluation sont également les bienvenus.",
+      "Des projets open source personnels ou des contributions importantes à une communauté. La popularité d’un dépôt et son nombre d’étoiles ne définissent pas sa qualité technique.",
+      "Des talents ou des réalisations créatives remarquables, comme la conception indépendante d’un jeu ou une expertise approfondie dans un domaine de niche."
+    ],
+    "applyLabel": "Candidature",
+    "applyTitle": "Commençons par vos réalisations.",
+    "applyNote": "Envoyez votre CV ou un résumé de votre parcours, vos travaux représentatifs et le poste souhaité à l’adresse ci-dessous. Précisez votre contribution et les problèmes que vous aimeriez explorer.",
+    "emailLabel": "CV et réalisations",
+    "subjectLabel": "Objet suggéré",
+    "subject": "Poste · Votre nom",
+    "materialsTitle": "Éléments à joindre",
+    "materials": [
+      "Un CV ou une présentation concise de votre expérience pertinente.",
+      "Des articles, dépôts de code, démonstrations ou autres réalisations, avec votre contribution clairement expliquée.",
+      "Une courte présentation des choix que vous avez faits, des problèmes résolus et de votre intérêt pour Astrmira."
+    ],
+    "contactLink": "Vous souhaitez plutôt collaborer ?"
+  },
   "ui": {
     "nav": {
       "home": "Accueil",
@@ -7,6 +127,7 @@
       "about": "À propos",
       "collaborate": "Collaborer",
       "contact": "Contact",
+      "careers": "Nous rejoindre",
       "menu": "Menu",
       "navigation": "Navigation principale",
       "language": "Langue",

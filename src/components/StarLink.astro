@@ -1,7 +1,7 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
-type Props = HTMLAttributes<'a'> & { label: string; compact?: boolean };
-const { label, compact = false, class: className, ...attributes } = Astro.props;
+type Props = HTMLAttributes<'a'> & { label: string; compact?: boolean; as?: 'a' | 'summary' };
+const { label, compact = false, as: Tag = 'a', class: className, ...attributes } = Astro.props;
 const stars = [
   ['8%', '12%', '11px', '-18deg'],
   ['28%', '98%', '8px', '16deg'],
@@ -11,19 +11,21 @@ const stars = [
 ];
 ---
 
-<a {...attributes} class:list={['star-link', { 'is-compact': compact }, className]}>
+<Tag {...attributes} class:list={['star-link', { 'is-compact': compact }, className]}>
   <span class="star-sparks" aria-hidden="true">
     {stars.map(([x, y, size, turn]) => <svg class="star-spark" style={`--x:${x};--y:${y};--size:${size};--turn:${turn}`} viewBox="0 0 32 32" fill="currentColor"><path d="M16 0C17.5 12.5 19.5 14.5 32 16C19.5 17.5 17.5 19.5 16 32C14.5 19.5 12.5 17.5 0 16C12.5 14.5 14.5 12.5 16 0Z"/></svg>)}
   </span>
-  <span class="star-label">{label}<span class="star-arrow" aria-hidden="true">↗</span></span>
-  <span class="star-fill" aria-hidden="true"><span class="star-label">{label}<span class="star-arrow">↗</span></span></span>
-</a>
+  <span class="star-label">{label}<span class="star-arrow" aria-hidden="true">{Tag === 'summary' ? '⌄' : '↗'}</span></span>
+  <span class="star-fill" aria-hidden="true"><span class="star-label">{label}<span class="star-arrow">{Tag === 'summary' ? '⌄' : '↗'}</span></span></span>
+</Tag>
 
 <style>
   /* KINGFRESS's Uiverse.io fill interaction, reworked as stars gathering inward.
      The decorative copy keeps text contrast aligned with the advancing fill. */
   .star-link { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 48px; max-width: 100%; padding: 12px 22px; margin: 0; border: 1px solid #b3c9df26; border-radius: 10px; background: #12171dcc; color: #eeeae1; font: 500 13px/1.6 var(--sans); letter-spacing: .02em; text-decoration: none; transition: border-color .25s, transform .12s; }
   .star-link[aria-current="page"] { border-color: #d6b88165; }
+  summary.star-link { list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  summary.star-link::-webkit-details-marker { display: none; }
   .star-label { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 12px; color: #eeeae1; white-space: nowrap; }
   .star-arrow { color: var(--gold); font-size: 16px; line-height: 1; }
   .star-sparks { position: absolute; z-index: 1; inset: -10px; color: var(--gold); pointer-events: none; opacity: 0; }

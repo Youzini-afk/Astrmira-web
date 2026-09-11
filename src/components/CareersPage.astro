@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getContent, getUi } from '../i18n/content';
+import { careersChinese } from '../data/careers';
+import { resolveContactEmail } from '../config/contact.js';
+import { localePath, type Locale } from '../i18n';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-cn' } = Astro.props;
+const copy = locale === 'zh-cn' ? careersChinese : getContent(locale).careers;
+const ui = getUi(locale);
+const email = resolveContactEmail(import.meta.env.PUBLIC_CONTACT_EMAIL);
+const cjk = locale.startsWith('zh') || locale === 'ja' || locale === 'ko';
+const chapters = [
+  { id: 'foundations', label: copy.coreLabel },
+  { id: 'roles', label: copy.rolesLabel },
+  { id: 'evidence', label: copy.evidenceLabel },
+  { id: 'apply', label: copy.applyLabel },
+];
+---
+
+<Layout locale={locale} title={copy.title} description={copy.description} route="careers">
+  <div class="wrap careers-page">
+    <section class="careers-intro" aria-labelledby="careers-heading">
+      <p class="eyebrow">{copy.label}</p>
+      <h1 id="careers-heading" class:list={{ 'cjk-heading': cjk }}>{copy.heading[0]}<br /><em>{copy.heading[1]}</em></h1>
+      <p class="careers-lede">{copy.introduction}</p>
+      <div class="careers-intro-links">
+        <span class="remote-note"><span aria-hidden="true">✧</span>{copy.remote}</span>{' '}
+        <a href="#roles">{copy.rolesLink}<span aria-hidden="true">↓</span></a>{' '}
+        <a href={localePath('/projects/', locale)}>{copy.workLink}<span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <div class="careers-layout">
+      <aside class="careers-aside">
+        <nav aria-label={ui.toc.title}>
+          <p class="eyebrow">{ui.toc.title}</p>
+          <ul>{chapters.map(chapter => <li><a href={'#' + chapter.id}>{chapter.label}</a></li>)}</ul>
+        </nav>
+      </aside>
+      <div class="careers-content">
+        <section id="foundations" class="careers-chapter" aria-labelledby="foundations-heading">
+          <p class="eyebrow">{copy.coreLabel}</p>
+          <h2 id="foundations-heading">{copy.coreTitle}</h2>
+          <p class="chapter-note">{copy.coreNote}</p>
+          <ul class="foundation-list">
+            {copy.core.map(principle => <li><h3>{principle.title}</h3><p>{principle.text}</p></li>)}
+          </ul>
+        </section>
+
+        <section id="roles" class="careers-chapter" aria-labelledby="roles-heading">
+          <p class="eyebrow">{copy.rolesLabel}</p>
+          <h2 id="roles-heading">{copy.rolesTitle}</h2>
+          <p class="chapter-note">{copy.rolesNote}</p>
+          <div class="role-list">
+            {copy.roles.map((role, index) => <details class="career-role" open={index === 0}>
+              <summary>
+                <div><p class="role-focus">{role.focus}</p><h3>{role.title}</h3><p class="role-summary">{role.summary}</p></div>
+                <span class="role-toggle" aria-hidden="true"></span>
+              </summary>
+              <div class="role-content">
+                <section><h4>{copy.responsibilities}</h4><ul>{role.responsibilities.map(text => <li>{text}</li>)}</ul></section>
+                <section><h4>{copy.requirements}</h4><ul>{role.requirements.map(text => <li>{text}</li>)}</ul></section>
+                <a class="role-apply" href="#apply">{copy.applyRole}<span aria-hidden="true">↗</span></a>
+              </div>
+            </details>)}
+          </div>
+        </section>
+
+        <section id="evidence" class="careers-chapter" aria-labelledby="evidence-heading">
+          <p class="eyebrow">{copy.evidenceLabel}</p>
+          <h2 id="evidence-heading">{copy.evidenceTitle}</h2>
+          <p class="chapter-note">{copy.evidenceNote}</p>
+          <ul class="evidence-list">{copy.evidence.map(text => <li>{text}</li>)}</ul>
+        </section>
+
+        <section id="apply" class="careers-chapter application" aria-labelledby="apply-heading">
+          <p class="eyebrow">{copy.applyLabel}</p>
+          <h2 id="apply-heading">{copy.applyTitle}</h2>
+          <p class="chapter-note">{copy.applyNote}</p>
+          <div class="contact-card careers-email">
+            <p class="eyebrow">{copy.emailLabel}</p>
+            <p class="application-address" data-contact-email dir="ltr" translate="no">{email}</p>
+            <div class="application-subject"><p>{copy.subjectLabel}</p><p>{copy.subject}</p></div>
+            <button type="button" class="button" data-copy-contact hidden><span data-copy-contact-label>{ui.contact.copy}</span></button>
+            <p class="contact-copy-status" data-contact-status role="status" aria-live="polite" aria-atomic="true"></p>
+            <noscript><p class="contact-copy-status">{ui.contact.manual}</p></noscript>
+          </div>
+          <h3 class="materials-heading">{copy.materialsTitle}</h3>
+          <ul class="materials-list">{copy.materials.map(text => <li>{text}</li>)}</ul>
+          <a class="collaboration-link" href={localePath('/collaborate/', locale)}>{copy.contactLink}<span aria-hidden="true">↗</span></a>
+        </section>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .careers-page { padding-top: clamp(56px, 7vw, 108px); padding-bottom: 104px; }
+  .careers-intro { max-width: 1020px; margin-bottom: 84px; }
+  .careers-intro h1 { margin: 26px 0 30px; font: 400 clamp(44px, 5.3vw, 76px)/1.2 var(--serif); letter-spacing: -.025em; text-wrap: balance; }
+  .careers-intro h1 em { color: var(--gold); font-weight: 400; }
+  .careers-intro .cjk-heading { font-size: clamp(36px, 4.5vw, 64px); line-height: 1.45; letter-spacing: .01em; }
+  .cjk-heading em { font-style: normal; }
+  .careers-lede { max-width: 810px; font-size: 16px; line-height: 2; color: var(--muted); text-wrap: pretty; }
+  .careers-intro-links { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 30px; margin-top: 30px; font-size: 13px; }
+  .careers-intro-links a, .remote-note { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; }
+  .remote-note { color: var(--gold); margin-right: 14px; }
+  .careers-intro-links a { color: var(--muted); }
+  .careers-intro-links a:hover { color: var(--text); }
+  .careers-layout { display: grid; grid-template-columns: minmax(160px, .26fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 100px); border-top: 1px solid var(--line); padding-top: 50px; }
+  .careers-aside { align-self: start; position: sticky; top: 36px; }
+  .careers-aside ul { list-style: none; margin: 18px 0 0; padding: 0; }
+  .careers-aside a { display: block; padding: 11px 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .careers-aside a:hover, .careers-aside a:focus-visible { color: var(--gold); }
+  .careers-content { min-width: 0; }
+  .careers-chapter + .careers-chapter { margin-top: 84px; }
+  .careers-chapter > .eyebrow { color: var(--gold); font-size: 10px; }
+  .careers-chapter h2 { margin: 16px 0; font-size: clamp(25px, 2.6vw, 34px); font-weight: 400; line-height: 1.55; text-wrap: pretty; }
+  .chapter-note { color: var(--muted); font-size: 14px; line-height: 1.95; max-width: 800px; }
+  .foundation-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 36px; list-style: none; padding: 0; margin: 34px 0 0; }
+  .foundation-list li { border-top: 1px solid var(--line); padding-top: 24px; }
+  .foundation-list h3 { font-size: 18px; font-weight: 500; line-height: 1.7; margin-bottom: 12px; }
+  .foundation-list p { font-size: 14px; line-height: 1.95; color: var(--muted); text-wrap: pretty; }
+  .role-list { margin-top: 34px; border-top: 1px solid var(--line); }
+  .career-role { border-bottom: 1px solid var(--line); }
+  .career-role > summary { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 30px 0; cursor: pointer; list-style: none; }
+  .career-role > summary::-webkit-details-marker { display: none; }
+  .career-role > summary:focus-visible { outline-offset: 6px; }
+  .role-focus { font: 10px/1.8 var(--mono); color: var(--gold); letter-spacing: .05em; }
+  .career-role h3 { margin: 9px 0 10px; font-size: clamp(23px, 2vw, 28px); font-weight: 400; line-height: 1.5; }
+  .role-summary { color: var(--muted); font-size: 14px; line-height: 1.8; }
+  .role-toggle { position: relative; flex: 0 0 30px; height: 30px; color: var(--gold); }
+  .role-toggle::before, .role-toggle::after { content: ''; position: absolute; top: 50%; left: 7px; width: 16px; height: 1px; background: currentColor; }
+  .role-toggle::after { transform: rotate(90deg); transition: transform .2s ease; }
+  .career-role[open] .role-toggle::after { transform: rotate(0); }
+  .career-role[open] .role-content { animation: role-reveal .2s ease-out; }
+  @keyframes role-reveal { from { opacity: 0; } to { opacity: 1; } }
+  .role-content { padding: 0 0 32px; }
+  .role-content section + section { margin-top: 24px; }
+  .role-content h4, .materials-heading { font-size: 14px; line-height: 1.7; font-weight: 500; margin-bottom: 13px; }
+  .role-content ul, .evidence-list, .materials-list { margin: 0; padding: 0 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.95; }
+  .role-content li + li, .evidence-list li + li, .materials-list li + li { margin-top: 12px; }
+  .role-content li::marker, .evidence-list li::marker, .materials-list li::marker { color: #b9a375; }
+  .role-apply, .collaboration-link { display: inline-flex; align-items: center; gap: 16px; min-height: 44px; margin-top: 22px; font-size: 13px; color: var(--gold); }
+  .evidence-list { margin-top: 30px; }
+  .application { padding-top: 42px; border-top: 1px solid var(--line); }
+  .careers-email { margin-top: 30px; border: 1px solid #b3c9df24; border-radius: 12px; background: #11161ddb; padding: clamp(24px, 3vw, 36px); }
+  .careers-email .eyebrow { font-size: 10px; color: var(--gold); }
+  .application-address { margin: 22px 0 18px; font: 400 clamp(25px, 3vw, 38px)/1.4 var(--serif); letter-spacing: -.02em; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
+  .application-subject { font-size: 13px; line-height: 1.8; color: var(--muted); }
+  .application-subject p:first-child { font-size: 11px; margin-bottom: 4px; }
+  .careers-email .button { min-height: 44px; margin-top: 24px; padding: 10px 20px; font-size: 13px; }
+  .contact-copy-status { font-size: 12px; line-height: 1.8; color: var(--gold); }
+  .contact-copy-status:not(:empty) { margin-top: 12px; }
+  .materials-heading { margin-top: 30px; }
+  :global(html:lang(de)) .careers-page { hyphens: auto; }
+  :global(html.is-paused) .role-toggle::after { transition: none; }
+  :global(html.is-paused) .career-role[open] .role-content { animation: none; }
+  @media (max-width: 900px) {
+    .careers-layout { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-top: 28px; }
+    .careers-aside { position: static; }
+    .careers-aside ul { display: flex; flex-wrap: wrap; gap: 4px 26px; margin-top: 10px; }
+    .careers-intro { margin-bottom: 48px; }
+  }
+  @media (max-width: 600px) {
+    .careers-page { padding-top: 46px; padding-bottom: 64px; }
+    .careers-intro h1 { font-size: 40px; overflow-wrap: break-word; }
+    .careers-intro .cjk-heading { font-size: 35px; }
+    .careers-lede { font-size: 14px; }
+    .careers-intro-links { gap: 6px 22px; margin-top: 22px; }
+    .remote-note { flex-basis: 100%; }
+    .foundation-list { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .careers-chapter + .careers-chapter { margin-top: 56px; }
+    .career-role > summary { gap: 16px; padding-block: 26px; }
+    .careers-email { padding: 24px 20px; }
+  }
+</style>

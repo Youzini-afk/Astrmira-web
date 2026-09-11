@@ -1,4 +1,124 @@
 {
+  "careers": {
+    "title": "Karriere — Astrmira",
+    "description": "Arbeite bei Astrmira in Data Science, Full-Stack-Entwicklung oder Produkttests. Erfahre mehr über gemeinsame Anforderungen, offene Stellen und die Bewerbung mit eigenen Arbeiten.",
+    "label": "Bei Astrmira mitarbeiten",
+    "heading": [
+      "Mit eigenem Urteil.",
+      "Gemeinsam Neues schaffen."
+    ],
+    "introduction": "Wir suchen Menschen, die eigenständig denken, aus eigener Initiative gestalten und gekonnt mit KI-Agenten arbeiten. Forschung, Engineering und Produktentwicklung gehören bei uns zusammen: das Problem verstehen, das Ergebnis prüfen und etwas schaffen, das sich im Einsatz bewährt.",
+    "remote": "Online-Zusammenarbeit bevorzugt",
+    "workLink": "Unsere Projekte ansehen",
+    "rolesLink": "Offene Stellen ansehen",
+    "coreLabel": "Gemeinsame Grundlagen",
+    "coreTitle": "Was jede Rolle voraussetzt.",
+    "coreNote": "Diese Anforderungen gelten für alle drei Stellen. Bitte prüfe sie vor deiner Bewerbung einzeln.",
+    "core": [
+      {
+        "title": "Agenten gezielt führen.",
+        "text": "Du nutzt KI-Agenten intensiv und mit Erfahrung. Du formulierst Anforderungen und Abnahmekriterien, schreibst verbindliche Dokumentationsverträge zur Fehlervermeidung und führst den Agenten zum gewünschten Ergebnis. Halluzinationen erkennst und korrigierst du schnell. Ein einzelner Prompt mit anschließender ungeprüfter Übernahme genügt nicht."
+      },
+      {
+        "title": "Die Grenzen des Verstehens kennen.",
+        "text": "Starke Metakognition bedeutet, sowohl das eigene Wissen als auch die Wissenslücken der KI zu erkennen. Du kannst über den Prompt hinausdenken, Prämissen hinterfragen, Kontext ergänzen und das eigentliche Problem untersuchen. Du verbindest dein Urteilsvermögen mit der Geschwindigkeit des Agenten und trägst Verantwortung für das Ergebnis."
+      },
+      {
+        "title": "Aus eigenem Antrieb gestalten.",
+        "text": "Dich interessiert, was du schaffen wirst. Du erkennst lohnende Probleme, triffst Entscheidungen und bringst Ideen zu nutzbaren Ergebnissen. Zeige uns die Arbeiten, für die du dich entschieden hast, und deine eigenständigen Überlegungen auf dem Weg dorthin."
+      },
+      {
+        "title": "Die Arbeit sprechen lassen.",
+        "text": "Gute Publikationen und Open-Source-Erfahrung sind willkommen; entscheidend ist die Substanz. Ein Preprint, ein Nischenthema oder ein wenig bekanntes Repository können ebenso überzeugende Logik und Ingenieursarbeit zeigen. Uns interessieren die Tiefe deines Verständnisses und dein eigener Beitrag."
+      },
+      {
+        "title": "Über Distanz zusammenarbeiten.",
+        "text": "Du kommst mit unkonventionellen Arbeitsorten und vorrangiger Online-Zusammenarbeit zurecht. Du machst Fortschritte, Entscheidungen und Fragen für andere nachvollziehbar und bringst Forschung und Entwicklung durch Dokumentation und Austausch voran."
+      },
+      {
+        "title": "Das Schaffen ernst nehmen.",
+        "text": "Du musst nicht jedes Werkzeug neu erfinden. Verstehe vorhandene Werkzeuge, wähle bewusst aus und schaffe darauf aufbauend etwas Nützliches. Bringe Neugier und Sorgfalt mit und erkläre, welchen Beitrag deine Arbeit leistet."
+      }
+    ],
+    "rolesLabel": "Offene Stellen",
+    "rolesTitle": "Drei Wege, etwas beizutragen.",
+    "rolesNote": "Die gemeinsamen Anforderungen gelten für jede Rolle. Öffne eine Stelle, um Aufgaben und Voraussetzungen zu lesen.",
+    "responsibilities": "Deine Aufgaben",
+    "requirements": "Dein Profil",
+    "applyRole": "So bewirbst du dich",
+    "roles": [
+      {
+        "title": "Data-Science-Engineer",
+        "focus": "Experimente · Analyse · Benchmarks",
+        "summary": "Forschungsfragen in belastbare Experimente und Belege übersetzen.",
+        "responsibilities": [
+          "Eng mit Forschenden zusammenarbeiten, um aktuelle Forschung zu validieren und zu evaluieren sowie strenge, faire Benchmarks aufzubauen.",
+          "Mit Agenten Datensätze erstellen und Versuchsframeworks entwerfen, um Forschungszyklen zu verkürzen, ohne die Qualität der Belege zu beeinträchtigen."
+        ],
+        "requirements": [
+          "Gute Grundlagen in Datenanalyse und Statistik, sicherer Umgang mit Python und Data-Science-Werkzeugen. Agenten für Visualisierungen, Evaluationsberichte und klare wissenschaftliche Abbildungen einsetzen können.",
+          "Umfangreiche Erfahrung in Experiment, Analysis & Benchmark (E.A.B.) sowie die Fähigkeit, zuverlässige Versuchsskripte und faire Evaluationsframeworks eigenständig zu entwerfen.",
+          "Kenntnisse in Datenbanken, maschinellem Lernen und Information Retrieval für den Austausch mit dem Forschungsteam. Fortgeschrittene mathematische Theorie lesen und in akademische sowie industrielle Evaluationslogik übersetzen können.",
+          "Wissenschaftliche Integrität ernst nehmen: Agentenhalluzinationen, verzerrte Vergleiche, ungültige Versuchsannahmen und irreführende Ergebnisse erkennen."
+        ]
+      },
+      {
+        "title": "Full-Stack-Engineer",
+        "focus": "Produkt · Engineering · Agent Harness",
+        "summary": "Open-Source-Ideen zu nutzbaren, wartbaren Systemen entwickeln.",
+        "responsibilities": [
+          "Die technische Umsetzung unserer Open-Source-Anwendungen über den gesamten Entwicklungszyklus führen; mit Agenten schnell iterieren und Prototypen prüfen.",
+          "Unit-Tests für Module schreiben, neue Forschungsergebnisse und Umsetzungspläne mit dem Forschungsteam abstimmen und gut lesbare System- und Entwicklungsdokumentation erstellen."
+        ],
+        "requirements": [
+          "Ein ausgeprägtes UI/UX-Urteilsvermögen. Nutzerverhalten, Designmängel und Produktentscheidungen aus grundlegenden Prinzipien heraus durchdenken, über die reine Implementierung hinaus.",
+          "Fundierte Überlegungen zum Design von Agent Harnesses: Kontext- und Prompt-Verwaltung, Werkzeugschnittstellen, Langzeitgedächtnis und Kommunikation zwischen Agenten (A2A).",
+          "Gute Software-Engineering-Praxis und klares Architekturdenken. Erfahrung mit der Pflege großer Repositories ist ein Plus.",
+          "Aktives Interesse an Open-Source-Communitys und technischen Foren, besonders Frontend- und UI/UX-Bibliotheken, mit einem eigenen Urteil über technische Entwicklungen.",
+          "Intensive Nutzung von Agentenprodukten und ein praktisches Verständnis der Stärken und Grenzen verschiedener Modelle, um passende Arbeitsweisen für Design, Schlussfolgern und Implementierung zu wählen."
+        ]
+      },
+      {
+        "title": "Produkttest-Engineer",
+        "focus": "Nutzungserlebnis · Integration · Zuverlässigkeit",
+        "summary": "Wichtige Probleme finden, bevor Nutzer darauf stoßen.",
+        "responsibilities": [
+          "End-to-End-Tests für Open-Source-Anwendungen entwerfen und ausführen, CI/CD-Pipelines aufbauen und pflegen sowie realistische Integrations-, Grenzfall- und Lasttestmatrizen entwickeln.",
+          "Die Produkte selbst nutzen, das Nutzungserlebnis prüfen und Fehler in reproduzierbare Befunde und nützliche Dokumentation überführen."
+        ],
+        "requirements": [
+          "Ausgeprägtes Testverständnis und umfangreiche praktische Erfahrung mit Testentwurf, Durchführung und Frameworks.",
+          "Faktenorientiertes Vorgehen und ein gutes Gespür für Produktgrenzen. Testgranularität bewusst wählen und Überengineering vermeiden.",
+          "Agenten zu aussagekräftigen Tests anleiten, die Fehler aufdecken, statt nur die Implementierung zu wiederholen, und das Kernverhalten bei Änderungen schützen.",
+          "Anomalien schnell eingrenzen, Ursachen präzise beurteilen und Überlegungen, Reproduktionsschritte und Ergebnisse klar dokumentieren.",
+          "Starke Metakognition und Verständnis für Mensch-Computer-Interaktion: das Produkt aus Sicht gewöhnlicher Nutzer, Entwickler und Intensivnutzer betrachten, um übersehene Probleme zu finden."
+        ]
+      }
+    ],
+    "evidenceLabel": "Zusätzliche Stärken",
+    "evidenceTitle": "Zeige, was du möglich gemacht hast.",
+    "evidenceNote": "Falls du diese Erfahrungen mitbringst, lege deiner Bewerbung Materialien bei, die deinen tatsächlichen Beitrag zeigen.",
+    "evidence": [
+      "Substanzielle Forschungs- oder Entwicklungsarbeit in einem Hochschul- oder Unternehmenslabor mit klar erkennbarem eigenem Anteil.",
+      "Aussagekräftige Wettbewerbserfolge in Informatik, Mathematik, Data Science, Elektronik oder verwandten Gebieten.",
+      "Autorenschaft bei einer führenden Konferenz oder Fachzeitschrift oder vergleichbare Forschungsarbeit. Hervorragende Arbeiten im Begutachtungsverfahren sind ebenfalls willkommen.",
+      "Eigene Open-Source-Projekte oder wesentliche Beiträge zu einer Community. Bekanntheit und Star-Zahlen bestimmen nicht die technische Qualität.",
+      "Besondere Fähigkeiten und kreative Arbeiten, etwa die eigenständige Entwicklung eines Spiels oder tiefes Wissen in einem Nischengebiet."
+    ],
+    "applyLabel": "Bewerbung",
+    "applyTitle": "Beginnen wir mit deiner Arbeit.",
+    "applyNote": "Sende deinen Lebenslauf oder eine Übersicht deiner Erfahrung, repräsentative Arbeiten und die gewünschte Stelle an die folgende Adresse. Erkläre deinen eigenen Beitrag und welche Fragen du weiter erforschen möchtest.",
+    "emailLabel": "Lebenslauf und Arbeitsproben",
+    "subjectLabel": "Vorgeschlagener Betreff",
+    "subject": "Stelle · Dein Name",
+    "materialsTitle": "Das kannst du beilegen",
+    "materials": [
+      "Einen Lebenslauf oder eine kurze Darstellung deiner relevanten Erfahrung.",
+      "Publikationen, Code-Repositories, Demos oder andere Arbeiten mit einer klaren Erklärung deines Beitrags.",
+      "Eine kurze Vorstellung deiner Entscheidungen, gelösten Probleme und Motivation, bei Astrmira mitzuarbeiten."
+    ],
+    "contactLink": "Du möchtest stattdessen zusammenarbeiten?"
+  },
   "ui": {
     "nav": {
       "home": "Startseite",
@@ -7,6 +127,7 @@
       "about": "Über uns",
       "collaborate": "Zusammenarbeiten",
       "contact": "Kontakt",
+      "careers": "Karriere",
       "menu": "Menü",
       "navigation": "Hauptnavigation",
       "language": "Sprache",

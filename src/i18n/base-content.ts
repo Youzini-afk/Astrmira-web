@@ -3,6 +3,7 @@ import { aboutCopy } from '../data/about.ts';
 import { projectDetails, researchFields } from '../data/english.ts';
 import { paperEnglish } from '../data/papers.ts';
 import { contactEnglish } from '../data/contact.ts';
+import { careersEnglish } from '../data/careers.ts';
 
 export const baseContent = {
   ui: uiEnglish,
@@ -28,4 +29,5 @@ export const baseContent = {
   fieldPage: { label: 'Research field', unfolding: 'an unfolding question.', direction: 'Research direction', questions: 'Open questions', begin: 'Begin with the question.', approach: 'We approach this field by making assumptions explicit, connecting methods to measurable behavior, and allowing experiments and systems to refine the question itself.', conversation: 'Start a research conversation' },
   partnerships: { title: 'Research partnerships', description: 'Work with Astrmira on shared scientific questions across data systems, efficient intelligence, and mathematics.', heading: ['Let a good question', 'meet shared curiosity.'], introduction: 'Research and university partnerships are a core direction. We connect our work in databases, retrieval, quantization, post-training, and mathematics to scientific questions that benefit from different kinds of experience.', label: 'Joint research', planning: 'Research planning', prototypes: 'Prototypes and evaluation', sections: [{ title: 'Begin with the question itself.', text: 'Questions worth sustained study often need theoretical insight, experimental method, and systems experience together. A collaboration begins with the problem rather than a predetermined technical answer.' }, { title: 'Ways to work together.', text: 'Joint problem selection, research prototypes, experimental evaluation, technical exchange, and paths toward practical use. Scope, ownership, and disclosure are agreed explicitly for each collaboration.' }, { title: 'How to begin.', text: 'Bring a question, a research plan, or a cross-disciplinary challenge. We first discuss the goal, existing foundation, and what can be shared, then design an appropriate path.' }], discuss: 'Discuss this direction' },
   collaborate: contactEnglish,
+  careers: careersEnglish,
 };

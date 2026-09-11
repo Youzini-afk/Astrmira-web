@@ -55,7 +55,13 @@ const isCurrent = (route: string) => currentRoute === route || (route !== 'home'
         </li>)}
       </ul>
     </details>
-    <StarLink href={href('/collaborate/')} data-route="collaborate" class="nav-contact" label={ui.nav.collaborate} compact aria-current={currentRoute === 'collaborate' ? 'page' : undefined} />
+    <details class="work-menu" data-work-menu>
+      <StarLink as="summary" class="nav-contact" label={ui.nav.collaborate} compact aria-controls="work-options" />
+      <ul class="work-options" id="work-options">
+        <li><a href={href('/collaborate/')} data-route="collaborate" aria-current={currentRoute === 'collaborate' ? 'page' : undefined}>{ui.nav.contact}<span aria-hidden="true">↗</span></a></li>
+        <li><a href={href('/careers/')} data-route="careers" aria-current={currentRoute === 'careers' ? 'page' : undefined}>{ui.nav.careers}<span aria-hidden="true">↗</span></a></li>
+      </ul>
+    </details>
   </nav>
 </header>
 
@@ -94,6 +100,14 @@ const isCurrent = (route: string) => currentRoute === route || (route !== 'home'
   .language-check { width: 16px; height: 16px; flex-shrink: 0; }
   .language-recommendation { font-size: 10px; color: var(--gold); }
   @keyframes language-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .work-menu { position: relative; flex-shrink: 0; }
+  .work-options { position: absolute; top: 100%; right: 0; z-index: 2; width: max-content; min-width: 210px; max-width: min(300px, calc(100vw - 40px)); margin: 0; padding: 9px 7px 7px; list-style: none; border: 1px solid var(--line); border-radius: 11px; background: #10141c; box-shadow: 0 12px 32px #0006; }
+  .work-menu[open] .work-options { animation: language-appear .16s ease-out; }
+  .work-options li + li { margin-top: 3px; border-top: 1px solid #b3c9df12; padding-top: 3px; }
+  .work-options a { display: flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 46px; padding: 12px; border-radius: 6px; color: var(--muted); font: 13px/1.6 var(--sans); }
+  .work-options a span { color: var(--gold); }
+  .work-options a:is(:hover, :focus-visible), .work-options a[aria-current="page"] { color: var(--text); background: #d6b8810a; }
+  .work-options a:focus-visible { outline-offset: -2px; }
   @media (max-width: 900px) {
     .nav-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; }
     .nav-group a { min-width: 0; min-height: 46px; padding: 10px 12px; font-size: 14px; }
@@ -101,5 +115,7 @@ const isCurrent = (route: string) => currentRoute === route || (route !== 'home'
     .language-trigger { width: fit-content; }
     .language-options { position: static; width: min(100%, 240px); margin-top: 8px; box-shadow: none; max-height: none; overflow: visible; }
     .language-options a { font-size: 14px; }
+    .work-options { position: static; width: 100%; min-width: 0; max-width: none; margin-top: 8px; box-shadow: none; }
+    .work-options a { font-size: 14px; }
   }
 </style>
