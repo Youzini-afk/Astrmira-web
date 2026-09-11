@@ -15,8 +15,8 @@ const stars = [
   <span class="star-sparks" aria-hidden="true">
     {stars.map(([x, y, size, turn]) => <svg class="star-spark" style={`--x:${x};--y:${y};--size:${size};--turn:${turn}`} viewBox="0 0 32 32" fill="currentColor"><path d="M16 0C17.5 12.5 19.5 14.5 32 16C19.5 17.5 17.5 19.5 16 32C14.5 19.5 12.5 17.5 0 16C12.5 14.5 14.5 12.5 16 0Z"/></svg>)}
   </span>
-  <span class="star-label">{label}<span class="star-arrow" aria-hidden="true">{Tag === 'summary' ? '⌄' : '↗'}</span></span>
-  <span class="star-fill" aria-hidden="true"><span class="star-label">{label}<span class="star-arrow">{Tag === 'summary' ? '⌄' : '↗'}</span></span></span>
+  <span class="star-label">{label}<span class="star-arrow" aria-hidden="true">↗</span></span>
+  <span class="star-fill" aria-hidden="true"><span class="star-label">{label}<span class="star-arrow">↗</span></span></span>
 </Tag>
 
 <style>
@@ -26,6 +26,8 @@ const stars = [
   .star-link[aria-current="page"] { border-color: #d6b88165; }
   summary.star-link { list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   summary.star-link::-webkit-details-marker { display: none; }
+  summary.star-link .star-arrow { display: inline-block; transform: rotate(var(--star-arrow-turn, 0deg)); transition: transform .32s cubic-bezier(.22,.8,.3,1); }
+  :global(html.is-paused) summary.star-link .star-arrow { transition: none; }
   .star-label { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 12px; color: #eeeae1; white-space: nowrap; }
   .star-arrow { color: var(--gold); font-size: 16px; line-height: 1; }
   .star-sparks { position: absolute; z-index: 1; inset: -10px; color: var(--gold); pointer-events: none; opacity: 0; }

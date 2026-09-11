@@ -9,10 +9,8 @@ export function mountSiteMenu() {
   const languageTrigger = languagePicker?.querySelector('summary');
   const workMenu = header.querySelector('[data-work-menu]');
   const workTrigger = workMenu?.querySelector('summary');
-  const hover = matchMedia('(hover: hover) and (pointer: fine)');
-  let openedByHover = false;
   const closeLanguages = () => { if (languagePicker) languagePicker.open = false; };
-  const closeWork = () => { openedByHover = false; if (workMenu) workMenu.open = false; };
+  const closeWork = () => { if (workMenu) workMenu.open = false; };
   const setOpen = open => {
     toggle.setAttribute('aria-expanded', String(open));
     nav.classList.toggle('is-open', open);
@@ -42,25 +40,11 @@ export function mountSiteMenu() {
   languagePicker?.addEventListener('focusout', event => {
     if (event.relatedTarget && !languagePicker.contains(event.relatedTarget)) closeLanguages();
   });
-  // Native disclosure remains clickable without JavaScript. Hover is an
-  // enhancement for desktop pointers, not a prerequisite for touch or keyboard.
-  workMenu?.addEventListener('pointerenter', () => {
-    if (hover.matches && !compact.matches && !workMenu.open) {
-      closeLanguages(); openedByHover = true; workMenu.open = true;
-    }
-  });
-  workTrigger?.addEventListener('click', event => {
-    // The first mouse click keeps a hover-opened disclosure open. Keyboard
-    // activation and later clicks retain the native toggle behaviour.
-    if (openedByHover && event.detail > 0) { event.preventDefault(); openedByHover = false; }
-  });
-  workMenu?.addEventListener('pointerleave', () => {
-    if (hover.matches && !compact.matches && !workMenu.contains(document.activeElement)) closeWork();
-  });
+  // Native details handles click, touch and keyboard toggling, including without JS.
   workMenu?.addEventListener('focusout', event => {
     if (event.relatedTarget && !workMenu.contains(event.relatedTarget)) closeWork();
   });
-  workMenu?.addEventListener('toggle', () => { if (workMenu.open) closeLanguages(); else openedByHover = false; });
+  workMenu?.addEventListener('toggle', () => { if (workMenu.open) closeLanguages(); });
   languagePicker?.addEventListener('toggle', () => { if (languagePicker.open) closeWork(); });
   compact.addEventListener('change', () => {
     if (compact.matches && nav.contains(document.activeElement)) toggle.focus();

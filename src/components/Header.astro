@@ -101,6 +101,7 @@ const isCurrent = (route: string) => currentRoute === route || (route !== 'home'
   .language-recommendation { font-size: 10px; color: var(--gold); }
   @keyframes language-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
   .work-menu { position: relative; flex-shrink: 0; }
+  .work-menu[open] { --star-arrow-turn: 135deg; }
   .work-options { position: absolute; top: 100%; right: 0; z-index: 2; width: max-content; min-width: 210px; max-width: min(300px, calc(100vw - 40px)); margin: 0; padding: 9px 7px 7px; list-style: none; border: 1px solid var(--line); border-radius: 11px; background: #10141c; box-shadow: 0 12px 32px #0006; }
   .work-menu[open] .work-options { animation: language-appear .16s ease-out; }
   .work-options li + li { margin-top: 3px; border-top: 1px solid #b3c9df12; padding-top: 3px; }
