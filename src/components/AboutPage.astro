@@ -1,0 +1,156 @@
+---
+import Layout from '../layouts/Layout.astro';
+import OriginArtwork from './OriginArtwork.astro';
+import { aboutCopy } from '../data/about';
+import { localePath, type Locale } from '../i18n';
+
+interface Props { locale?: Locale }
+const { locale = 'zh-cn' } = Astro.props;
+const copy = aboutCopy[locale];
+const en = locale === 'en';
+const href = (path: string) => localePath(path, locale);
+const source = 'https://apod.nasa.gov/apod/ap070817.html';
+---
+
+<Layout locale={locale} title={copy.title} description={copy.description} route="about">
+  <div class="wrap">
+    <section class="page-title about-introduction">
+      <p class="eyebrow">ABOUT / ASTRMIRA</p>
+      <h1 class:list={['about-title', { 'about-title-zh': !en }]}>{copy.headline[0]}<br /><em>{copy.headline[1]}</em></h1>
+      <p>{copy.introduction}</p>
+    </section>
+
+    <article class="article-layout about-layout">
+      <aside class="article-aside about-aside">
+        <p class="eyebrow">ASTRONOMICAL RECORD</p>
+        <dl class="astronomical-record">
+          {copy.record.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
+        </dl>
+        <a class="record-source" href={source} target="_blank" rel="noopener noreferrer">NASA / APOD · 2007.08.17 <span aria-hidden="true">↗</span></a>
+        <blockquote class="about-motto"><p>{copy.motto}</p></blockquote>
+      </aside>
+
+      <div class="article-content about-content">
+        <section class="about-chapter" aria-labelledby="about-name">
+          <h2 id="about-name">{copy.nameTitle}</h2>
+          <p>{copy.nameIntro}</p>
+          <div class="name-stories">
+            {copy.names.map(entry => <section class="name-story">
+              <p class="name-term" lang="en">{entry.term}<span aria-hidden="true">✦</span></p>
+              <div>
+                <h3>{entry.heading}</h3>
+                {entry.paragraphs.map(paragraph => <p>{paragraph}</p>)}
+                {entry.term === 'Mira' && <a class="record-source" href={source} target="_blank" rel="noopener noreferrer">{en ? 'Astronomical source: NASA · The Tail of a Wonderful Star' : '天文资料：NASA · The Tail of a Wonderful Star'} <span aria-hidden="true">↗</span></a>}
+              </div>
+            </section>)}
+          </div>
+          <p class="name-afterword">{copy.nameClose}</p>
+        </section>
+
+        <section class="about-chapter" aria-labelledby="about-approach">
+          <h2 id="about-approach">{copy.attitudeTitle}</h2>
+          <p>{copy.attitudeIntro}</p>
+          <div class="research-attitudes">
+            {copy.principles.map(principle => <section class="research-attitude">
+              <p class="eyebrow">{principle.label}</p>
+              <h3>{principle.heading}</h3>
+              <p>{principle.text}</p>
+            </section>)}
+          </div>
+        </section>
+
+        <section class="about-chapter" aria-labelledby="about-practice">
+          <h2 id="about-practice">{copy.practiceTitle}</h2>
+          {copy.practice.map(paragraph => <p>{paragraph}</p>)}
+          <div class="about-systems">
+            {copy.projects.map(project => <a class="about-system" href={href(project.path)} data-route={project.path.slice(1, -1)}>
+              <span class="system-name">{project.name}<span class="arrow" aria-hidden="true">↗</span></span>
+              <span class="system-description">{project.description}</span>
+            </a>)}
+          </div>
+          <a class="text-link" href={href('/research/')} data-route="research">{en ? 'Read our research' : '阅读我们的研究'} <span class="arrow" aria-hidden="true">↗</span></a>
+        </section>
+
+        <section class="about-chapter" aria-labelledby="about-collaboration">
+          <h2 id="about-collaboration">{copy.collaborationTitle}</h2>
+          {copy.collaboration.map(paragraph => <p>{paragraph}</p>)}
+        </section>
+      </div>
+    </article>
+  </div>
+
+  <section class="wrap origin-section about-closing" data-star-anchor="origin" aria-labelledby="about-curiosity">
+    <OriginArtwork />
+    <div class="origin-copy">
+      <p class="eyebrow">A LASTING CURIOSITY</p>
+      <h2 id="about-curiosity">A wonderful star.<br /><em>A lasting curiosity.</em></h2>
+      <p class="origin-cn">{copy.motto}</p>
+      <p>{copy.closing}</p>
+      <a class="button button-primary" href={href('/collaborate/')} data-route="collaborate">{en ? 'Begin with a question' : '从一个问题，开启对话'} <span class="arrow" aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about-introduction { max-width: 1120px; padding-bottom: 66px; }
+  .about-introduction > p:last-child { max-width: 860px; font-size: 16px; line-height: 2; }
+  .about-introduction .about-title-zh { font-size: clamp(34px, 4.4vw, 62px); letter-spacing: .01em; line-height: 1.4; }
+  .about-title-zh em { font-style: normal; }
+  .about-layout { padding-top: 36px; padding-bottom: 80px; border-top: 1px solid var(--line); }
+  .about-aside { border-top: 0; padding-top: 5px; }
+  .astronomical-record { display: grid; gap: 16px; margin: 28px 0 18px; font-size: 12px; line-height: 1.65; }
+  .astronomical-record dt { color: var(--gold); font: 10px/1.8 var(--mono); letter-spacing: .07em; }
+  .astronomical-record dd { color: var(--muted); margin: 3px 0 0; }
+  .record-source { display: inline-flex; align-items: center; gap: 10px; color: var(--faint); font-size: 11px; line-height: 1.8; }
+  .record-source:hover { color: var(--gold); }
+  .record-source span { flex-shrink: 0; }
+  .about-motto { margin: 32px 0 0; padding: 12px 0 12px 18px; border-left: 1px solid var(--gold); }
+  .about-aside .about-motto p { margin: 0; color: var(--text); font: italic 17px/1.85 var(--serif); }
+  .about-content { font-size: 15px; line-height: 2; }
+  .about-content h2 { font-size: clamp(25px, 2.2vw, 32px); line-height: 1.55; letter-spacing: .01em; margin-bottom: 24px; text-wrap: pretty; }
+  .about-chapter + .about-chapter { margin-top: 76px; }
+  .name-stories { margin-top: 34px; }
+  .name-story { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 26px; padding-block: 30px; border-top: 1px solid var(--line); }
+  .name-term { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--gold); font: 25px/1.5 var(--serif); }
+  .name-term span { font: 9px var(--sans); }
+  .name-story h3 { margin: 0 0 14px; font-size: 20px; line-height: 1.6; }
+  .name-story .record-source { margin-top: 16px; }
+  .about-content .name-afterword { padding: 22px 24px; border-left: 1px solid var(--gold); background: #d6b88105; color: var(--text); }
+  .research-attitudes { margin-top: 30px; }
+  .research-attitude { padding-block: 30px; border-top: 1px solid var(--line); }
+  .research-attitude:last-child { padding-bottom: 0; }
+  .research-attitude .eyebrow { color: var(--gold); font-size: 10px; }
+  .research-attitude h3 { font-size: 22px; margin: 12px 0 16px; line-height: 1.6; }
+  .about-systems { margin-block: 30px 24px; border-bottom: 1px solid var(--line); }
+  .about-system { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 28px; padding: 24px 0; border-top: 1px solid var(--line); }
+  .system-name { display: flex; justify-content: space-between; align-items: baseline; color: var(--text); font-size: 21px; }
+  .system-name .arrow { color: var(--gold); font-size: 16px; }
+  .system-description { font-size: 14px; }
+  .about-system:hover .system-name { color: var(--gold); }
+  .about-system:hover .arrow { transform: translate(3px, -3px); }
+  .about-closing::before { content: ''; position: absolute; top: 0; left: var(--inset-left); right: var(--inset-right); height: 1px; background: var(--line); }
+  .about-closing .origin-copy > p:not(.eyebrow):not(.origin-cn) { font-size: 14px; line-height: 2; }
+  .about-closing .button { margin-top: 28px; }
+  @media (max-width: 1000px) {
+    .about-aside :global(.article-aside-info) { display: block; }
+    .astronomical-record { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-block: 22px; }
+    .about-motto { margin-top: 24px; }
+  }
+  @media (max-width: 720px) {
+    .about-introduction { padding-bottom: 38px; }
+    .about-introduction .about-title-zh { font-size: clamp(30px, 7.6vw, 44px); }
+    .about-introduction > p:last-child { font-size: 15px; line-height: 1.95; }
+    .about-layout { padding-top: 26px; padding-bottom: 56px; }
+    .astronomical-record { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .about-chapter + .about-chapter { margin-top: 56px; }
+    .about-content h2 { font-size: 26px; }
+    .name-story { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-block: 26px; }
+    .name-term { justify-content: flex-start; font-size: 24px; }
+    .name-story h3 { font-size: 21px; }
+    .about-content .name-afterword { padding: 20px; }
+    .research-attitude { padding-block: 26px; }
+    .about-system { grid-template-columns: minmax(0, 1fr); gap: 10px; padding-block: 22px; }
+    .system-name { justify-content: flex-start; gap: 16px; }
+    .record-source { min-height: 44px; }
+  }
+</style>
