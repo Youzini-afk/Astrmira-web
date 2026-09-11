@@ -9,7 +9,7 @@ export function createMotionController(main) {
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const smoothstep = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)'), finePointer = matchMedia('(pointer: fine)');
+  const finePointer = matchMedia('(pointer: fine)');
   const motionLabels = getUi().motion;
   const companion = $('.mira-object'), canvas = $('#particlefield'), root = document.documentElement;
   const glyphCanvas = document.createElement('canvas');
@@ -23,9 +23,9 @@ export function createMotionController(main) {
   let cometDockElement, cometDockSurface, cometDockObserver, companionPose = '', companionAppearance = '', dockAppearance = '';
   let cometHasDeparted = false, cometStrands = [], openingPaths = [], openingMatrix = [1,0,0,1,0,0], pathDirty = true;
   let heroDeparture = null, exitWheelHeld = false, lastExitWheel = -Infinity, heroContentOpacity = 1, heroOpacityStyle = '';
-  let introStart = 0, replay = 0, paused = reduced.matches;
+  let introStart = 0, replay = 0, paused = false;
   let pointer = { x: -9999, y: -9999, vx: 0, vy: 0, sequence: 0 }, resizeTimer;
-  try { paused ||= sessionStorage.getItem('astrmira-motion') === 'paused'; } catch (_) {}
+  try { paused = sessionStorage.getItem('astrmira-motion') === 'paused'; } catch (_) {}
   function seeded(n) {
     let value = n >>> 0;
     return () => {
@@ -285,7 +285,7 @@ export function createMotionController(main) {
     introStart = 0;
     heroCopy?.classList.add('is-settled', 'is-solidified');
     pointer = { x: -9999, y: -9999, vx: 0, vy: 0, sequence: pointer.sequence + 1 };
-    if (paused || reduced.matches) {
+    if (paused) {
       window.scrollTo({ top: from + distance, behavior: 'instant' });
       placeStar(true);
       publish();
@@ -373,7 +373,7 @@ export function createMotionController(main) {
   }
   function schedule() { needsPublish = true; if (!raf && !document.hidden) raf = requestAnimationFrame(tick); }
   function startIntro() {
-    if (paused || reduced.matches || !heroElement || !rendererReady) return;
+    if (paused || !heroElement || !rendererReady) return;
     introStart = performance.now(); replay++;
     heroCopy.classList.remove('is-solidified', 'is-settled');
     cometParam = 0; cometUpdatedAt = null;
@@ -383,15 +383,15 @@ export function createMotionController(main) {
     document.documentElement.classList.toggle('is-paused', paused);
     $$('[data-motion-toggle]').forEach(button => {
       button.setAttribute('aria-pressed', String(paused));
-      button.disabled = reduced.matches;
+      button.disabled = false;
     });
-    $$('[data-motion-text]').forEach(el => el.textContent = reduced.matches ? motionLabels.reduced : paused ? motionLabels.enable : motionLabels.pause);
-    $$('[data-replay]').forEach(button => button.disabled = reduced.matches);
+    $$('[data-motion-text]').forEach(el => el.textContent = paused ? motionLabels.enable : motionLabels.pause);
+    $$('[data-replay]').forEach(button => button.disabled = false);
   }
 
 
   const toggle = () => {
-    paused = !paused || reduced.matches;
+    paused = !paused;
     if (paused) introStart = 0;
     try { sessionStorage.setItem('astrmira-motion', paused ? 'paused' : 'active'); } catch (_) {}
     if (paused) heroCopy?.classList.add('is-settled', 'is-solidified');
@@ -437,13 +437,8 @@ export function createMotionController(main) {
       if (worker) worker.postMessage({ type: 'input', state: state() });
     } else { cometUpdatedAt = null; schedule(); }
   });
-  reduced.addEventListener('change', () => {
-    if (heroDeparture && reduced.matches) scrollTo({ top: heroDeparture.destination, behavior: 'instant' });
-    heroDeparture = null; paused = reduced.matches; introStart = 0;
-    updateMotionButtons(); schedule();
-  });
   window.addEventListener('pagehide', event => { if (!event.persisted) worker?.terminate(); });
   window.addEventListener('pageshow', event => { if (event.persisted) schedule(); });
-  return { refresh, toggle, replay() { paused = reduced.matches; updateMotionButtons(); startIntro(); },
-    get paused() { return paused || reduced.matches; } };
+  return { refresh, toggle, replay() { paused = false; updateMotionButtons(); startIntro(); },
+    get paused() { return paused; } };
 }

@@ -99,6 +99,8 @@ try {
     await p.goto(server.url + 'en/');
     if (fallback === 'reduced') {
       await ready(p); await settled(p);
+      assert.equal(await p.locator('[data-motion-toggle]').isDisabled(), false, '系统减少动态偏好不应锁定站内动效开关');
+      assert.equal(await p.locator('[data-motion-toggle]').getAttribute('aria-pressed'), 'false', '系统减少动态偏好下仍应默认启用动效');
       assert.ok(await p.evaluate(() => window.__motionEvidence.glyphBounds.every(g => g.left >= -17 && g.left + g.width <= innerWidth + 17)), 'English particle lines must follow mobile text wrapping');
     }
     else assert.ok(await nativeText(p), fallback + ' keeps all text readable');

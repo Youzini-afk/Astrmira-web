@@ -92,8 +92,4 @@ const previewId = `paper-preview-${paper.slug}`;
   :global(html.is-paused) .is-book .paper-cover, :global(html.is-paused) .is-book .paper-inside { transition: none; }
   :global(html.is-paused) .is-book.is-open .paper-cover { transform: none; opacity: 0; }
   :global(html.is-paused) .is-book .paper-book { --book-lift: 0px; --book-scale: 1; --book-duration: 0s; --book-delay: 0s; }
-  @media (prefers-reduced-motion: reduce) {
-    .is-book .paper-book { --book-lift: 0px; --book-scale: 1; --book-duration: 0s; --book-delay: 0s; }
-    .is-book.is-open .paper-cover { transform: none; opacity: 0; }
-  }
 </style>
