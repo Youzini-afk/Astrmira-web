@@ -16,6 +16,8 @@ export function mountPaperCarousels(root, isPaused = () => false) {
       const max = maximum();
       previous.disabled = track.scrollLeft <= 2;
       next.disabled = track.scrollLeft >= max - 2;
+      track.classList.toggle('can-scroll-back', !previous.disabled);
+      track.classList.toggle('can-scroll-forward', !next.disabled);
       controls.hidden = max <= 2;
       if (!animating) target = track.scrollLeft;
       if (Math.abs(track.scrollLeft - target) < 2) animating = false;
@@ -61,6 +63,7 @@ export function mountPaperCarousels(root, isPaused = () => false) {
     return () => {
       cancelAnimationFrame(frame);
       resize.disconnect();
+      track.classList.remove('can-scroll-back', 'can-scroll-forward');
       previous.removeEventListener('click', onPrevious);
       next.removeEventListener('click', onNext);
       track.removeEventListener('keydown', onKey);
