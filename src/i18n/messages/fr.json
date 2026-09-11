@@ -76,6 +76,10 @@
       "arxivLabel": "Lire {title} sur arXiv (nouvelle fenêtre)"
     },
     "paper": {
+      "preview": "En quelques mots",
+      "openPreview": "Ouvrir l’aperçu",
+      "closePreview": "Fermer l’aperçu",
+      "readOverview": "Découvrir cette recherche",
       "details": "Informations sur l’article",
       "authors": "Auteurs",
       "submitted": "Première soumission",

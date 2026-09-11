@@ -76,6 +76,10 @@
       "arxivLabel": "arXiv で {title} を読む（新しいウィンドウ）"
     },
     "paper": {
+      "preview": "研究の概要",
+      "openPreview": "概要を開く",
+      "closePreview": "表紙を閉じる",
+      "readOverview": "研究の詳細へ",
       "details": "論文情報",
       "authors": "著者",
       "submitted": "初回投稿",

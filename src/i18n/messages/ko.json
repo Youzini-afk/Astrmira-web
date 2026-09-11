@@ -76,6 +76,10 @@
       "arxivLabel": "arXiv에서 {title} 읽기 (새 창)"
     },
     "paper": {
+      "preview": "연구 소개",
+      "openPreview": "소개 펼치기",
+      "closePreview": "표지 닫기",
+      "readOverview": "연구 자세히 보기",
       "details": "논문 정보",
       "authors": "저자",
       "submitted": "최초 제출",

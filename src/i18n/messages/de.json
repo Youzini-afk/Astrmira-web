@@ -76,6 +76,10 @@
       "arxivLabel": "{title} auf arXiv lesen (neues Fenster)"
     },
     "paper": {
+      "preview": "Forschung im Überblick",
+      "openPreview": "Vorschau öffnen",
+      "closePreview": "Vorschau schließen",
+      "readOverview": "Diese Forschung entdecken",
       "details": "Angaben zum Artikel",
       "authors": "Autoren",
       "submitted": "Erstmals eingereicht",

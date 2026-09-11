@@ -1,5 +1,6 @@
 import { mountArticleTocs } from './article-toc.js';
 import { mountPaperCarousels } from './paper-carousel.js';
+import { mountPaperBooks } from './paper-books.js';
 import { createMotionController } from './motion-controller.js';
 import { mountSiteMenu } from './site-menu.js';
 import { getUi, countLabel } from './ui.js';
@@ -21,12 +22,15 @@ import { copyContactEmail } from './contact.js';
   const closeMenu = mountSiteMenu();
   let disposeArticleTocs = () => {};
   let disposePaperCarousels = () => {};
+  let disposePaperBooks = () => {};
 
   function initPage({ focus = false } = {}) {
     disposeArticleTocs();
     disposeArticleTocs = mountArticleTocs(main, () => motion.paused);
     disposePaperCarousels();
     disposePaperCarousels = mountPaperCarousels(main, () => motion.paused);
+    disposePaperBooks();
+    disposePaperBooks = mountPaperBooks(main);
     filterResearch = 'all'; queryY = 154; agentStage = 0;
     $$('[data-copy-contact]').forEach(button => button.hidden = false);
     const route = main?.dataset.route || 'home';

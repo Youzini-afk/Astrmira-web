@@ -76,6 +76,10 @@
       "arxivLabel": "在 arXiv 閱讀 {title}（新視窗）"
     },
     "paper": {
+      "preview": "研究簡介",
+      "openPreview": "翻閱簡介",
+      "closePreview": "合上封面",
+      "readOverview": "瞭解這項研究",
       "details": "論文資訊",
       "authors": "作者",
       "submitted": "首次提交",
