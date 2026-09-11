@@ -16,9 +16,9 @@ const { currentRoute = 'home' } = Astro.props;
   </a>
   <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>菜单 <span aria-hidden="true">＋</span></button>
   <nav id="site-nav" class="site-nav" aria-label="主导航">
-    <a href="/projects/" data-route="projects" aria-current={currentRoute.startsWith('projects') ? 'page' : undefined}>Projects</a>
-    <a href="/research/" data-route="research" aria-current={currentRoute.startsWith('research') ? 'page' : undefined}>Research</a>
-    <a href="/about/" data-route="about" aria-current={currentRoute === 'about' ? 'page' : undefined}>About</a>
+    <a href="/projects/" data-route="projects" aria-current={currentRoute.startsWith('projects') ? 'page' : undefined}>项目</a>
+    <a href="/research/" data-route="research" aria-current={currentRoute.startsWith('research') ? 'page' : undefined}>研究</a>
+    <a href="/about/" data-route="about" aria-current={currentRoute === 'about' ? 'page' : undefined}>关于我们</a>
     <a href="/collaborate/" data-route="collaborate" class="nav-contact" aria-current={currentRoute === 'collaborate' ? 'page' : undefined}>开始合作 <span aria-hidden="true">↗</span></a>
   </nav>
 </header>
