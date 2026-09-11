@@ -1,5 +1,5 @@
-// One WebGL surface owns stars, letters and the wake. No display-sized CPU
-// image upload occurs during animation; only small alpha masks change.
+// The animated sky owns stars and the wake. Native-resolution lettering has
+// its own retained surface, so sky resolution never softens the typography.
 const POINT_VERTEX = `#version 300 es
 
 in vec2 a_position;
@@ -55,31 +55,6 @@ void main() {
   float distance = mix(length(p), max(p.x, p.y), v_square);
   float alpha = clamp(v_radius + 0.5 - distance, 0.0, 1.0) * v_colour.a;
   colour = vec4(v_colour.rgb, alpha);
-}
-`;
-const GLYPH_VERTEX = `#version 300 es
-in vec2 a_corner;
-uniform vec2 u_viewport;
-uniform vec4 u_rect;
-out vec2 v_uv;
-void main() {
-  v_uv = a_corner;
-  gl_Position = vec4((u_rect.xy + a_corner * u_rect.zw) / u_viewport * vec2(2., -2.) + vec2(-1., 1.), 0., 1.);
-}
-`;
-const GLYPH_FRAGMENT = `#version 300 es
-precision mediump float;
-in vec2 v_uv;
-uniform sampler2D u_glyph;
-uniform sampler2D u_mask;
-uniform vec2 u_mask_scale;
-uniform vec2 u_mask_offset;
-uniform float u_opacity;
-out vec4 colour;
-void main() {
-  vec4 glyph = texture(u_glyph, v_uv);
-  float coverage = texture(u_mask, v_uv * u_mask_scale + u_mask_offset).a;
-  colour = vec4(glyph.rgb, glyph.a * coverage * u_opacity);
 }
 `;
 const LINE_VERTEX = `#version 300 es
@@ -150,14 +125,10 @@ export function createSceneRenderer(canvas) {
     gl.enableVertexAttribArray(at); gl.vertexAttribPointer(at, size, gl.FLOAT, false, stride * 4, offset * 4);
     gl.vertexAttribDivisor(at, divisor);
   };
-  const points = program(POINT_VERTEX, POINT_FRAGMENT), glyph = program(GLYPH_VERTEX, GLYPH_FRAGMENT), line = program(LINE_VERTEX, LINE_FRAGMENT);
+  const points = program(POINT_VERTEX, POINT_FRAGMENT), line = program(LINE_VERTEX, LINE_FRAGMENT);
   const pointVao = vao(), pointBuffer = buffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer);
   for (const [name, size, offset] of [['position', 2, 0], ['radius', 1, 2], ['colour', 4, 3], ['detail', 1, 7], ['seed', 1, 8]]) attribute(points, name, size, 9, offset);
-  const glyphVao = vao();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,0, 1,0, 0,1, 1,1]), gl.STATIC_DRAW);
-  attribute(glyph, 'corner', 2, 2, 0);
   const openingVao = vao(), openingBuffer = buffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, openingBuffer);
   attribute(line, 'position', 2, 13, 0); attribute(line, 'normal', 2, 13, 2);
@@ -172,17 +143,6 @@ export function createSceneRenderer(canvas) {
   gl.clearColor(0, 0, 0, 0);
   let width = 1, height = 1, dpr = 1, count = 0, detail = 0, pointCapacity = 0, wakeCapacity = 0;
   let data = new Float32Array(9 * 1024), openingCount = 0, strandCount = 0, fence = null;
-  const texture = (w, h, source) => {
-    const t = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, t);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    if (source) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-    else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    return t;
-  };
   const lineState = (scrollX, scrollY, rear, front, feather, opacity) => {
     gl.useProgram(line.p);
     gl.uniform2f(line.u('viewport'), width, height); gl.uniform2f(line.u('scroll'), scrollX, scrollY);
@@ -206,33 +166,6 @@ export function createSceneRenderer(canvas) {
       if (canvas.height !== ph) canvas.height = ph;
       gl.viewport(0, 0, pw, ph); gl.clear(gl.COLOR_BUFFER_BIT);
       count = detail = 0;
-    },
-    createGlyph(layer) {
-      layer.texture = texture(0, 0, layer.glyph);
-      layer.maskTexture = texture(layer.columns, layer.rows, null);
-      layer.needsPaint = true;
-    },
-    deleteGlyph(layer) {
-      gl.deleteTexture(layer.texture); gl.deleteTexture(layer.maskTexture);
-    },
-    updateMask(layer) {
-      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, layer.maskTexture);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, layer.columns, layer.rows, gl.RGBA, gl.UNSIGNED_BYTE, layer.alphaData);
-    },
-    glyphs(layers, left, top, opacity) {
-      gl.useProgram(glyph.p); gl.bindVertexArray(glyphVao);
-      gl.uniform2f(glyph.u('viewport'), width, height);
-      gl.uniform1f(glyph.u('opacity'), opacity);
-      gl.uniform1i(glyph.u('glyph'), 0); gl.uniform1i(glyph.u('mask'), 1);
-      for (const layer of layers) {
-        const w = layer.glyph.width / layer.dpr, h = layer.glyph.height / layer.dpr;
-        gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, layer.texture);
-        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, layer.maskTexture);
-        gl.uniform4f(glyph.u('rect'), left + layer.left, top + layer.top, w, h);
-        gl.uniform2f(glyph.u('mask_scale'), w / (layer.columns * layer.cellSize), h / (layer.rows * layer.cellSize));
-        gl.uniform2f(glyph.u('mask_offset'), .5 / layer.columns, .5 / layer.rows);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      }
     },
     setTail(opening, strands) {
       gl.bindBuffer(gl.ARRAY_BUFFER, openingBuffer); gl.bufferData(gl.ARRAY_BUFFER, opening, gl.STATIC_DRAW);

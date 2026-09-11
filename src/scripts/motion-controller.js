@@ -1,5 +1,5 @@
 import { createCometPath, setCometDock, cometPoint } from './comet-path.js';
-import { captureGlyphs } from './motion-layout.js';
+import { captureGlyphs, glyphSurfaceBounds } from './motion-layout.js';
 
 // The document never receives per-particle data or GPU frame acknowledgements.
 // It owns navigation and the companion transform; the worker owns the scene.
@@ -11,6 +11,9 @@ export function createMotionController(main) {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)'), finePointer = matchMedia('(pointer: fine)');
   const english = document.documentElement.lang === 'en';
   const companion = $('.mira-object'), canvas = $('#particlefield'), root = document.documentElement;
+  const glyphCanvas = document.createElement('canvas');
+  glyphCanvas.className = 'hero-glyph-surface';
+  glyphCanvas.setAttribute('aria-hidden', 'true');
   const mountedAt = performance.now();
   let worker, rendererReady = false, revision = 0, raf = 0, needsPublish = true, awaitingInput = false;
   let vw = innerWidth, vh = innerHeight, heroElement, heroCopy, heroBox = null, frameHeroRect = null;
@@ -43,6 +46,7 @@ export function createMotionController(main) {
     if (canvas?.transferControlToOffscreen && typeof Worker !== 'undefined') {
       worker = new Worker(new URL('./particle-worker.js', import.meta.url), { type: 'module' });
       const offscreen = canvas.transferControlToOffscreen();
+      const glyphSurface = glyphCanvas.transferControlToOffscreen();
       worker.onmessage = ({ data }) => {
         if (data.type === 'prepared' && data.revision === revision) {
           rendererReady = true;
@@ -60,7 +64,7 @@ export function createMotionController(main) {
         else if (data.type === 'restored') refresh();
       };
       worker.onerror = event => { event.preventDefault(); worker.terminate(); worker = null; fallback(); };
-      worker.postMessage({ type: 'init', canvas: offscreen }, [offscreen]);
+      worker.postMessage({ type: 'init', canvas: offscreen, glyphCanvas: glyphSurface }, [offscreen, glyphSurface]);
       root.classList.add('motion-pending');
     } else fallback();
   } catch (_) { worker?.terminate(); worker = null; fallback(); }
@@ -88,10 +92,15 @@ export function createMotionController(main) {
     measureHero();
     const glyphs = await captureGlyphs(heroElement);
     if (current !== revision || !worker) { glyphs.forEach(g => g.bitmap.close()); return; }
+    const glyphBounds = glyphSurfaceBounds(glyphs, sceneDpr);
+    if (heroElement && glyphs.length) {
+      Object.assign(glyphCanvas.style, { left: `${glyphBounds.left}px`, top: `${glyphBounds.top}px`, width: `${glyphBounds.width}px`, height: `${glyphBounds.height}px` });
+      heroElement.append(glyphCanvas);
+    } else glyphCanvas.remove();
     rendererReady = false; pathDirty = true;
     placeStar(true);
     const layout = { width: vw, height: vh, dpr: sceneDpr, hero: heroBox,
-      path: cometPath, matrix: openingMatrix, openingPaths, strands: cometStrands, glyphs };
+      path: cometPath, matrix: openingMatrix, openingPaths, strands: cometStrands, glyphs, glyphBounds };
     worker.postMessage({ type: 'layout', revision, layout, state: state() }, glyphs.map(g => g.bitmap));
     schedule();
   }

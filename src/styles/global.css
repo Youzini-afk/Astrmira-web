@@ -27,6 +27,8 @@
   opacity: var(--hero-exit-opacity, 1);
 }
 .hero .hero-sky { opacity: .85; }
+.hero-glyph-surface { position: absolute; z-index: 1; max-width: none; pointer-events: none; visibility: hidden; }
+.motion-ready .hero-glyph-surface { visibility: visible; }
 .mira-object.has-comet-motion { opacity: var(--companion-opacity, .9); }
 .mira-object.has-comet-motion > .geometry {
   transform: scale(var(--companion-scale, .72));

@@ -3,17 +3,35 @@ import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
 const hook = `
-self.__motionEvidence = { draws: 0, callbacks: [], maskBytes: 0 };
+self.__motionEvidence = { draws: 0, glyphDraws: 0, callbacks: [], maskBytes: 0 };
 const originalContext = OffscreenCanvas.prototype.getContext;
 OffscreenCanvas.prototype.getContext = function(type, options) {
   const gl = originalContext.call(this, type, options);
   if (gl && type.startsWith('webgl')) {
-    self.__testGL = gl;
+    const lettering = Boolean(options?.preserveDrawingBuffer);
+    if (lettering) {
+      self.__testGlyphGL = gl;
+      self.__glyphSources = new Map();
+      const sources = new Map(), bindings = new Map();
+      let unit = gl.TEXTURE0, rect;
+      const active = gl.activeTexture.bind(gl), bind = gl.bindTexture.bind(gl), upload = gl.texImage2D.bind(gl);
+      const uniform = gl.uniform4f.bind(gl), draw = gl.drawArrays.bind(gl), remove = gl.deleteTexture.bind(gl);
+      gl.activeTexture = value => { unit = value; return active(value); };
+      gl.bindTexture = (type, texture) => { bindings.set(unit, texture); return bind(type, texture); };
+      gl.texImage2D = (...args) => { if (args.length === 6 && args[5]?.getContext) sources.set(bindings.get(unit), args[5]); return upload(...args); };
+      gl.uniform4f = (location, ...value) => { rect = value; return uniform(location, ...value); };
+      gl.drawArrays = (...args) => {
+        const texture = bindings.get(gl.TEXTURE0), source = sources.get(texture);
+        if (source && rect) self.__glyphSources.set(texture, { source, rect: [...rect] });
+        return draw(...args);
+      };
+      gl.deleteTexture = texture => { sources.delete(texture); self.__glyphSources.delete(texture); return remove(texture); };
+    } else self.__testGL = gl;
     const flush = gl.flush.bind(gl), upload = gl.texSubImage2D.bind(gl);
     gl.flush = () => {
-      self.__motionEvidence.draws++;
+      self.__motionEvidence[lettering ? 'glyphDraws' : 'draws']++;
       const result = flush();
-      if (self.__capture) {
+      if (!lettering && self.__capture) {
         const { rect, resolve } = self.__capture; self.__capture = null;
         const ratio = gl.drawingBufferWidth / rect.viewportWidth;
         const x = Math.max(0, Math.floor(rect.x * ratio)), y = Math.max(0, Math.floor(gl.drawingBufferHeight - (rect.y + rect.height) * ratio));

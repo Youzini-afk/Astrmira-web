@@ -26,8 +26,7 @@ export async function captureGlyphs(hero) {
       const pad = 16;
       const w = textWidth + pad * 2;
       const h = textHeight + pad * 2;
-      // Full glyphs and their particles share one raster at native screen
-      // resolution; the viewport star canvas can keep its lighter buffer.
+      // Sampling and final lettering retain the same native-resolution raster.
       const dpr = devicePixelRatio || 1;
       offCanvas.width = Math.ceil(w * dpr);
       offCanvas.height = Math.ceil(h * dpr);
@@ -139,4 +138,13 @@ export async function captureGlyphs(hero) {
     }
 
   return Promise.all(captures);
+}
+
+export function glyphSurfaceBounds(glyphs, dpr) {
+  if (!glyphs.length) return { left: 0, top: 0, width: 0, height: 0 };
+  const left = Math.floor(Math.min(...glyphs.map(g => g.left)) * dpr);
+  const top = Math.floor(Math.min(...glyphs.map(g => g.top)) * dpr);
+  const right = Math.ceil(Math.max(...glyphs.map(g => g.left + g.bitmap.width / g.dpr)) * dpr);
+  const bottom = Math.ceil(Math.max(...glyphs.map(g => g.top + g.bitmap.height / g.dpr)) * dpr);
+  return { left: left / dpr, top: top / dpr, width: (right - left) / dpr, height: (bottom - top) / dpr };
 }

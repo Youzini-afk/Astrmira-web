@@ -17,23 +17,37 @@ const nativeText = p => p.evaluate(() => {
   const style = getComputedStyle(document.querySelector('.hero-subtitle'));
   return style.webkitTextFillColor !== 'rgba(0, 0, 0, 0)' && style.visibility !== 'hidden';
 });
-const ink = (worker, rect) => worker.evaluate(rect => new Promise(resolve => { self.__capture = { rect, resolve }; }), rect);
+const ink = async (worker, page, rect) => {
+  const bounds = await page.locator('.hero-glyph-surface').boundingBox();
+  return worker.evaluate(({ rect, bounds }) => {
+    const gl = self.__testGlyphGL, ratio = gl.drawingBufferWidth / bounds.width;
+    const x = Math.max(0, Math.floor((rect.x - bounds.x) * ratio));
+    const right = Math.min(gl.drawingBufferWidth, Math.ceil((rect.x + rect.width - bounds.x) * ratio));
+    const top = Math.max(0, Math.floor((rect.y - bounds.y) * ratio));
+    const bottom = Math.min(gl.drawingBufferHeight, Math.ceil((rect.y + rect.height - bounds.y) * ratio));
+    const pixels = new Uint8Array((right - x) * (bottom - top) * 4);
+    gl.readPixels(x, gl.drawingBufferHeight - bottom, right - x, bottom - top, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    let sum = 0;
+    for (let i = 0; i < pixels.length; i += 4) sum += pixels[i] + pixels[i + 1] + pixels[i + 2];
+    return sum;
+  }, { rect, bounds });
+};
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.25, locale: 'zh-CN' });
   watch(page); await page.addInitScript(installMainProbe);
   await page.goto(server.url); await ready(page);
-  assert.equal(await page.locator('canvas').count(), 1, 'exactly one live scene surface');
+  assert.equal(await page.locator('canvas').count(), 2, 'one adaptive sky and one native-resolution text surface');
   if (output) { await page.waitForTimeout(2400); await page.screenshot({ path: path.join(output, 'opening.png') }); }
   await settled(page); await page.waitForTimeout(400);
   const worker = page.workers().find(w => w.url().includes('particle-worker'));
   const box = await page.locator('.hero h1').boundingBox(), rect = { ...box, viewportWidth: 1440 };
-  const original = await ink(worker, rect);
+  const original = await ink(worker, page, rect);
   assert.ok(original > 1000000, 'the GPU must actually paint the full heading');
   for (let i = 0; i <= 12; i++) { await page.mouse.move(box.x + box.width * (.2 + i * .045), box.y + box.height * .5); await page.waitForTimeout(24); }
-  const disturbed = await ink(worker, rect);
+  const disturbed = await ink(worker, page, rect);
   assert.ok(disturbed < original * .99, 'mouse disturbance must remove ink from the glyph');
   await page.mouse.move(5, 5); await page.waitForTimeout(2800);
-  assert.ok(await ink(worker, rect) > original * .99, 'displaced particles must restore the heading');
+  assert.ok(await ink(worker, page, rect) > original * .99, 'displaced particles must restore the heading');
   if (output) await page.screenshot({ path: path.join(output, 'settled.png') });
 
   const before = await worker.evaluate(() => self.__motionEvidence.draws);
@@ -52,6 +66,11 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.particleRenderer === 'static');
   assert.ok(await nativeText(page), 'context loss must reveal native text');
   await worker.evaluate(() => self.__loss.restoreContext());
+  await ready(page); await settled(page);
+  await worker.evaluate(() => { self.__glyphLoss = self.__testGlyphGL.getExtension('WEBGL_lose_context'); self.__glyphLoss.loseContext(); });
+  await page.waitForFunction(() => document.documentElement.dataset.particleRenderer === 'static');
+  assert.ok(await nativeText(page), 'glyph context loss also restores readable native text');
+  await worker.evaluate(() => self.__glyphLoss.restoreContext());
   await ready(page); await settled(page);
   await page.locator('[data-replay]').click(); await settled(page);
 

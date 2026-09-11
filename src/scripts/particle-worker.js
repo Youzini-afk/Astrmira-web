@@ -1,10 +1,12 @@
 import { createSceneRenderer } from './scene-renderer.js';
+import { createGlyphRenderer } from './glyph-renderer.js';
 import { createMotionScene } from './motion-scene.js';
 
 // A self-contained scene with its own display clock. The document sends only
 // layout snapshots and the latest input, never per-frame particle arrays.
-let renderer = null, scene = null, canvas, state, layout, revision = 0, raf = 0, presented = false, failed = false;
+let renderer = null, glyphRenderer = null, scene = null, canvas, glyphCanvas, state, layout, revision = 0, raf = 0, presented = false, failed = false;
 let ratio = 1, nativeRatio = 1, windowStart = 0, frames = 0, blocked = 0, healthySince = 0;
+const lostContexts = new Set();
 
 function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; }
 function unavailable() { failed = true; stop(); self.postMessage({ type: 'unavailable' }); }
@@ -19,12 +21,12 @@ function draw(now) {
   if (!renderer.available()) blocked++;
   else {
     scene.draw(now, state, ratio);
-    rendered = true;
-    if (!presented) { presented = true; self.postMessage({ type: 'presented', revision }); }
+    rendered = !glyphRenderer?.pending;
+    if (rendered && !presented) { presented = true; self.postMessage({ type: 'presented', revision }); }
   }
   // GPU completion, not gl.flush submission, controls raster density. Keep
-  // every star, filament and glyph; reduce only the backing resolution under
-  // sustained driver pressure. No synchronous GPU wait is ever issued.
+  // every star and filament; only the sky's backing resolution changes under
+  // sustained pressure. Lettering keeps native pixels on its retained surface.
   if (!windowStart) windowStart = now;
   if (now - windowStart >= 1200) {
     const pressure = blocked / Math.max(1, frames);
@@ -41,16 +43,23 @@ function draw(now) {
 self.onmessage = ({ data }) => {
   try {
     if (data.type === 'init') {
-      canvas = data.canvas;
+      canvas = data.canvas; glyphCanvas = data.glyphCanvas;
       renderer = createSceneRenderer(canvas);
-      canvas.addEventListener('webglcontextlost', event => {
-        event.preventDefault(); unavailable();
-      });
-      canvas.addEventListener('webglcontextrestored', () => {
-        scene?.destroy(); scene = null;
-        renderer?.destroy(); renderer = createSceneRenderer(canvas); failed = false;
-        self.postMessage({ type: 'restored' });
-      });
+      for (const surface of [canvas, glyphCanvas]) {
+        surface.addEventListener('webglcontextlost', event => {
+          event.preventDefault(); lostContexts.add(surface); unavailable();
+        });
+        surface.addEventListener('webglcontextrestored', () => {
+          lostContexts.delete(surface);
+          if (lostContexts.size) return;
+          try {
+            scene?.destroy(); scene = null;
+            glyphRenderer?.destroy(); glyphRenderer = null;
+            renderer?.destroy(); renderer = createSceneRenderer(canvas); failed = false;
+            self.postMessage({ type: 'restored' });
+          } catch (error) { unavailable(); console.error('Motion restoration unavailable:', error); }
+        });
+      }
     } else if (data.type === 'layout') {
       stop();
       scene?.destroy();
@@ -58,7 +67,9 @@ self.onmessage = ({ data }) => {
       nativeRatio = ratio = Math.min(layout.dpr, 1.5);
       presented = false; windowStart = frames = blocked = healthySince = 0;
       if (!renderer) { layout.glyphs.forEach(g => g.bitmap.close()); unavailable(); return; }
-      scene = createMotionScene(layout, renderer, state); failed = false;
+      if (layout.glyphs.length && !glyphRenderer) glyphRenderer = createGlyphRenderer(glyphCanvas);
+      glyphRenderer?.resize(layout.glyphBounds, layout.dpr);
+      scene = createMotionScene(layout, renderer, glyphRenderer, state); failed = false;
       self.postMessage({ type: 'prepared', revision });
       // Wait for the document to choose replay vs settled before first paint.
     } else if (data.type === 'input') {

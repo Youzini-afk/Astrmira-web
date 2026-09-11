@@ -12,7 +12,7 @@ const VAN_GOGH_PALETTE = [[226,192,133],[248,220,160],[142,184,216],[72,122,168]
 
 // This module has no DOM access. Sampling, particle physics, masks and wake
 // history belong to the worker, not the document's input/scrolling thread.
-export function createMotionScene(layout, renderer, initialInput) {
+export function createMotionScene(layout, renderer, glyphRenderer, initialInput) {
   let input = initialInput;
   const vw = layout.width, vh = layout.height;
   const particlePainter = renderer, glyphLayers = [];
@@ -133,7 +133,7 @@ export function createMotionScene(layout, renderer, initialInput) {
         }
       }
     finishGlyphLayer(glyphLayer);
-    renderer.createGlyph(glyphLayer);
+    glyphRenderer.createGlyph(glyphLayer);
   }
   prepareTextIntro({ left: textOriginX, top: textOriginY });
   introQueue = allIntroQueue;
@@ -247,7 +247,7 @@ export function createMotionScene(layout, renderer, initialInput) {
       layer.active = changing;
 
       if (!changed) continue;
-      renderer.updateMask(layer);
+      glyphRenderer.updateMask(layer);
       layer.needsPaint = false;
     }
   }
@@ -495,10 +495,12 @@ export function createMotionScene(layout, renderer, initialInput) {
       }
     }
 
-    if (heroVisible) {
+    if (heroVisible || frameCount === 0) {
       updateGlyphLayers(heroLeft, heroTop, frameStep, now);
-      renderer.glyphs(glyphLayers, heroLeft, heroTop, heroContentOpacity);
     }
+    // The cropped glyph surface scrolls and fades with the hero in CSS.
+    // Its pixels change only with coverage, never with page scroll or sky DPR.
+    glyphRenderer?.paint(glyphLayers);
 
     // 3. A sparse travelling star becomes a glyph; nearby detail fades in only
     // as it arrives, keeping empty space clear during the opening.
@@ -545,7 +547,7 @@ export function createMotionScene(layout, renderer, initialInput) {
 
         // Settled small text retains its dense glyph sampling.
         if (p.settled && p.isSmall) {
-          // High-definition subpixel rasterization: 100% crisp typography
+          // Small arriving points blend into the native glyph coverage.
           particlePainter.dot(p.x, p.y, -.55, red, green, blue, alpha, grainDetail, p.detailRank);
         } else {
           const startRadius = p.sourceStar ? p.sourceStar.r : p.radius * 0.65;
@@ -672,6 +674,6 @@ export function createMotionScene(layout, renderer, initialInput) {
       frameCount++;
     },
     get stats() { return { frameCount, particles: textParticles.length, active: activeTextParticles.size, glyphs: glyphLayers.length, solidified, maskPixels: glyphLayers.reduce((n, l) => n + l.cells.length, 0) }; },
-    destroy() { glyphLayers.forEach(layer => renderer.deleteGlyph(layer)); }
+    destroy() { glyphLayers.forEach(layer => glyphRenderer.deleteGlyph(layer)); }
   };
 }
