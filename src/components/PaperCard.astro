@@ -52,12 +52,12 @@ const previewId = `paper-preview-${paper.slug}`;
   .paper-art > :global(svg) { height: auto; width: 100%; }
   .paper-cover-imprint { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid #c1cbd516; color: #adb1b2; font: 9px/1.7 var(--mono); letter-spacing: .12em; }
   .paper-cover-imprint span { color: #7e8990; letter-spacing: .07em; }
-  .paper-inside { --gold: #56604f; --text: #282d27; --faint: #676d62; position: relative; display: flex; flex-direction: column; color: #4d544a; background: #ddd9cf; box-shadow: inset 12px 0 16px -14px #282d2740; }
-  .paper-preview-label { margin: 0 0 16px; color: #626756; font: 10px/1.8 var(--mono); letter-spacing: .08em; }
+  .paper-inside { --gold: #c6b089; --text: #e5e3dc; --muted: #b7bfc6; --faint: #939ea8; position: relative; display: flex; flex-direction: column; color: var(--muted); background: #1b2026; box-shadow: inset 16px 0 18px -14px #020407aa, inset -1px 0 #aab7c024; }
+  .paper-preview-label { margin: 0 0 16px; color: var(--gold); font: 10px/1.8 var(--mono); letter-spacing: .08em; }
   .paper-original-title { color: var(--text); font: 400 17px/1.45 var(--serif); margin: 0 0 16px; text-wrap: pretty; }
-  .paper-summary { color: #4d544a; font: 14px/1.8 var(--sans); margin: 0 0 18px; text-wrap: pretty; }
+  .paper-summary { color: var(--muted); font: 14px/1.8 var(--sans); margin: 0 0 18px; text-wrap: pretty; }
   .paper-tags { margin: auto 0 8px; padding-top: 10px; color: var(--faint); font: 11px/1.8 var(--sans); }
-  .paper-card-main { align-self: flex-start; min-height: 44px; margin: 0; color: #354432; }
+  .paper-card-main { align-self: flex-start; min-height: 44px; margin: 0; color: var(--gold); }
   .paper-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 10px 3px 0; }
   .paper-toggle, .paper-card-footer > a { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 4px 0; color: var(--muted); font: 11px/1.8 var(--sans); transition: color .2s; }
   .paper-toggle { border: 0; background: none; cursor: pointer; text-align: left; }
