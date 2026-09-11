@@ -12,6 +12,7 @@ const ui = getUi(locale);
 const email = resolveContactEmail(import.meta.env.PUBLIC_CONTACT_EMAIL);
 const cjk = locale.startsWith('zh') || locale === 'ja' || locale === 'ko';
 const chapters = [
+  { id: 'preface', label: copy.manifesto.label },
   { id: 'foundations', label: copy.coreLabel },
   { id: 'roles', label: copy.rolesLabel },
   { id: 'evidence', label: copy.evidenceLabel },
@@ -40,6 +41,22 @@ const chapters = [
         </nav>
       </aside>
       <div class="careers-content">
+        <section id="preface" class="careers-chapter careers-manifesto" aria-labelledby="preface-question">
+          <p class="eyebrow">{copy.manifesto.label}</p>
+          <p class="manifesto-horizon">{copy.manifesto.horizon}</p>
+          <p>{copy.manifesto.context}</p>
+          <h2 id="preface-question">{copy.manifesto.question}</h2>
+          <p>{copy.manifesto.answerLead}</p>
+          <div class="manifesto-answer">
+            <p class="manifesto-conviction">{copy.manifesto.answer}</p>
+            <p class="manifesto-awareness">{copy.manifesto.awareness.map((line, index) => <>{index > 0 && <br />}{line}</>)}</p>
+          </div>
+          <p>{copy.manifesto.reflection}</p>
+          <p>{copy.manifesto.openness}</p>
+          <p>{copy.manifesto.invitation}</p>
+          <p class="manifesto-invitation">{copy.manifesto.closing}</p>
+        </section>
+
         <section id="foundations" class="careers-chapter" aria-labelledby="foundations-heading">
           <p class="eyebrow">{copy.coreLabel}</p>
           <h2 id="foundations-heading">{copy.coreTitle}</h2>
@@ -119,6 +136,14 @@ const chapters = [
   .careers-chapter > .eyebrow { color: var(--gold); font-size: 10px; }
   .careers-chapter h2 { margin: 16px 0; font-size: clamp(25px, 2.6vw, 34px); font-weight: 400; line-height: 1.55; text-wrap: pretty; }
   .chapter-note { color: var(--muted); font-size: 14px; line-height: 1.95; max-width: 800px; }
+  .careers-manifesto { max-width: 810px; padding-bottom: 48px; border-bottom: 1px solid var(--line); }
+  .careers-manifesto > p:not(.eyebrow) { margin-top: 24px; font-size: 15px; line-height: 2.1; color: var(--muted); text-wrap: pretty; }
+  .careers-manifesto > p.manifesto-horizon { color: var(--text); }
+  .careers-manifesto h2 { margin-block: 30px; max-width: 720px; font-size: clamp(25px, 2.6vw, 33px); line-height: 1.65; }
+  .manifesto-answer { margin-block: 30px; border-left: 1px solid var(--gold); padding: 4px 0 4px 26px; }
+  .manifesto-conviction { color: var(--gold); font-size: clamp(19px, 1.8vw, 23px); line-height: 1.85; text-wrap: pretty; }
+  .manifesto-awareness { margin-top: 22px; color: var(--text); font-size: 16px; line-height: 2; }
+  .careers-manifesto > p.manifesto-invitation { margin-top: 32px; color: var(--gold); font: 400 clamp(23px, 2.4vw, 30px)/1.7 var(--serif); }
   .foundation-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 36px; list-style: none; padding: 0; margin: 34px 0 0; }
   .foundation-list li { border-top: 1px solid var(--line); padding-top: 24px; }
   .foundation-list h3 { font-size: 18px; font-weight: 500; line-height: 1.7; margin-bottom: 12px; }
@@ -172,6 +197,9 @@ const chapters = [
     .careers-intro-links { gap: 6px 22px; margin-top: 22px; }
     .remote-note { flex-basis: 100%; }
     .foundation-list { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .careers-manifesto { padding-bottom: 32px; }
+    .careers-manifesto > p:not(.eyebrow):not(.manifesto-invitation) { font-size: 14px; }
+    .manifesto-answer { padding-left: 20px; }
     .careers-chapter + .careers-chapter { margin-top: 56px; }
     .career-role > summary { gap: 16px; padding-block: 26px; }
     .careers-email { padding: 24px 20px; }

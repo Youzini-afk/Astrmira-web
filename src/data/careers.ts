@@ -1,4 +1,20 @@
 export const careersEnglish = {
+  "manifesto": {
+    "label": "Before we begin",
+    "horizon": "Disproving the unit-distance conjecture, cracking the Navier–Stokes problem, forging an empire of trillions of bytes of code…",
+    "context": "As AI claims, inch by inch, territories once reserved for genius, we are compelled to ask:",
+    "question": "What remains of our meaning as human beings?",
+    "answer": "Metacognition — the most precious gift nature has given us.",
+    "awareness": [
+      "AI does not know what it knows;",
+      "nor does it know what it does not know."
+    ],
+    "reflection": "It can advance rapidly in a specified direction, yet cannot step beyond the confines of its prompts or examine a problem with the depth of intuition and understanding.",
+    "openness": "This is not a settled truth. Perhaps, years from now, when AI truly begins to contemplate “Who am I?”, this definition will be overturned.",
+    "invitation": "But before that window closes, we need fellow travellers. In the boundless darkness of the cosmos, supernovae stand for the most dazzling light.",
+    "closing": "Will you be one of them?",
+    "answerLead": "An answer is emerging, though most have yet to see it:"
+  },
   "title": "Join us — Astrmira",
   "description": "Join Astrmira in data science, full-stack development, or product testing. Explore our shared expectations, open roles, and how to apply with your work.",
   "label": "Join Astrmira",
@@ -120,6 +136,22 @@ export const careersEnglish = {
 };
 
 export const careersChinese: typeof careersEnglish = {
+  "manifesto": {
+    "label": "写在前面",
+    "horizon": "证伪单位距离猜想、攻破NS方程、铸造万亿字节的代码帝国……",
+    "context": "当AI把曾经只属于天才的疆域，一寸一寸地纳入版图时，我们不得不开始追问：",
+    "question": "我们，作为「人类」的意义，究竟还剩些什么？",
+    "answer": "「元认知」——这是大自然赠予我们的、最宝贵的财富。",
+    "awareness": [
+      "AI不知道，自己知道什么；",
+      "也不知道，自己不知道什么。"
+    ],
+    "reflection": "它们可以沿着指定的方向高速前进，却跳不出提示词的条条框框，也无法以“直觉与认知”的深度去思考问题。",
+    "openness": "这不是已盖棺定论的真理。或许多年以后，当AI开始真正思考「我是谁」的那一刻，这段定义会被推翻。",
+    "invitation": "但在那扇窗关闭之前，我们需要一批同行者——在无边的深暗宇宙里，超新星，象征着最耀眼的光芒。",
+    "closing": "你，会是其中的一员吗？",
+    "answerLead": "答案正在浮现，只是多数人尚未看见："
+  },
   "title": "加入我们 — Astrmira 幻梦星芒",
   "description": "加入 Astrmira，参与数据科学、全栈开发与产品测试。了解共同要求、开放岗位，以及如何通过代表作品与我们建立联系。",
   "label": "加入 Astrmira",
@@ -239,4 +271,3 @@ export const careersChinese: typeof careersEnglish = {
   ],
   "contactLink": "希望洽谈合作？"
 };
-

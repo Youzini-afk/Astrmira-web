@@ -1,5 +1,21 @@
 {
   "careers": {
+    "manifesto": {
+      "label": "Vorwort",
+      "horizon": "Die Einheitsabstandsvermutung widerlegen, das Navier–Stokes-Problem knacken, ein Reich aus Billionen Bytes Code schmieden …",
+      "context": "Während KI Stück für Stück Gebiete erschließt, die einst allein Genies vorbehalten waren, müssen wir uns fragen:",
+      "question": "Was bleibt von unserer Bedeutung als Menschen?",
+      "answer": "Metakognition — der wertvollste Schatz, den uns die Natur geschenkt hat.",
+      "awareness": [
+        "KI weiß nicht, was sie weiß;",
+        "sie weiß auch nicht, was sie nicht weiß."
+      ],
+      "reflection": "Sie kann schnell in eine vorgegebene Richtung voranschreiten, aber weder die Grenzen ihrer Prompts verlassen noch ein Problem mit der Tiefe von Intuition und Erkenntnis durchdenken.",
+      "openness": "Das ist keine abschließend feststehende Wahrheit. Vielleicht wird diese Definition eines Tages umgestoßen, wenn KI wirklich beginnt, über „Wer bin ich?“ nachzudenken.",
+      "invitation": "Doch bevor sich dieses Fenster schließt, brauchen wir Weggefährten. In der grenzenlosen Dunkelheit des Kosmos stehen Supernovae für das strahlendste Licht.",
+      "closing": "Wirst du dazugehören?",
+      "answerLead": "Eine Antwort zeichnet sich ab, doch die meisten haben sie noch nicht erkannt:"
+    },
     "title": "Karriere — Astrmira",
     "description": "Arbeite bei Astrmira in Data Science, Full-Stack-Entwicklung oder Produkttests. Erfahre mehr über gemeinsame Anforderungen, offene Stellen und die Bewerbung mit eigenen Arbeiten.",
     "label": "Bei Astrmira mitarbeiten",

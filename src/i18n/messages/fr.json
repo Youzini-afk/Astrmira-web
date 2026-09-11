@@ -1,5 +1,21 @@
 {
   "careers": {
+    "manifesto": {
+      "label": "Préambule",
+      "horizon": "Réfuter la conjecture des distances unitaires, percer le problème de Navier–Stokes, forger un empire de milliers de milliards d’octets de code…",
+      "context": "À mesure que l’IA annexe, parcelle après parcelle, des territoires autrefois réservés au génie, une question s’impose à nous :",
+      "question": "Que reste-t-il du sens de notre existence humaine ?",
+      "answer": "La métacognition — le bien le plus précieux que la nature nous ait offert.",
+      "awareness": [
+        "L’IA ne sait pas ce qu’elle sait ;",
+        "elle ne sait pas non plus ce qu’elle ignore."
+      ],
+      "reflection": "Elle peut avancer très vite dans une direction donnée, mais ne peut sortir du cadre de ses prompts ni examiner un problème avec la profondeur de l’intuition et de la cognition.",
+      "openness": "Ce n’est pas une vérité définitive. Peut-être qu’un jour, à l’instant où l’IA commencera véritablement à penser « Qui suis-je ? », cette définition sera renversée.",
+      "invitation": "Mais avant que cette fenêtre ne se referme, nous avons besoin de compagnons de route. Dans l’immensité obscure du cosmos, les supernovæ symbolisent la lumière la plus éclatante.",
+      "closing": "Serez-vous l’un d’entre eux ?",
+      "answerLead": "Une réponse se dessine, même si la plupart ne l’ont pas encore vue :"
+    },
     "title": "Nous rejoindre — Astrmira",
     "description": "Rejoignez Astrmira en science des données, développement full stack ou test produit. Découvrez nos exigences communes, les postes ouverts et comment présenter vos réalisations.",
     "label": "Rejoindre Astrmira",
