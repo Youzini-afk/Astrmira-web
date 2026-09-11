@@ -1,0 +1,54 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+type Props = HTMLAttributes<'a'> & { label: string; compact?: boolean };
+const { label, compact = false, class: className, ...attributes } = Astro.props;
+const stars = [
+  ['8%', '12%', '11px', '-18deg'],
+  ['28%', '98%', '8px', '16deg'],
+  ['84%', '-2%', '10px', '8deg'],
+  ['102%', '70%', '11px', '-16deg'],
+  ['-2%', '72%', '8px', '28deg'],
+];
+---
+
+<a {...attributes} class:list={['star-link', { 'is-compact': compact }, className]}>
+  <span class="star-sparks" aria-hidden="true">
+    {stars.map(([x, y, size, turn]) => <svg class="star-spark" style={`--x:${x};--y:${y};--size:${size};--turn:${turn}`} viewBox="0 0 32 32" fill="currentColor"><path d="M16 0C17.5 12.5 19.5 14.5 32 16C19.5 17.5 17.5 19.5 16 32C14.5 19.5 12.5 17.5 0 16C12.5 14.5 14.5 12.5 16 0Z"/></svg>)}
+  </span>
+  <span class="star-label">{label}<span class="star-arrow" aria-hidden="true">↗</span></span>
+  <span class="star-fill" aria-hidden="true"><span class="star-label">{label}<span class="star-arrow">↗</span></span></span>
+</a>
+
+<style>
+  /* KINGFRESS's Uiverse.io fill interaction, reworked as stars gathering inward.
+     The decorative copy keeps text contrast aligned with the advancing fill. */
+  .star-link { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 48px; max-width: 100%; padding: 12px 22px; margin: 0; border: 1px solid #b3c9df26; border-radius: 10px; background: #12171dcc; color: #eeeae1; font: 500 13px/1.6 var(--sans); letter-spacing: .02em; text-decoration: none; transition: border-color .25s, transform .12s; }
+  .star-link[aria-current="page"] { border-color: #d6b88165; }
+  .star-label { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 12px; color: #eeeae1; white-space: nowrap; }
+  .star-arrow { color: var(--gold); font-size: 16px; line-height: 1; }
+  .star-sparks { position: absolute; z-index: 1; inset: -10px; color: var(--gold); pointer-events: none; opacity: 0; }
+  .star-spark { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); transform: translate(-50%, -50%) rotate(var(--turn)); }
+  .star-fill { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: inherit; overflow: hidden; background: #d6b881; color: #171c22; pointer-events: none; clip-path: circle(0% at 50% 50%); transition: clip-path .28s var(--ease-ui); }
+  .star-fill .star-label, .star-fill .star-arrow { color: inherit; }
+  .star-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+  .star-link:focus-visible .star-sparks { animation: star-gather .7s cubic-bezier(.4,0,.2,1) both; }
+  .star-link:focus-visible .star-fill { clip-path: circle(75% at 50% 50%); transition: clip-path .5s var(--ease-ui) .28s; }
+  @keyframes star-gather {
+    0% { opacity: 0; transform: scale(1.15) rotate(-8deg); }
+    16% { opacity: 1; }
+    65% { opacity: 1; }
+    100% { opacity: 0; transform: scale(.04) rotate(14deg); }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .star-link:hover { border-color: #d6b88165; }
+    .star-link:hover .star-sparks { animation: star-gather .7s cubic-bezier(.4,0,.2,1) both; }
+    .star-link:hover .star-fill { clip-path: circle(75% at 50% 50%); transition: clip-path .5s var(--ease-ui) .28s; }
+  }
+  .star-link:active { transform: translateY(1px) scale(.985); }
+  .star-link:active .star-fill { clip-path: circle(75% at 50% 50%); transition: none; }
+  :global(html.is-paused) .star-link .star-sparks { animation: none; }
+  :global(html.is-paused) .star-link .star-fill { transition: none; }
+  .star-link.is-compact { min-height: 44px; padding: 10px 16px; font-size: 12px; }
+  @media (max-width: 1100px) { .star-link.is-compact { padding-inline: 12px; } }
+  @media (max-width: 900px) { .star-link.is-compact { width: 100%; min-height: 48px; margin-top: 12px; padding: 12px 18px; font-size: 14px; } }
+</style>

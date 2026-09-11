@@ -1,6 +1,7 @@
 ---
 import { LOCALES, localePath, type Locale } from '../i18n';
 import { getUi } from '../i18n/content';
+import StarLink from './StarLink.astro';
 interface Props {
   currentRoute?: string;
   locale?: Locale;
@@ -18,13 +19,6 @@ const navigation = [
   { route: 'about', path: '/about/', label: ui.nav.about },
 ];
 const isCurrent = (route: string) => currentRoute === route || (route !== 'home' && currentRoute.startsWith(route + '/'));
-const contactStars = [
-  ['8%', '12%', '11px', '-18deg'],
-  ['28%', '98%', '8px', '16deg'],
-  ['84%', '-2%', '10px', '8deg'],
-  ['102%', '70%', '11px', '-16deg'],
-  ['-2%', '72%', '8px', '28deg'],
-];
 ---
 
 <header class="site-header">
@@ -61,13 +55,7 @@ const contactStars = [
         </li>)}
       </ul>
     </details>
-    <a href={href('/collaborate/')} data-route="collaborate" class="nav-contact" aria-current={currentRoute === 'collaborate' ? 'page' : undefined}>
-      <span class="contact-sparks" aria-hidden="true">
-        {contactStars.map(([x, y, size, turn]) => <svg class="contact-spark" style={`--x:${x};--y:${y};--size:${size};--turn:${turn}`} viewBox="0 0 32 32" fill="currentColor"><path d="M16 0C17.5 12.5 19.5 14.5 32 16C19.5 17.5 17.5 19.5 16 32C14.5 19.5 12.5 17.5 0 16C12.5 14.5 14.5 12.5 16 0Z"/></svg>)}
-      </span>
-      <span class="contact-label">{ui.nav.collaborate}<span class="contact-arrow" aria-hidden="true">↗</span></span>
-      <span class="contact-fill" aria-hidden="true"><span class="contact-label">{ui.nav.collaborate}<span class="contact-arrow">↗</span></span></span>
-    </a>
+    <StarLink href={href('/collaborate/')} data-route="collaborate" class="nav-contact" label={ui.nav.collaborate} compact aria-current={currentRoute === 'collaborate' ? 'page' : undefined} />
   </nav>
 </header>
 
@@ -88,35 +76,6 @@ const contactStars = [
   @media (hover: hover) and (pointer: fine) { .nav-group a:hover { color: #eee7d9; } }
   @media (max-width: 1100px) { .nav-group a { padding-inline: 12px; } }
   @media (pointer: coarse) { .nav-group a { min-height: 44px; } }
-  /* KINGFRESS's Uiverse.io fill interaction, reworked as stars gathering inward.
-     The fill carries a dark label so its text contrast follows the advancing edge. */
-  .site-nav .nav-contact { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 44px; padding: 10px 16px; margin: 0; border: 1px solid #b3c9df26; border-radius: 10px; background: #12171dcc; color: #eeeae1; font: 500 12px/1.6 var(--sans); letter-spacing: .02em; transition: border-color .25s, transform .12s; }
-  .site-nav .nav-contact[aria-current="page"] { border-color: #d6b88165; }
-  .contact-label { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 12px; white-space: nowrap; }
-  .contact-arrow { color: var(--gold); font-size: 16px; line-height: 1; }
-  .contact-sparks { position: absolute; z-index: 1; inset: -10px; color: var(--gold); pointer-events: none; opacity: 0; }
-  .contact-spark { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); transform: translate(-50%, -50%) rotate(var(--turn)); }
-  .contact-fill { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: inherit; overflow: hidden; background: #d6b881; color: #171c22; pointer-events: none; clip-path: circle(0% at 50% 50%); transition: clip-path .28s var(--ease-ui); }
-  .contact-fill .contact-arrow { color: inherit; }
-  .nav-contact:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-  .nav-contact:focus-visible .contact-sparks { animation: contact-gather .7s cubic-bezier(.4,0,.2,1) both; }
-  .nav-contact:focus-visible .contact-fill { clip-path: circle(75% at 50% 50%); transition: clip-path .5s var(--ease-ui) .28s; }
-  @keyframes contact-gather {
-    0% { opacity: 0; transform: scale(1.15) rotate(-8deg); }
-    16% { opacity: 1; }
-    65% { opacity: 1; }
-    100% { opacity: 0; transform: scale(.04) rotate(14deg); }
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .site-nav .nav-contact:hover { border-color: #d6b88165; }
-    .nav-contact:hover .contact-sparks { animation: contact-gather .7s cubic-bezier(.4,0,.2,1) both; }
-    .nav-contact:hover .contact-fill { clip-path: circle(75% at 50% 50%); transition: clip-path .5s var(--ease-ui) .28s; }
-  }
-  .site-nav .nav-contact:active { transform: translateY(1px) scale(.985); }
-  .nav-contact:active .contact-fill { clip-path: circle(75% at 50% 50%); transition: none; }
-  :global(html.is-paused) .nav-contact .contact-sparks { animation: none; }
-  :global(html.is-paused) .nav-contact .contact-fill { transition: none; }
-  @media (max-width: 1100px) { .site-nav .nav-contact { padding-inline: 12px; } }
   .language-picker { position: relative; flex-shrink: 0; }
   .language-trigger { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 48px; min-height: 44px; padding: 8px; list-style: none; color: #bcc3cd; border: 1px solid transparent; border-radius: var(--radius-control); cursor: pointer; transition: color .2s, border-color .2s, background-color .2s; }
   .language-trigger::-webkit-details-marker { display: none; }
@@ -136,7 +95,6 @@ const contactStars = [
   .language-recommendation { font-size: 10px; color: var(--gold); }
   @keyframes language-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 900px) {
-    .site-nav .nav-contact { width: 100%; min-height: 48px; margin-top: 12px; padding: 12px 18px; font-size: 14px; }
     .nav-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; }
     .nav-group a { min-width: 0; min-height: 46px; padding: 10px 12px; font-size: 14px; }
     .language-picker { align-self: stretch; margin: 8px 0; }
