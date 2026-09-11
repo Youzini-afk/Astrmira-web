@@ -1,12 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import PaperCard from '../../components/PaperCard.astro';
-import ResearchLab from '../../components/ResearchLab.astro';
 import { papers } from '../../data/papers';
-const fields = [
-  ['databases', '数据库'], ['retrieval', '检索'], ['vectors', '向量'],
-  ['quantization', '量化'], ['post-training', '后训练'], ['mathematics', '数学'],
-];
 ---
 
 <Layout title="Research · 研究与论文 — Astrmira 幻梦星芒" description="阅读 Astrmira 在不同领域的研究论文，了解我们关注的问题、提出的方法与新的发现。" route="research">
@@ -34,19 +29,6 @@ const fields = [
       <p class="publication-count" data-research-count aria-live="polite">{papers.length} 篇论文</p>
     </section>
 
-    <section class="research-exploration" aria-labelledby="exploration-title">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">EXPLORE THE PRINCIPLES</p>
-          <h2 id="exploration-title">让原理，变得可见。</h2>
-          <p class="sub">移动一个查询点，改变表示位数，或跟随一次任务的执行。由动手探索，走近研究中的基本问题。</p>
-        </div>
-      </div>
-      <ResearchLab />
-      <nav class="research-fields topic-list" aria-label="浏览研究方向">
-        {fields.map(([slug, label]) => <a class="tag" href={`/research/${slug}/`} data-route={`research/${slug}`}>{label} <span aria-hidden="true">↗</span></a>)}
-      </nav>
-    </section>
     <section class="research-contact">
       <p>有值得一起追问的问题？</p>
       <a href="/collaborate/" data-route="collaborate" class="text-link">与我们交流 <span class="arrow" aria-hidden="true">↗</span></a>
@@ -58,15 +40,10 @@ const fields = [
   .publication-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); justify-items: center; gap: 40px 32px; }
   .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
   .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
-  .research-exploration { padding: 70px 0; border-top: 1px solid var(--line); }
-  .research-fields { margin-top: 28px; }
-  .research-fields .tag:hover { color: var(--gold); border-color: var(--gold); }
-  .research-fields .tag span { margin-left: 8px; }
   .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
   .research-contact .text-link { margin-top: 0; }
   @media (max-width: 720px) {
     .publication-grid { grid-template-columns: minmax(0, 360px); justify-content: center; gap: 32px; }
-    .research-exploration { padding: 50px 0; }
     .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; }
   }
 </style>

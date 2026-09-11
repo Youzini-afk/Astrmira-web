@@ -50,12 +50,6 @@ html { -webkit-text-size-adjust: 100%; }
   .article-content { font-size: 15px; line-height: 1.95; }
   .directory-toolbar { flex-wrap: wrap; gap: 18px; }
   .research-search { flex: 1 1 240px; min-width: 0; }
-  .lab-panel { grid-template-columns: minmax(0, 1fr); }
-  .lab-visual { padding: 28px 0; border-right: 0; border-bottom: 1px solid var(--line); }
-  .lab-visual svg { max-width: 620px; margin-inline: auto; }
-  .lab-copy { padding: 30px 0; }
-  .lab-copy .lab-description { max-width: 640px; font-size: 14px; }
-  .lab-visual-footer { flex-wrap: wrap; }
 }
 
 @media (max-width: 900px) {
@@ -124,12 +118,6 @@ html { -webkit-text-size-adjust: 100%; }
   .eyebrow { font-size: 10px; letter-spacing: .1em; }
   .eyebrow .index { margin-right: 10px; }
   .project-grid { grid-template-columns: minmax(0, 1fr); gap: 38px; }
-  .lab-tabs { gap: 12px; justify-content: space-between; overflow-x: auto; scrollbar-width: thin; }
-  .lab-tab { min-height: 44px; font-size: 12px; padding-bottom: 14px; }
-  .lab-panel { min-height: 0; }
-  .lab-visual { padding-block: 24px; }
-  .lab-visual svg { height: auto; aspect-ratio: 550 / 300; }
-  .lab-copy h3 { font-size: 24px; }
   .research-bottom { align-items: flex-start; flex-direction: column; gap: 18px; }
   .topic-list { gap: 8px; }
   .tag { font-size: 10px; padding: 3px 8px; }
@@ -206,10 +194,9 @@ html { -webkit-text-size-adjust: 100%; }
 }
 
 @media (pointer: coarse) {
-  .site-nav > a, .text-link, .button, .filter-button, .lab-tab,
-  .footer-top a, .footer-links a, .article-toc a, .lab-controls .button { min-height: 44px; }
+  .site-nav > a, .text-link, .button, .filter-button,
+  .footer-top a, .footer-links a, .article-toc a { min-height: 44px; }
   .footer-top a, .footer-links a { display: inline-flex; align-items: center; }
   .research-search { font-size: 16px; min-height: 48px; }
-  .lab-controls input[type="range"] { min-height: 44px; flex: 1; min-width: 120px; }
   .topic-list a.tag { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 12px; }
 }

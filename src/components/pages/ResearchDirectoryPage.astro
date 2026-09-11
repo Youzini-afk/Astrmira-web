@@ -6,7 +6,7 @@ import { getContent } from '../../i18n/content';
 import { localePath, type InternationalLocale } from '../../i18n';
 interface Props { locale: InternationalLocale }
 const { locale } = Astro.props;
-const { researchPage: copy, fields, ui } = getContent(locale);
+const { researchPage: copy, ui } = getContent(locale);
 const href = (path: string) => localePath(path, locale);
 ---
 <Layout locale={locale} title={copy.title} description={copy.description} route="research">
@@ -17,7 +17,6 @@ const href = (path: string) => localePath(path, locale);
       <div class="publication-grid">{papers.map(paper => <PaperCard paper={paper} headingLevel="h2" locale={locale} />)}</div>
       <p class="empty-search" data-empty-search hidden>{ui.research.empty}</p><p class="publication-count" data-research-count aria-live="polite">{ui.research.count.replace('{count}', String(papers.length))}</p>
     </section>
-    <section class="research-exploration" aria-labelledby="exploration-title"><div class="section-heading"><div><p class="eyebrow">{copy.fieldsLabel}</p><h2 id="exploration-title">{copy.fieldsHeading}</h2><p class="sub">{copy.fieldsNote}</p></div></div><nav class="research-fields topic-list" aria-label={ui.research.browseFields}>{Object.entries(fields).map(([slug, [name]]) => <a class="tag" href={href(`/research/${slug}/`)} data-route={`research/${slug}`}>{name}<span aria-hidden="true">↗</span></a>)}</nav></section>
     <section class="research-contact"><p>{copy.question}</p><a class="text-link" href={href('/collaborate/')} data-route="collaborate">{copy.contact}<span class="arrow" aria-hidden="true">↗</span></a></section>
   </div>
 </Layout>
@@ -25,10 +24,6 @@ const href = (path: string) => localePath(path, locale);
   .publication-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); justify-items: center; gap: 40px 32px; }
   .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
   .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
-  .research-exploration { padding: 70px 0; border-top: 1px solid var(--line); }
-  .research-fields { margin-top: 28px; }
-  .research-fields .tag:hover { color: var(--gold); border-color: var(--gold); }
-  .research-fields .tag span { margin-left: 8px; }
   .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
-  @media (max-width: 720px) { .publication-grid { grid-template-columns: minmax(0, 360px); justify-content: center; gap: 32px; } .research-exploration { padding: 50px 0; } .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; } }
+  @media (max-width: 720px) { .publication-grid { grid-template-columns: minmax(0, 360px); justify-content: center; gap: 32px; } .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; } }
 </style>
