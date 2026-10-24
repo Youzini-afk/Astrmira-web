@@ -31,7 +31,7 @@ html { -webkit-text-size-adjust: 100%; }
   .origin-section { gap: 40px; padding-block: 80px; }
   .manifesto { gap: 30px; }
   .domains-inner { gap: 14px; justify-content: center; min-height: 82px; padding-block: 18px; }
-  .domains-inner span { font-size: 9px; }
+  .domains-inner span { font-size: 10px; }
   .page-title { padding-top: 75px; }
   .footer-wordmark { margin-bottom: -10px; }
 }
@@ -53,8 +53,10 @@ html { -webkit-text-size-adjust: 100%; }
 
 @media (max-width: 900px) {
   :root { --header-height: 78px; }
-  .brand-name { font-size: 23px; }
-  .brand-cn { font-size: 7px; }
+  .brand { gap: 10px; }
+  .brand-text { gap: 11px; }
+  .brand-name { font-size: 24px; }
+  .brand-cn { padding-left: 11px; font-size: 12px; letter-spacing: .32em; margin-right: -.32em; }
   .brand-symbol { width: 28px; height: 28px; }
   .menu-toggle { display: flex; }
   .site-nav {
@@ -75,8 +77,8 @@ html { -webkit-text-size-adjust: 100%; }
   .hero { min-height: calc(100svh - var(--header-height) - env(safe-area-inset-top)); height: auto; max-height: none; padding-block: 160px 100px; }
   .hero-copy { margin: 0; padding: 24px var(--inset-right) 24px var(--inset-left); }
   .hero h1 { font-size: 19vw; }
-  .coordinates { top: 26px; font-size: 9px; }
-  .coordinates .coord-star { font-size: 11px; }
+  .coordinates { top: 26px; font-size: 10px; }
+  .coordinates .coord-star { font-size: 12px; }
 }
 @keyframes navigation-enter { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -86,22 +88,22 @@ html { -webkit-text-size-adjust: 100%; }
   .hero { padding-block: 145px 82px; }
   .hero-copy { padding-block: 20px; }
   .hero h1 { font-size: 22vw; }
-  .hero-kicker { font-size: 9px; letter-spacing: .12em; gap: 10px; margin-bottom: 20px; }
+  .hero-kicker { font-size: 10px; letter-spacing: .12em; gap: 10px; margin-bottom: 20px; }
   .hero-kicker::before, .hero-kicker::after { width: 18px; }
   .hero-subtitle { font-size: clamp(18px, 4.7vw, 23px); letter-spacing: .025em; line-height: 1.65; margin: 24px 0 8px; }
-  .hero-english { font-size: 14px; max-width: 330px; margin: 0 auto 22px; line-height: 1.6; }
-  .hero-description { font-size: 13px; letter-spacing: 0; line-height: 1.9; }
+  .hero-english { font-size: 16px; max-width: 330px; margin: 0 auto 22px; line-height: 1.6; }
+  .hero-description { font-size: 14px; letter-spacing: 0; line-height: 1.9; }
   .hero-bottom { bottom: max(16px, env(safe-area-inset-bottom)); gap: 12px; align-items: center; }
-  .scroll-cue { font-size: 8px; max-width: 94px; gap: 10px; min-height: 44px; }
+  .scroll-cue { font-size: 10px; max-width: 100px; gap: 10px; min-height: 44px; }
   .motion-controls { gap: 12px; }
-  .motion-controls button { font-size: 10px; min-height: 44px; }
+  .motion-controls button { font-size: 12px; min-height: 44px; }
   .phase-label { display: none; }
   .mira-object { width: 240px; height: 240px; }
-  .coordinates { top: 22px; font-size: 8px; }
-  .coordinates .coord-star { font-size: 10px; margin-bottom: 4px; }
+  .coordinates { top: 22px; font-size: 10px; }
+  .coordinates .coord-star { font-size: 11px; margin-bottom: 4px; }
   .domains-inner { gap: 12px 15px; line-height: 1.5; }
-  .domains-inner span { font-size: 9px; }
-  .domains-inner i { font-size: 10px; }
+  .domains-inner span { font-size: 10px; }
+  .domains-inner i { font-size: 11px; }
   .manifesto { grid-template-columns: minmax(0, 1fr); gap: 18px; padding-block: 58px 8px; }
   .manifesto .statement { font-size: clamp(23px, 5.8vw, 29px); line-height: 1.65; letter-spacing: .01em; }
   .manifesto .statement-note { margin-top: 18px; font-size: 14px; line-height: 1.9; }
@@ -110,12 +112,12 @@ html { -webkit-text-size-adjust: 100%; }
   .section-heading h2 { font-size: clamp(25px, 6.7vw, 32px); letter-spacing: .01em; margin-top: 14px; }
   .section-heading .sub { font-size: 14px; line-height: 1.9; margin-top: 12px; }
   .section-heading > .text-link { padding: 8px 0; margin: 0; font-size: 13px; }
-  .eyebrow { font-size: 10px; letter-spacing: .1em; }
+  .eyebrow { font-size: 11px; letter-spacing: .1em; }
   .eyebrow .index { margin-right: 10px; }
   .project-grid { grid-template-columns: minmax(0, 1fr); gap: 38px; }
   .research-bottom { align-items: flex-start; flex-direction: column; gap: 18px; }
   .topic-list { gap: 8px; }
-  .tag { font-size: 10px; padding: 3px 8px; }
+  .tag { font-size: 11px; padding: 3px 9px; }
   .origin-section { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-block: 56px; }
   .origin-art { min-height: 250px; border-right: 0; border-bottom: 1px solid var(--line); padding-bottom: 28px; }
   .origin-art svg { width: 240px; height: 240px; }
@@ -127,7 +129,7 @@ html { -webkit-text-size-adjust: 100%; }
   .collaborate-block h2 { font-size: clamp(26px, 6.8vw, 34px); }
   .collaborate-block p { font-size: 14px; }
   .collaborate-block .button { min-width: 180px; }
-  .footer-top { font-size: 9px; padding-top: 24px; align-items: flex-start; }
+  .footer-top { font-size: 11px; padding-top: 24px; align-items: flex-start; }
   .footer-top > span { max-width: 200px; }
   .footer-top a { white-space: nowrap; }
   .footer-wordmark { font-size: 22vw; margin: 25px 0 2px; }
@@ -160,12 +162,19 @@ html { -webkit-text-size-adjust: 100%; }
   .mobile-note { display: block; }
 }
 
+/* Narrow phones stack the two names; both stay readable. */
+@media (max-width: 420px) {
+  .brand-text { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .brand-name { font-size: 23px; }
+  .brand-cn { padding-left: 1px; border-left: 0; font-size: 10px; line-height: 1; letter-spacing: .52em; margin-right: -.52em; }
+}
+
 @media (max-width: 360px) {
   .hero-copy { padding-inline: 16px; }
-  .hero-description { font-size: 12px; }
+  .hero-description { font-size: 13px; }
   .hero-bottom { gap: 8px; }
-  .motion-controls { gap: 8px; }
-  .motion-controls button { font-size: 9px; }
+  .motion-controls { gap: 10px; }
+  .motion-controls button { font-size: 11px; }
 }
 
 /* Short landscape screens use a compact composition with the star to the side. */
@@ -174,12 +183,12 @@ html { -webkit-text-size-adjust: 100%; }
   .hero { height: auto; min-height: calc(100svh - var(--header-height)); max-height: none; padding-block: 24px 68px; }
   .hero-copy { width: 72%; margin: 0 auto 0 0; padding: 0 12px 0 var(--inset-left); }
   .hero h1 { font-size: clamp(64px, 11vw, 92px); }
-  .hero-kicker { font-size: 9px; margin-bottom: 12px; gap: 10px; }
+  .hero-kicker { font-size: 10px; margin-bottom: 12px; gap: 10px; }
   .hero-subtitle { font-size: 18px; letter-spacing: .02em; margin: 14px 0 6px; }
-  .hero-english { font-size: 13px; max-width: none; margin-bottom: 12px; }
-  .hero-description { font-size: 12px; line-height: 1.8; }
-  .coordinates { top: 26px; font-size: 8px; }
-  .coordinates .coord-star { font-size: 10px; }
+  .hero-english { font-size: 15px; max-width: none; margin-bottom: 12px; }
+  .hero-description { font-size: 13px; line-height: 1.8; }
+  .coordinates { top: 26px; font-size: 10px; }
+  .coordinates .coord-star { font-size: 11px; }
   .hero-bottom { bottom: 12px; }
   .motion-controls button { min-height: 44px; }
   .phase-label { display: none; }

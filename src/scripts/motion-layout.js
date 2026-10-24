@@ -85,34 +85,21 @@ export async function captureGlyphs(hero) {
       sampleTextLine(kickerEl.textContent.trim(), style, cx, cy, [205, 192, 168], false);
     }
 
-    // 2. Title: Astrmira (Astr + mira italic)
+    // 2. Title: Astr + italic mira. Both halves are measured where the browser laid
+    // them out, so the particle lettering follows the wordmark's tracking and join
+    // from the stylesheet instead of repeating those numbers here.
     const h1El = $('.hero h1');
-    if (h1El) {
-      const h1Style = window.getComputedStyle(h1El);
-      const fontSize = parseFloat(h1Style.fontSize) || 130;
-      const fontFamily = h1Style.fontFamily || 'Georgia, serif';
-
-      const mCanvas = document.createElement('canvas');
-      const mCtx = mCanvas.getContext('2d');
-      mCtx.font = `normal 400 ${fontSize}px ${fontFamily}`;
-      try { mCtx.letterSpacing = '-0.075em'; } catch (_) {}
-      const wAstr = mCtx.measureText('Astr').width;
-
-      mCtx.font = `italic 400 ${fontSize}px ${fontFamily}`;
-      try { mCtx.letterSpacing = '-0.08em'; } catch (_) {}
-      const wMira = mCtx.measureText('mira').width;
-
-      const overlap = fontSize * 0.045;
-      const totalH1Width = wAstr + wMira - overlap;
+    const miraEl = h1El?.querySelector('em');
+    const astrNode = h1El && [...h1El.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+    if (h1El && miraEl && astrNode) {
+      const astrRange = document.createRange();
+      astrRange.selectNodeContents(astrNode);
+      const rAstr = astrRange.getBoundingClientRect();
+      const rMira = miraEl.getBoundingClientRect();
       const rH1 = h1El.getBoundingClientRect();
-      const h1CenterX = (rH1.left - heroRect.left) + rH1.width / 2;
       const h1CenterY = (rH1.top - heroRect.top) + rH1.height / 2;
-
-      const cxAstr = h1CenterX - totalH1Width / 2 + wAstr / 2;
-      const cxMira = h1CenterX - totalH1Width / 2 + wAstr - overlap + wMira / 2;
-
-      sampleTextLine('Astr', h1Style, cxAstr, h1CenterY, [238, 234, 225], true, 'normal');
-      sampleTextLine('mira', h1Style, cxMira, h1CenterY, [238, 234, 225], true, 'italic');
+      sampleTextLine(astrNode.textContent.trim(), window.getComputedStyle(h1El), rAstr.left + rAstr.width / 2 - heroRect.left, h1CenterY, [238, 234, 225], true, 'normal');
+      sampleTextLine(miraEl.textContent.trim(), window.getComputedStyle(miraEl), rMira.left + rMira.width / 2 - heroRect.left, h1CenterY, [238, 234, 225], true, 'italic');
     }
 
     // 3. Subtitle

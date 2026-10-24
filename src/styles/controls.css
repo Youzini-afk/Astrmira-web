@@ -2,6 +2,8 @@
 :root {
   --radius-control: 8px;
   --radius-surface: 18px;
+  /* Figures, diagrams and menus: between a control and a card. */
+  --radius-panel: 12px;
   --ease-ui: cubic-bezier(.22, .61, .36, 1);
   --action-fill: #e7dfd1;
   --action-hover: #f2ece2;
@@ -53,13 +55,13 @@
   border: 1px solid transparent;
   border-radius: 999px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
   transition: color .2s, background-color .2s, border-color .2s;
 }
 .filter-button[aria-pressed="true"] { color: var(--gold); background: #d6b88114; border-color: #d6b88126; }
-.tag { display: inline-block; border: 1px solid #aebdd524; border-radius: 999px; padding: 4px 11px; font-size: 10px; line-height: 1.8; letter-spacing: .025em; color: var(--muted); }
-.research-search { background: #b1c6dc06; border: 1px solid #aebdd52e; border-radius: var(--radius-control); color: var(--text); padding: 11px 14px; width: 235px; font-size: 12px; transition: border-color .2s, background-color .2s; }
+.tag { display: inline-block; border: 1px solid #aebdd524; border-radius: 999px; padding: 4px 11px; font-size: 11px; line-height: 1.8; letter-spacing: .025em; color: var(--muted); }
+.research-search { background: #b1c6dc06; border: 1px solid #aebdd52e; border-radius: var(--radius-control); color: var(--text); padding: 11px 14px; width: 235px; font-size: 13px; transition: border-color .2s, background-color .2s; }
 .research-search::placeholder { color: var(--faint); }
 .research-search:focus-visible { border-color: var(--gold); outline: 1px solid var(--gold); outline-offset: 2px; background: #b1c6dc09; }
 .menu-toggle { border-radius: var(--radius-control); transition: border-color .2s, background-color .2s; }
