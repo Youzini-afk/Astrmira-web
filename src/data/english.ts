@@ -21,7 +21,7 @@ export const projectDetails = {
     name: 'infOS', eyebrow: 'INFOS / AI COMPANION RUNTIME', kind: 'infos',
     title: 'Let memory continue. Bring companionship into everyday life.',
     description: 'An open-source runtime centered on a primary AI companion, organizing identity, long-term memory, workspaces, conversations, and tools. It powers persistent dialogue and desktop interaction for PeroperoChat.',
-    repository: 'https://github.com/YoKONCy/infOS', license: 'Open source',
+    repository: 'https://github.com/YoKONCy/infOS', license: 'Apache-2.0',
     tags: ['TypeScript', 'Rust', 'Desktop'],
     figure: 'Identity, memory, context, and tools working through one runtime.',
     sections: [
