@@ -9,7 +9,7 @@ Astrmira（幻梦星芒）官方网站，使用 **Astro 静态架构**，部署�
 ```
 Astrmira-web/
 ├── public/                 # 静态资源与 Favicon
-│   └── _redirects          # 已合并的旧研究方向地址 301 到研究目录
+│   └── _redirects          # 旧研究方向页与旧 Piarium 页的 301 跳转
 ├── src/
 │   ├── styles/
 │   │   ├── global.css      # 基础样式与设计变量
@@ -22,7 +22,7 @@ Astrmira-web/
 │   │   ├── HeroActions.astro # 首屏两个入口按钮
 │   │   ├── StarLink.astro  # 星点聚拢效果的区块链接与合作按钮
 │   │   ├── StarCompanion.astro # 随滚动飞行、留下星尾并停靠的星体
-│   │   ├── ProjectCard.astro # TriviumDB、infOS、Piarium 共用的观测窗卡片
+│   │   ├── ProjectCard.astro # TriviumDB、infOS、Varin 共用的观测窗卡片
 │   │   ├── PaperCard.astro # 可翻开封面的论文卡片
 │   │   ├── PaperCarousel.astro # 按整列翻页的论文轨道
 │   │   ├── AboutPage.astro # 关于页共用结构
@@ -88,6 +88,7 @@ npm run preview
 - Markdown 保留公开正文、标题、图注和引用链接，去掉画布、SVG 点线、脚本、按钮及隐藏的交互状态；所有链接转换为绝对地址。每页 HTML 通过 `rel="alternate"` 指向 Markdown，Markdown 响应通过 HTTP `Link` 标记对应的 HTML canonical。
 - `_headers` 在构建时补上文本、Markdown 与 XML 的正确类型，保留已有自定义规则。未添加爬虫禁令，也没有修改 Cloudflare 账号的机器人策略。
 - 原先 6 个研究方向页（`/research/databases/` 等）已并入研究目录。`public/_redirects` 把这些旧地址及其语言版本、`index.md` 永久重定向到对应语言的 `/research/`。
+- Piarium 已演进为 Varin。`/projects/piarium/` 及其语言版本永久重定向到 `/projects/varin/`。Varin 详情页七种语言共用 `ProjectDetailPage.astro`，简体中文文案在 `src/data/projects-zh.ts`。
 - 本地验证：`npm run build` 后运行 `node scripts/check-seo.mjs`；浏览器语言行为使用 `node scripts/check-i18n-browser.mjs`。这些发现文件只在生产构建中生成，使用 `npm run preview` 查看。
 - 线上核对 `robots.txt` 和 `sitemap.xml` 的正文与 Content-Type、未知路径的 404、Markdown 的正文及 canonical 响应头。提交 [站点地图](https://www.astrmira.com/sitemap.xml) 到搜索平台需要站点所有者的 Search Console / Webmaster Tools 权限。AI 搜索的收录仍遵循各服务的抓取策略，`llms.txt` 是辅助阅读入口，并非搜索收录的替代条件。
 

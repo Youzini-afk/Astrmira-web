@@ -11,7 +11,7 @@ const { chromium } = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODUL
 const server = await serveMotionBuild();
 const origin = new URL(server.url).origin;
 const paths = ['/', '/about/', '/collaborate/', '/contact/', '/careers/', '/projects/',
-  '/projects/data-systems/', '/projects/agent-platform/', '/projects/piarium/', '/projects/research-partnerships/',
+  '/projects/data-systems/', '/projects/agent-platform/', '/projects/varin/', '/projects/research-partnerships/',
   '/research/',
   ...Object.keys(baseContent.papers).map(slug => '/research/papers/' + slug + '/')];
 const browser = await chromium.launch({ headless: true, channel: 'msedge' });
@@ -98,12 +98,12 @@ try {
   const blockedStorage = await context({ locale: 'fr-CA' });
   await blockedStorage.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } }));
   const privatePage = await blockedStorage.newPage();
-  await privatePage.goto(origin + '/projects/piarium/');
-  assert.equal(new URL(privatePage.url()).pathname, '/projects/piarium/');
+  await privatePage.goto(origin + '/projects/varin/');
+  assert.equal(new URL(privatePage.url()).pathname, '/projects/varin/');
   assert.equal(await privatePage.locator('[data-recommended]').getAttribute('data-locale-choice'), 'fr');
   await privatePage.locator('.language-trigger').click();
   await privatePage.locator('[data-locale-choice="ko"]').click();
-  await privatePage.waitForURL('**/ko/projects/piarium/');
+  await privatePage.waitForURL('**/ko/projects/varin/');
   await blockedStorage.close();
 
   for (const locale of LOCALES) {
@@ -139,10 +139,10 @@ try {
     assert.ok(await page.locator('[data-empty-search]').isVisible());
     assert.equal(await page.locator('[data-empty-search]').textContent(), ui.research.empty);
     await page.goto(origin + localePath('/projects/', locale.id));
-    await page.locator('[data-project-filter="harness"]').click();
+    await page.locator('[data-project-filter="workspace"]').click();
     assert.equal(await page.locator('[data-project-directory] .project-card:visible').count(), 1);
     assert.equal(await page.locator('[data-project-count]').textContent(), countLabel(ui, locale.lang, 'projects', 1));
-    await page.goto(origin + localePath('/projects/piarium/', locale.id));
+    await page.goto(origin + localePath('/projects/varin/', locale.id));
     await page.locator('.article-toc').waitFor();
     assert.equal(await page.locator('.article-toc summary').textContent(), ui.toc.title);
     assert.equal(await page.locator('.article-toc a').first().textContent(), ui.toc.overview);

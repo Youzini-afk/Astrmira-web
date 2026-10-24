@@ -35,24 +35,51 @@ export const projectDetails = {
       { title: 'One core across different experiences.', paragraphs: ['A TypeScript and Rust architecture supports desktop, web, and independent backend deployment. TriviumDB connects vector retrieval, events, and relationships underneath the memory layer.', 'PeroperoChat is the companion-facing experience: Live2D characters, custom identity, conversation, and long-term memory brought into everyday desktop interaction.'] }
     ]
   },
-  piarium: {
-    name: 'Piarium', eyebrow: 'PIARIUM / AGENT HARNESS', kind: 'piarium',
-    title: 'Turn model capability into complete execution.',
-    description: 'A complete agent harness for complex software engineering. Piarium connects code understanding, context and memory, tool execution, multi-agent coordination, verification, and workspace recovery from first investigation to reviewable delivery.',
-    repository: 'https://github.com/Youzini-afk/Piarium', license: 'AGPL-3.0',
-    tags: ['Code Intelligence', 'Multi-Agent', 'Desktop', 'Web'],
-    figure: 'Understand context, organize execution, and feed verification back into the next action.',
+  // Varin grew out of Piarium (the old repository redirects here). Copy follows
+  // the project's own README and docs; links and repository facts are metadata.
+  varin: {
+    name: 'Varin', eyebrow: 'VARIN / AGENT WORKSPACE', kind: 'varin',
+    title: 'Bring models, tools, and projects into one workspace.',
+    description: 'An open-source workspace for AI agents. Investigate a problem, write code, read papers, or build an interactive explanation with an agent, then review the work in the same conversation. Varin runs on desktop and the web, with a mobile client for connecting to your Host.',
+    repository: 'https://github.com/Youzini-afk/Varin', license: 'AGPL-3.0',
+    readmes: {
+      'zh-cn': 'https://github.com/Youzini-afk/Varin/blob/main/.github/readme/README.zh-CN.md',
+      'zh-hant': 'https://github.com/Youzini-afk/Varin/blob/main/.github/readme/README.zh-TW.md',
+      ja: 'https://github.com/Youzini-afk/Varin/blob/main/.github/readme/README.ja.md',
+      fr: 'https://github.com/Youzini-afk/Varin/blob/main/.github/readme/README.fr.md'
+    },
+    startLinks: [
+      'https://github.com/Youzini-afk/Varin/releases',
+      'https://github.com/Youzini-afk/Varin/blob/main/docs/ops/cloud-deployment.md',
+      'https://github.com/Youzini-afk/Varin/blob/main/packages/mobile/README.md',
+      'https://github.com/Youzini-afk/Varin/blob/main/docs/ops/varin-extension-authoring.md'
+    ],
+    tags: ['Rust', 'TypeScript', 'Desktop', 'Web', 'Mobile'],
+    status: 'In active development before 1.0',
+    figure: 'Models, tools, files, and projects meet in one Rust runtime; workbenches present the work on desktop, web, and mobile.',
     sections: [
-      { title: 'A system that helps models finish the work.', paragraphs: ['A harness determines how a model finds evidence, uses tools, maintains context, and verifies results. Piarium connects that execution system to live code, editor drafts, terminals, task branches, and review evidence.'] },
-      { title: 'Engineering capability across the task lifecycle.', features: [
-        ['CONTEXT', 'Keep long tasks continuous', 'Layer stable instructions, session history, and dynamic state; retain sources and coverage through context compression.'],
-        ['CODE INTELLIGENCE', 'Find the implementation behind a question', 'Combine exact search, symbols, semantic retrieval, and model-selected excerpts with source locations.'],
-        ['TOOLS', 'Support complete execution', 'Unify terminals, file editing, language diagnostics, and network tools, including background commands and shared terminal access.'],
-        ['COORDINATION', 'Organize parallel work', 'Choose roles and models by task, track durable work threads, and coordinate isolated changes through reviewable integration.'],
-        ['VERIFICATION', 'Make delivery traceable', 'Associate commands, tests, builds, diagnostics, and automated review with the task and artifact revision they support.'],
-        ['RECOVERY', 'Keep changes reviewable and recoverable', 'Checkpoints, rollback, and undo coordinate tracked files, editor drafts, agent results, and persistent work state.']
+      { title: 'One workspace for the whole piece of work.', paragraphs: ['Varin’s harness connects the model to tools, context, permissions, background work, and child agents. A native Rust runtime stores conversations and execution records, and the shared Application Host supplies model connections and workspace services.'] },
+      { title: 'What you can do in Varin.', features: [
+        ['TASKS', 'Work through a task', 'Streaming conversations, queued messages, plans, child agents, and scheduled follow-ups.'],
+        ['PROJECTS', 'Develop a project', 'Edit files, inspect diffs, use Git and worktrees, run terminals, and search code with language and retrieval tools.'],
+        ['RESEARCH', 'Read and research', 'Search the web and scholarly sources, read PDFs, and keep source material alongside the conversation.'],
+        ['VISUALS', 'Make something visual', 'Generate and edit images, and create interactive HTML charts and small tools inside a message.'],
+        ['SETUP', 'Choose your setup', 'Connect cloud or local models, set permissions, and configure instructions, skills, and MCP servers.'],
+        ['DEVICES', 'Work across machines', 'Use a local workspace, or connect to a remote Host from desktop, a browser, or mobile.']
       ] },
-      { title: 'Work state that outlives one conversation.', paragraphs: ['Plans, task threads, command output, durable knowledge, and workspace revisions keep separate records. The next turn can recover relevant material and preserve the link between a result and its evidence.', 'TriviumDB supplies embedded knowledge and retrieval beneath the harness, connecting project knowledge, code evidence, and accumulated working memory.'] }
+      { title: 'Four workbenches, one shared state.', paragraphs: ['Each workbench arranges the same conversations, files, and running work for a different kind of task. Workbenches are ordinary built-in extensions that can be disabled or replaced; switching one does not change the model, the permissions, or work already under way.'], workbenches: [
+        ['Agent', 'Conversation and tasks at the centre, with the editor beside the chat.', 'Desktop · Web · Mobile'],
+        ['IDE', 'The editor at the centre, alongside Git, terminals, and language tools.', 'Desktop · Web'],
+        ['Research', 'A layout for searching, reading papers, and keeping sources at hand.', 'Desktop · Web · Mobile'],
+        ['Bot', 'Bot conversations with their own ownership and knowledge.', 'Desktop · Web · Mobile']
+      ] },
+      { title: 'A workspace you can extend.', paragraphs: ['Common tools are declared directly. Other capabilities have an index and on-demand descriptions, so discovering a tool keeps the declaration prefix stable. Extensions can add tools, model adapters, panels, and entire workbench layouts.', 'Plans and knowledge are kept by a private KnowledgeStore process built on TriviumDB.'] },
+      { title: 'Start here.', paragraphs: ['Varin is in active development before 1.0, and the release notes describe each published build. Back up important application data before upgrading.'], start: [
+        ['DESKTOP', 'Windows, macOS, or Linux', 'Download the installer for your operating system and CPU architecture.', 'Download a release'],
+        ['SELF-HOSTED', 'Your own machine or server', 'Run it with Docker and use it in a browser, with persistent storage, passwords, and remote access.', 'Self-host with Docker'],
+        ['MOBILE', 'iOS or Android', 'The mobile client connects to an existing Host.', 'Mobile setup'],
+        ['EXTEND', 'Build extensions', 'Start from the authoring guide, the SDK, or working examples to add capabilities.', 'Extension authoring guide']
+      ] }
     ]
   }
 } as const;

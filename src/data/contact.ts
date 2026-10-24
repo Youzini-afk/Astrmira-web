@@ -22,7 +22,7 @@ export const contactEnglish = {
     },
     {
       "title": "Open-source exchange",
-      "text": "Share your experience with TriviumDB, infOS, or Piarium, suggest improvements, or discuss a contribution. Help these tools respond to real problems."
+      "text": "Share your experience with TriviumDB, infOS, or Varin, suggest improvements, or discuss a contribution. Help these tools respond to real problems."
     }
   ],
   "researchLink": "Explore our research",
@@ -70,7 +70,7 @@ export const contactChinese: typeof contactEnglish = {
     },
     {
       "title": "开源交流",
-      "text": "分享 TriviumDB、infOS 或 Piarium 的使用体验、改进建议与贡献设想，一起让工具更好地回应真实问题。"
+      "text": "分享 TriviumDB、infOS 或 Varin 的使用体验、改进建议与贡献设想，一起让工具更好地回应真实问题。"
     }
   ],
   "researchLink": "了解我们的研究",

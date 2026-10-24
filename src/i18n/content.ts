@@ -9,7 +9,7 @@ export type SiteContent = Widen<typeof baseContent>;
 const cache = new Map<InternationalLocale, SiteContent>();
 // These are identities or external resources, not display prose.
 function isMetadata(path: string, key: string) {
-  return (/\.projectDetails\.[^.]+$/.test(path) && ['name', 'kind', 'repository', 'license'].includes(key))
+  return (/\.projectDetails\.[^.]+$/.test(path) && ['name', 'kind', 'repository', 'license', 'readmes', 'startLinks'].includes(key))
     || (/\.about\.projects\.\d+$/.test(path) && ['name', 'path'].includes(key))
     || (/\.about\.names\.\d+$/.test(path) && key === 'term');
 }

@@ -24,3 +24,8 @@
 /:locale/research/quantization/* /:locale/research/ 301
 /:locale/research/post-training/* /:locale/research/ 301
 /:locale/research/mathematics/* /:locale/research/ 301
+# Piarium grew into Varin.
+/projects/piarium /projects/varin/ 301
+/projects/piarium/* /projects/varin/ 301
+/:locale/projects/piarium /:locale/projects/varin/ 301
+/:locale/projects/piarium/* /:locale/projects/varin/ 301

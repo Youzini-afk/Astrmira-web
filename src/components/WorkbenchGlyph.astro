@@ -1,0 +1,37 @@
+---
+// A small window sketch of each Varin workbench layout: Agent, IDE, Research, Bot.
+interface Props { kind: number }
+const { kind } = Astro.props;
+---
+<svg class="workbench-glyph" viewBox="0 0 96 60" fill="none" aria-hidden="true">
+  <rect x=".5" y=".5" width="95" height="59" rx="5" stroke="#91b9d5" stroke-opacity=".35" />
+  <path d="M.5 9.5H95.5" stroke="#91b9d5" stroke-opacity=".25" />
+  <g fill="#d6b881" opacity=".6"><circle cx="6" cy="5" r="1.2" /><circle cx="10.5" cy="5" r="1.2" /><circle cx="15" cy="5" r="1.2" /></g>
+  {kind === 0 && <g stroke-linecap="round">
+    <path d="M8 19H38M8 27H46M8 35H32" stroke="#91b9d5" stroke-opacity=".5" stroke-width="3" />
+    <rect x="8" y="44" width="40" height="8" rx="2" stroke="#d6b881" stroke-opacity=".6" />
+    <rect x="56" y="15" width="32" height="38" rx="2" stroke="#91b9d5" stroke-opacity=".4" />
+    <path d="M61 22H80M61 28H75M61 34H82" stroke="#d6b881" stroke-opacity=".55" stroke-width="2" />
+  </g>}
+  {kind === 1 && <g stroke-linecap="round">
+    <path d="M22 9.5V59.5" stroke="#91b9d5" stroke-opacity=".3" />
+    <path d="M6 16H16M6 22H14M6 28H17" stroke="#91b9d5" stroke-opacity=".4" stroke-width="2" />
+    <path d="M30 17H62M34 23H74M34 29H56M30 35H50" stroke="#d6b881" stroke-opacity=".55" stroke-width="2" />
+    <rect x="28" y="42" width="61" height="11" rx="2" stroke="#91b9d5" stroke-opacity=".45" />
+    <path d="M32 47.5L35 45M32 47.5L35 50" stroke="#91b9d5" stroke-opacity=".6" />
+  </g>}
+  {kind === 2 && <g stroke-linecap="round">
+    <rect x="9" y="15" width="44" height="39" rx="2" stroke="#d6b881" stroke-opacity=".6" />
+    <path d="M15 22H46M15 28H43M15 34H46M15 40H36" stroke="#91b9d5" stroke-opacity=".45" stroke-width="2" />
+    <path d="M60 18H88M60 29H85M60 40H88" stroke="#91b9d5" stroke-opacity=".3" />
+    <circle cx="62" cy="23.5" r="1.4" fill="#d6b881" opacity=".8" /><circle cx="62" cy="34.5" r="1.4" fill="#91b9d5" opacity=".7" /><circle cx="62" cy="45.5" r="1.4" fill="#91b9d5" opacity=".7" />
+    <path d="M66 23.5H84M66 34.5H80M66 45.5H83" stroke="#91b9d5" stroke-opacity=".45" stroke-width="2" />
+  </g>}
+  {kind === 3 && <g>
+    <rect x="9" y="16" width="38" height="10" rx="5" stroke="#91b9d5" stroke-opacity=".5" />
+    <rect x="44" y="31" width="42" height="10" rx="5" stroke="#d6b881" stroke-opacity=".6" />
+    <rect x="9" y="46" width="30" height="8" rx="4" stroke="#91b9d5" stroke-opacity=".4" />
+    <circle cx="80" cy="18" r="5" stroke="#d6b881" stroke-opacity=".55" />
+    <path d="M77.5 18H82.5M80 15.5V20.5" stroke="#d6b881" stroke-opacity=".6" />
+  </g>}
+</svg>

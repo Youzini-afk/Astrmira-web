@@ -77,12 +77,12 @@ export const aboutCopy: Record<'zh-cn' | 'en', AboutCopy> = {
     practiceTitle: '让研究与系统，相互推动。',
     practice: [
       '我们的研究方向随着问题展开。目前，我们从数据库与检索、向量表示、模型量化等方向持续探索，也关注后训练与数学中的基础问题。论文记录阶段性的发现，系统让这些想法接受更长时间的使用与检验。',
-      '这条路径也体现在我们正在建设的开源项目中：从组织数据，到连接记忆与行动，再到支撑复杂任务的持续执行。',
+      '这条路径也体现在我们正在建设的开源项目中：从组织数据，到连接记忆与行动，再到人与 Agent 共同工作的空间。',
     ],
     projects: [
       { name: 'TriviumDB', path: '/projects/data-systems/', description: '从数据的组织方式出发，让向量、图谱与文档共享一个内核，为检索、记忆与知识应用提供基础。' },
       { name: 'infOS', path: '/projects/agent-platform/', description: '连接长期记忆、上下文与工具能力，探索 AI 伙伴如何在持续的对话和行动中保持连贯。' },
-      { name: 'Piarium', path: '/projects/piarium/', description: '构建面向复杂工程任务的 Agent Harness，将代码检索、上下文、协作与验证组织成可持续推进的工作过程。' },
+      { name: 'Varin', path: '/projects/varin/', description: '开源的通用 Agent 工作台，把模型、工具、文件和项目放在同一个工作空间里，让排查、编码与研究的过程和结果都留在对话中。' },
     ],
     collaborationTitle: '让不同的经验，在问题上相遇。',
     collaboration: [
@@ -135,12 +135,12 @@ export const aboutCopy: Record<'zh-cn' | 'en', AboutCopy> = {
     practiceTitle: 'Let research and systems inform each other.',
     practice: [
       'Our research directions develop with the questions. Current interests include databases and retrieval, vector representations, and model quantization, alongside foundational questions in post-training and mathematics. Papers record findings along the way; systems give ideas a longer encounter with practical use.',
-      'This approach also shapes the open-source projects we are building: from organizing data, to connecting memory with action, to supporting sustained work on complex tasks.',
+      'This approach also shapes the open-source projects we are building: from organizing data, to connecting memory with action, to a shared space where people and agents work together.',
     ],
     projects: [
       { name: 'TriviumDB', path: '/projects/data-systems/', description: 'A shared core for vectors, graphs, and documents, providing a foundation for retrieval, memory, and knowledge applications.' },
       { name: 'infOS', path: '/projects/agent-platform/', description: 'Long-term memory, context, and tools brought together to explore how an AI companion can remain coherent across ongoing conversations and actions.' },
-      { name: 'Piarium', path: '/projects/piarium/', description: 'An Agent Harness for complex engineering tasks, organizing code retrieval, context, collaboration, and verification into work that can keep moving forward.' },
+      { name: 'Varin', path: '/projects/varin/', description: 'An open-source workspace for AI agents, bringing models, tools, files, and projects together so investigation, coding, and research stay reviewable in one conversation.' },
     ],
     collaborationTitle: 'Bring different experience to a shared question.',
     collaboration: [

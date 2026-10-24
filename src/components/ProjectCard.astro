@@ -1,22 +1,22 @@
 ---
 import TriviumArtwork from './TriviumArtwork.astro';
 import InfosArtwork from './InfosArtwork.astro';
-import PiariumArtwork from './PiariumArtwork.astro';
+import VarinArtwork from './VarinArtwork.astro';
 import { projectDetails } from '../data/english';
 import { getContent, getUi } from '../i18n/content';
 import { localePath, type Locale } from '../i18n';
-interface Props { locale?: Locale; project: 'trivium' | 'infos' | 'piarium' }
+interface Props { locale?: Locale; project: 'trivium' | 'infos' | 'varin' }
 const { locale = 'zh-cn', project } = Astro.props;
-// The index follows the sequence on the page: data core, companion runtime, execution harness.
+// The index follows the sequence on the page: data core, companion runtime, agent workspace.
 const identities = {
   trivium: { index: '01', slug: 'data-systems', category: 'data', artwork: TriviumArtwork },
   infos: { index: '02', slug: 'agent-platform', category: 'agents', artwork: InfosArtwork },
-  piarium: { index: '03', slug: 'piarium', category: 'harness', artwork: PiariumArtwork },
+  varin: { index: '03', slug: 'varin', category: 'workspace', artwork: VarinArtwork },
 } as const;
 const chinese = {
   trivium: { label: 'SYSTEMS', accessible: '了解 TriviumDB 嵌入式数据库', description: '向量、图谱与文档共用一个内核。以 Rust 构建的 AI 原生嵌入式数据库，为 Agent 记忆与本地知识库连接语义、内容和关系。', tags: 'VECTOR · GRAPH · DOCUMENT' },
   infos: { label: 'INTELLIGENCE', accessible: '了解 infOS AI 伙伴运行时', description: '面向 AI 伙伴的开源运行时，连接长期记忆、上下文与工具能力。以 TriviumDB 为记忆底座，为 PeroperoChat 承载持续对话与桌面交互。', tags: 'MEMORY · CONTEXT · TOOLS' },
-  piarium: { label: 'AGENT HARNESS', accessible: '了解 Piarium Agent Harness', description: '面向复杂工程任务的完整 Agent Harness，贯通代码检索、上下文与记忆、多 Agent 协作和结果验证，让任务从理解问题持续推进到交付。', tags: 'CONTEXT · EXECUTION · VERIFICATION' },
+  varin: { label: 'AGENT WORKSPACE', accessible: '了解 Varin Agent 工作台', description: '开源的通用 Agent 工作台。把模型、工具、文件和项目放进同一个工作空间，由原生 Rust 运行时管理执行与会话，在桌面、网页和移动端使用。', tags: 'TOOLS · RUNTIME · WORKBENCHES' },
 };
 const identity = identities[project];
 const { name, repository, license } = projectDetails[identity.slug];

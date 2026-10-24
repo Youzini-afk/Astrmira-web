@@ -1,7 +1,10 @@
 ---
 interface Props { decorative?: boolean; label?: string }
-const { decorative = true, label = 'Piarium 将上下文送入执行环境，分派并行任务，汇集验证结果，并把反馈带回后续执行。' } = Astro.props;
-const branches = [77, 125, 173];
+const { decorative = true, label = 'Varin 把模型、工具、文件与项目汇入同一个 Rust 运行时，再由 Agent、IDE、Research 与 Bot 工作台按任务呈现，并在桌面、网页与移动端使用。' } = Astro.props;
+// Inputs on the left converge into the runtime cube; the cube feeds a stack of
+// swappable workbenches and reaches three surfaces below.
+const inputs = [77, 109, 141, 173];
+const stack = [[286, 70], [278, 82], [270, 94]];
 ---
 
 <svg viewBox="0 0 380 250" fill="none" aria-hidden={decorative ? 'true' : undefined}
@@ -9,25 +12,50 @@ const branches = [77, 125, 173];
   aria-label={decorative ? undefined : label}>
   <g stroke="#91b9d5" stroke-width=".7">
     <path d="M22 224H358M190 30V225" stroke-opacity=".1" />
-    <path d="M42 99L66 87L90 99L66 111ZM42 111L66 123L90 111M42 123L66 135L90 123M42 135L66 147L90 135M42 147L66 159L90 147" stroke-opacity=".55" />
-    <path d="M91 125H123" stroke-opacity=".55" />
-    {branches.map(y => <path d={`M167 125C189 125 186 ${y} 216 ${y}M230 ${y}C263 ${y} 268 125 292 125`} stroke-opacity={y === 125 ? .65 : .35} />)}
+    <ellipse cx="190" cy="125" rx="138" ry="72" stroke-opacity=".1" stroke-dasharray="2 7" />
+    {inputs.map(y => <path d={`M65 ${y}C112 ${y} 118 125 160 125`} stroke-opacity={y === 109 ? .6 : .32} />)}
+    <path d="M216 125H250" stroke-opacity=".55" />
+    <path d="M190 156V176M154 176H226M154 176V183M190 176V183M226 176V183" stroke-opacity=".3" stroke-dasharray="2 3" />
   </g>
-  <circle cx="145" cy="125" r="28" stroke="#d6b881" stroke-opacity=".15" stroke-width=".7" />
-  <path d="M145 101L166 113V137L145 149L124 137V113Z" fill="#d6b881" fill-opacity=".06" stroke="#d6b881" stroke-opacity=".7" stroke-width=".8" />
-  <path d="M140 116L150 125L140 134M152 136H160" stroke="#d6b881" stroke-opacity=".8" stroke-width="1" />
-  {branches.map(y => <g>
-    <circle cx="223" cy={y} r="7" fill="#0d131d" stroke="#91b9d5" stroke-opacity=".65" stroke-width=".7" />
-    <circle cx="223" cy={y} r="2" fill={y === 125 ? '#d6b881' : '#91b9d5'} opacity=".8" />
+  {inputs.map((y, i) => <g>
+    <circle cx="58" cy={y} r="7" fill="#0d131d" stroke="#91b9d5" stroke-opacity=".6" stroke-width=".7" />
+    <circle cx="58" cy={y} r={i === 1 ? 2.4 : 1.7} fill={i === 1 ? '#d6b881' : '#91b9d5'} opacity=".8" />
   </g>)}
-  <path d="M312 104L333 125L312 146L291 125Z" fill="#d6b881" fill-opacity=".035" stroke="#d6b881" stroke-opacity=".6" stroke-width=".8" />
-  <path d="M303 125L310 132L322 117" stroke="#d6b881" stroke-opacity=".85" stroke-width="1" />
-  <path d="M312 152C312 211 89 225 66 169" stroke="#d6b881" stroke-opacity=".3" stroke-width=".8" />
-  <path d="M63 177L66 169L73 174" stroke="#d6b881" stroke-opacity=".5" stroke-width=".8" />
+
+  <circle cx="190" cy="125" r="36" stroke="#d6b881" stroke-opacity=".16" stroke-width=".7" />
+  <g stroke="#d6b881" stroke-width=".8" stroke-linejoin="round">
+    <path d="M190 96L215 110.5L190 125L165 110.5Z" fill="#d6b881" fill-opacity=".14" stroke-opacity=".75" />
+    <path d="M165 110.5L190 125V154L165 139.5Z" fill="#d6b881" fill-opacity=".04" stroke-opacity=".6" />
+    <path d="M215 110.5L190 125V154L215 139.5Z" fill="#d6b881" fill-opacity=".08" stroke-opacity=".6" />
+  </g>
+  <circle cx="190" cy="125" r="2.2" fill="#d6b881" />
+
+  {stack.map(([x, y], i) => <g>
+    <rect x={x} y={y} width="70" height="52" rx="4" fill="#0d131d" stroke="#91b9d5" stroke-opacity={.2 + i * .1} stroke-width=".7" />
+    <path d={`M${x} ${y + 9}H${x + 70}`} stroke="#91b9d5" stroke-opacity={.12 + i * .06} stroke-width=".7" />
+  </g>)}
+  <rect x="262" y="106" width="70" height="52" rx="4" fill="#0d131d" stroke="#d6b881" stroke-opacity=".7" stroke-width=".8" />
+  <path d="M262 115H332" stroke="#d6b881" stroke-opacity=".35" stroke-width=".7" />
+  <g fill="#d6b881" opacity=".7"><circle cx="268" cy="110.5" r="1.1" /><circle cx="273" cy="110.5" r="1.1" /><circle cx="278" cy="110.5" r="1.1" /></g>
+  <g stroke-width="3" stroke-linecap="round">
+    <path d="M270 125H300" stroke="#91b9d5" stroke-opacity=".45" />
+    <path d="M294 135H324" stroke="#d6b881" stroke-opacity=".55" />
+    <path d="M270 145H290" stroke="#91b9d5" stroke-opacity=".3" />
+  </g>
+
+  <g stroke="#91b9d5" stroke-opacity=".55" stroke-width=".7">
+    <rect x="142" y="187" width="24" height="15" rx="1.5" />
+    <path d="M150 206H158M154 202V206" />
+    <rect x="178" y="187" width="24" height="17" rx="1.5" />
+    <path d="M178 191.5H202" />
+    <rect x="221" y="186" width="10" height="18" rx="2.5" />
+    <path d="M224.5 201.5H227.5" />
+  </g>
+
   {!decorative && <g fill="#91a5b9" font-family="monospace" font-size="8" letter-spacing="1" text-anchor="middle">
-    <text x="66" y="60">CONTEXT</text>
-    <text x="190" y="49">EXECUTION</text>
-    <text x="309" y="60">VERIFY</text>
-    <text x="190" y="230">FEEDBACK</text>
+    <text x="58" y="55">INPUTS</text>
+    <text x="190" y="58">RUNTIME</text>
+    <text x="309" y="58">WORKBENCHES</text>
+    <text x="190" y="219">DESKTOP · WEB · MOBILE</text>
   </g>}
 </svg>

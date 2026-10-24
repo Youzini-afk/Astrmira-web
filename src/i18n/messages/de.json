@@ -193,7 +193,7 @@
       "all": "Alle Projekte",
       "data": "Datensysteme",
       "agents": "Agenten",
-      "harness": "Agenten-Infrastruktur",
+      "workspace": "Agenten-Arbeitsbereich",
       "filter": "Projekte filtern",
       "count": "{count} Projekte",
       "countOne": "{count} Projekt"
@@ -274,7 +274,7 @@
       "Forschung",
       "Wirklichkeit werden lassen."
     ],
-    "projectsNote": "Von Datengrundlagen und intelligenten Begleitern bis zur verlässlichen Ausführung komplexer Aufgaben.",
+    "projectsNote": "Von Datengrundlagen und intelligenten Begleitern bis zu einem Arbeitsbereich für die Arbeit mit Agenten.",
     "nameLabel": "Die Geschichte unseres Namens",
     "nameHeading": [
       "Ein wunderbarer Stern.",
@@ -306,22 +306,22 @@
       "description": "Eine offene Laufzeitumgebung für KI-Begleiter, die Langzeitgedächtnis, Kontext und Werkzeuge für fortlaufende Gespräche und Desktop-Interaktion verbindet.",
       "tags": "Gedächtnis · Kontext · Werkzeuge"
     },
-    "piarium": {
-      "label": "Agenten-Infrastruktur",
-      "accessible": "Den Piarium Agent Harness entdecken",
-      "description": "Ein umfassender Agent Harness für komplexe Entwicklungsarbeit: Codesuche, Kontext und Gedächtnis, Koordination mehrerer Agenten und überprüfbare Ergebnisse.",
-      "tags": "Kontext · Ausführung · Prüfung"
+    "varin": {
+      "label": "Agenten-Arbeitsbereich",
+      "accessible": "Den Agenten-Arbeitsbereich Varin entdecken",
+      "description": "Ein quelloffener Arbeitsbereich für KI-Agenten. Modelle, Werkzeuge, Dateien und Projekte kommen an einem Ort zusammen, mit nativer Rust-Laufzeit und Clients für Desktop, Web und Mobilgeräte.",
+      "tags": "Werkzeuge · Laufzeit · Arbeitsflächen"
     }
   },
   "projectPage": {
     "title": "Projekte · Offene Systeme — Astrmira",
-    "description": "Entdecken Sie die Astrmira-Projekte TriviumDB, infOS und den Agent Harness Piarium.",
+    "description": "Entdecken Sie die Astrmira-Projekte TriviumDB, infOS und den Agenten-Arbeitsbereich Varin.",
     "label": "Projekte / Open Source",
     "heading": [
       "Ideen",
       "werden greifbar."
     ],
-    "introduction": "Vom Datenkern in TriviumDB über die Begleiter-Laufzeit infOS bis zur kontinuierlichen Ausführung in Piarium: Wir machen aus Forschung nutzbare Systeme.",
+    "introduction": "Vom Datenkern in TriviumDB über die Begleiter-Laufzeit infOS bis zum Agenten-Arbeitsbereich Varin: Wir machen aus Forschung nutzbare Systeme.",
     "noteHeading": "Forschung und Produkte entwickeln sich wechselseitig.",
     "note": "Forschung gibt Systemen neue Methoden. Reale Nutzung stellt der Forschung neue Fragen."
   },
@@ -388,7 +388,7 @@
       },
       {
         "title": "Austausch zu Open Source",
-        "text": "Teilen Sie Erfahrungen mit TriviumDB, infOS oder Piarium, schlagen Sie Verbesserungen vor oder besprechen Sie einen Beitrag. Gemeinsam richten wir die Werkzeuge an realen Problemen aus."
+        "text": "Teilen Sie Erfahrungen mit TriviumDB, infOS oder Varin, schlagen Sie Verbesserungen vor oder besprechen Sie einen Beitrag. Gemeinsam richten wir die Werkzeuge an realen Problemen aus."
       }
     ],
     "researchLink": "Unsere Forschung entdecken",
@@ -501,7 +501,7 @@
     "practiceTitle": "Forschung und Systeme voneinander lernen lassen.",
     "practice": [
       "Unsere Forschungsrichtungen entwickeln sich mit den Fragen. Aktuell interessieren uns Datenbanken und Suche, Vektorrepräsentationen und Modellquantisierung sowie Grundlagenfragen zu Nachtraining und Mathematik. Artikel halten Erkenntnisse fest; Systeme setzen Ideen über längere Zeit der Praxis aus.",
-      "Diese Haltung prägt auch unsere offenen Projekte: von der Organisation von Daten über die Verbindung von Gedächtnis und Handlung bis zur kontinuierlichen Arbeit an komplexen Aufgaben."
+      "Diese Haltung prägt auch unsere offenen Projekte: von der Organisation von Daten über die Verbindung von Gedächtnis und Handlung bis zu einem Raum, in dem Menschen und Agenten zusammenarbeiten."
     ],
     "projects": [
       {
@@ -511,7 +511,7 @@
         "description": "Langzeitgedächtnis, Kontext und Werkzeuge verbinden sich zu der Frage, wie ein KI-Begleiter über fortlaufende Gespräche und Handlungen hinweg konsistent bleibt."
       },
       {
-        "description": "Ein Agent Harness für komplexe Entwicklungsaufgaben, der Codesuche, Kontext, Zusammenarbeit und Prüfung zu kontinuierlichem Arbeitsfortschritt verbindet."
+        "description": "Ein quelloffener Arbeitsbereich für KI-Agenten, der Modelle, Werkzeuge, Dateien und Projekte zusammenbringt, damit Recherche, Programmierung und Forschung in einem Gespräch nachvollziehbar bleiben."
       }
     ],
     "collaborationTitle": "Unterschiedliche Erfahrung für eine gemeinsame Frage.",
@@ -624,64 +624,126 @@
         }
       ]
     },
-    "piarium": {
-      "eyebrow": "PIARIUM / AGENT HARNESS",
-      "title": "Modellfähigkeiten in vollständige Ausführung überführen.",
-      "description": "Ein umfassender Agent Harness für komplexe Softwareentwicklung. Piarium verbindet Codeverständnis, Kontext und Gedächtnis, Werkzeugausführung, Koordination mehrerer Agenten, Prüfung und Wiederherstellung des Arbeitsbereichs — von der ersten Untersuchung bis zum überprüfbaren Ergebnis.",
+    "varin": {
+      "eyebrow": "VARIN / AGENTEN-ARBEITSBEREICH",
+      "title": "Modelle, Werkzeuge und Projekte in einem Arbeitsbereich.",
+      "description": "Ein quelloffener Arbeitsbereich für KI-Agenten. Untersuchen Sie mit einem Agenten ein Problem, schreiben Sie Code, lesen Sie Fachartikel oder erstellen Sie eine interaktive Erklärung und prüfen Sie die Arbeit im selben Gespräch. Varin läuft auf dem Desktop und im Web; ein mobiler Client verbindet sich mit Ihrem Host.",
       "tags": [
-        "Code-Intelligenz",
-        "Mehrere Agenten",
+        "Rust",
+        "TypeScript",
         "Desktop",
-        "Web"
+        "Web",
+        "Mobil"
       ],
-      "figure": "Kontext verstehen, Ausführung organisieren und Prüfungsergebnisse in die nächste Handlung einfließen lassen.",
+      "status": "In aktiver Entwicklung vor Version 1.0",
+      "figure": "Modelle, Werkzeuge, Dateien und Projekte treffen in einer Rust-Laufzeit zusammen; Arbeitsflächen zeigen die Arbeit auf Desktop, Web und Mobilgeräten.",
       "sections": [
         {
-          "title": "Ein System, mit dem Modelle die Arbeit abschließen.",
+          "title": "Ein Arbeitsbereich für die ganze Arbeit.",
           "paragraphs": [
-            "Ein Harness bestimmt, wie ein Modell Belege findet, Werkzeuge nutzt, Kontext erhält und Ergebnisse prüft. Piarium verbindet dieses Ausführungssystem mit aktuellem Code, Editorentwürfen, Terminals, Aufgabenbranches und Prüfbelegen."
+            "Der Harness von Varin verbindet das Modell mit Werkzeugen, Kontext, Berechtigungen, Hintergrundarbeit und untergeordneten Agenten. Eine native Rust-Laufzeit speichert Gespräche und Ausführungsprotokolle; der gemeinsame Application Host stellt Modellverbindungen und Dienste für den Arbeitsbereich bereit."
           ]
         },
         {
-          "title": "Entwicklungsfähigkeiten über die gesamte Aufgabe hinweg.",
+          "title": "Was Sie mit Varin tun können.",
           "features": [
             [
-              "KONTEXT",
-              "Lange Aufgaben zusammenhängend halten",
-              "Stabile Anweisungen, Sitzungsverlauf und dynamischen Zustand schichten; Quellen und Abdeckung bei der Kontextkompression erhalten."
+              "AUFGABEN",
+              "Eine Aufgabe voranbringen",
+              "Gestreamte Gespräche, Nachrichten in der Warteschlange, Pläne, untergeordnete Agenten und geplante Folgeaufgaben."
             ],
             [
-              "CODE-INTELLIGENZ",
-              "Die Implementierung hinter einer Frage finden",
-              "Exakte Suche, Symbole, semantische Suche und vom Modell ausgewählte Ausschnitte mit ihren Quellpositionen verbinden."
+              "PROJEKTE",
+              "Ein Projekt entwickeln",
+              "Dateien bearbeiten, Änderungen vergleichen, Git und Worktrees nutzen, Terminals ausführen und Code mit Sprach- und Suchwerkzeugen durchsuchen."
             ],
             [
-              "WERKZEUGE",
-              "Vollständige Ausführung unterstützen",
-              "Terminals, Dateibearbeitung, Sprachdiagnostik und Netzwerkwerkzeuge vereinen, einschließlich Hintergrundbefehlen und gemeinsamem Terminalzugriff."
+              "RECHERCHE",
+              "Lesen und recherchieren",
+              "Web- und Fachsuche, PDFs lesen und Quellenmaterial neben dem Gespräch aufbewahren."
             ],
             [
-              "KOORDINATION",
-              "Parallele Arbeit organisieren",
-              "Rollen und Modelle nach Aufgabe wählen, dauerhafte Arbeitsstränge verfolgen und isolierte Änderungen durch überprüfbare Integration koordinieren."
+              "VISUALISIERUNG",
+              "Etwas Visuelles gestalten",
+              "Bilder erzeugen und bearbeiten sowie interaktive HTML-Diagramme und kleine Werkzeuge in einer Nachricht erstellen."
             ],
             [
-              "PRÜFUNG",
-              "Ergebnisse nachvollziehbar machen",
-              "Befehle, Tests, Builds, Diagnosen und automatische Reviews mit der Aufgabe und Artefaktversion verknüpfen, die sie belegen."
+              "EINRICHTUNG",
+              "Die eigene Umgebung wählen",
+              "Cloud- oder lokale Modelle verbinden, Berechtigungen festlegen und Anweisungen, Skills und MCP-Server konfigurieren."
             ],
             [
-              "WIEDERHERSTELLUNG",
-              "Änderungen prüfbar und wiederherstellbar halten",
-              "Checkpoints, Rollback und Rückgängig-Funktionen koordinieren verfolgte Dateien, Editorentwürfe, Agentenergebnisse und dauerhaften Arbeitszustand."
+              "GERÄTE",
+              "Geräteübergreifend arbeiten",
+              "Einen lokalen Arbeitsbereich nutzen oder sich von Desktop, Browser oder Mobilgerät mit einem entfernten Host verbinden."
             ]
           ]
         },
         {
-          "title": "Arbeitszustand über ein Gespräch hinaus.",
+          "title": "Vier Arbeitsflächen, ein gemeinsamer Zustand.",
           "paragraphs": [
-            "Pläne, Aufgabenstränge, Befehlsausgaben, dauerhaftes Wissen und Arbeitsbereichsversionen werden getrennt festgehalten. Im nächsten Schritt lassen sich relevante Inhalte wiederfinden und Ergebnis und Beleg verbunden halten.",
-            "TriviumDB stellt eingebettetes Wissen und Suche unterhalb des Harness bereit und verbindet Projektwissen, Codebelege und angesammeltes Arbeitsgedächtnis."
+            "Die mitgelieferten Arbeitsflächen Agent, IDE, Research und Bot ordnen dieselben Gespräche, Dateien und laufenden Arbeiten für unterschiedliche Aufgaben an. Sie sind gewöhnliche integrierte Erweiterungen, die sich deaktivieren oder ersetzen lassen; ein Wechsel ändert weder Modell noch Berechtigungen noch bereits laufende Arbeit."
+          ],
+          "workbenches": [
+            [
+              "Agent",
+              "Gespräch und Aufgaben im Mittelpunkt, der Editor neben dem Chat.",
+              "Desktop · Web · Mobil"
+            ],
+            [
+              "IDE",
+              "Der Editor im Mittelpunkt, mit Git, Terminals und Sprachwerkzeugen.",
+              "Desktop · Web"
+            ],
+            [
+              "Research",
+              "Ein Layout zum Suchen, Lesen von Fachartikeln und Bereithalten von Quellen.",
+              "Desktop · Web · Mobil"
+            ],
+            [
+              "Bot",
+              "Bot-Gespräche mit eigener Zuordnung und eigenem Wissen.",
+              "Desktop · Web · Mobil"
+            ]
+          ]
+        },
+        {
+          "title": "Ein erweiterbarer Arbeitsbereich.",
+          "paragraphs": [
+            "Häufige Werkzeuge werden direkt deklariert. Weitere Fähigkeiten haben einen Index und Beschreibungen auf Abruf, sodass der Deklarationspräfix stabil bleibt. Erweiterungen können Werkzeuge, Modelladapter, Panels und ganze Layouts von Arbeitsflächen hinzufügen.",
+            "Pläne und Wissen verwaltet ein privater KnowledgeStore-Prozess auf Basis von TriviumDB."
+          ]
+        },
+        {
+          "title": "Hier beginnen.",
+          "paragraphs": [
+            "Varin befindet sich vor Version 1.0 in aktiver Entwicklung; die Versionshinweise beschreiben jeden veröffentlichten Build. Sichern Sie wichtige Anwendungsdaten vor einem Upgrade."
+          ],
+          "start": [
+            [
+              "DESKTOP",
+              "Windows, macOS oder Linux",
+              "Wählen Sie den Installer für Ihr Betriebssystem und Ihre CPU-Architektur.",
+              "Version herunterladen"
+            ],
+            [
+              "SELBST GEHOSTET",
+              "Eigener Rechner oder Server",
+              "Mit Docker betreiben und im Browser nutzen, mit dauerhaftem Speicher, Passwort und Fernzugriff.",
+              "Mit Docker selbst hosten"
+            ],
+            [
+              "MOBIL",
+              "iOS oder Android",
+              "Der mobile Client verbindet sich mit einem vorhandenen Host.",
+              "Mobile Einrichtung"
+            ],
+            [
+              "ERWEITERN",
+              "Erweiterungen entwickeln",
+              "Mit dem Autorenleitfaden, dem SDK oder Beispielen Fähigkeiten hinzufügen.",
+              "Leitfaden für Erweiterungen"
+            ]
           ]
         }
       ]
