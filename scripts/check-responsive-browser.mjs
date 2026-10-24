@@ -109,7 +109,10 @@ async function checkInteractions() {
   await toggle.tap();
   const navBox = await nav.boundingBox();
   assert.ok(navBox.y + navBox.height <= 391, 'Landscape navigation must scroll within the available height.');
+  // "Work with us" opens a small menu; the contact page is its first entry.
   await nav.locator('.nav-contact').tap();
+  assert.ok(await nav.locator('.work-menu').evaluate(menu => menu.open), 'The work menu opens on tap.');
+  await nav.locator('.work-options a[data-route="collaborate"]').tap();
   await page.waitForURL('**/en/collaborate/');
   await page.setViewportSize({ width: 320, height: 568 });
   await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: { writeText: async text => { window.__copiedAddress = text; } } }));

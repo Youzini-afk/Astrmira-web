@@ -13,7 +13,6 @@ import { copyContactEmail } from './contact.js';
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const ui = getUi();
-  const standalone = document.body.dataset.mode === 'standalone';
   const main = $('#main');
   let filterResearch = 'all';
   const motion = createMotionController(main);
@@ -23,7 +22,7 @@ import { copyContactEmail } from './contact.js';
   let disposePaperCarousels = () => {};
   let disposePaperBooks = () => {};
 
-  function initPage({ focus = false } = {}) {
+  function initPage() {
     disposeArticleTocs();
     disposeArticleTocs = mountArticleTocs(main, () => motion.paused);
     disposePaperCarousels();
@@ -38,30 +37,9 @@ import { copyContactEmail } from './contact.js';
       else a.removeAttribute('aria-current');
     });
     closeMenu();
-    if (focus) main?.focus({ preventScroll: true });
     refreshNavigation();
     motion.refresh();
   }
-
-  function go(route, push = true) {
-    if (!standalone) return;
-    const template = document.getElementById('page-' + route.replaceAll('/', '--'));
-    if (!template || !main) return;
-    main.replaceChildren(template.content.cloneNode(true));
-    main.dataset.route = route;
-    const titles = $('#route-titles');
-    if (titles) {
-      try { document.title = JSON.parse(titles.textContent)[route] || 'Astrmira'; } catch (_) {}
-    }
-    if (push) history.pushState({ route }, '', '#/' + (route === 'home' ? '' : route));
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    initPage({ focus: true });
-  }
-  window.addEventListener('popstate', () => {
-    if (!standalone) return;
-    const route = location.hash.startsWith('#/') ? location.hash.slice(2) || 'home' : 'home';
-    go(route, false);
-  });
 
   function filterProjects(value) {
     let count = 0;
@@ -85,13 +63,9 @@ import { copyContactEmail } from './contact.js';
     const output = $('[data-research-count]'); if (output) output.textContent = countLabel('research', count);
   }
 
-  // One delegated listener remains valid after single-file preview navigation.
+  // One delegated listener covers every interactive control on the page.
   document.addEventListener('click', async e => {
     const target = e.target instanceof Element ? e.target : null; if (!target) return;
-    const routeLink = target.closest('a[data-route]');
-    if (routeLink && standalone && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
-      e.preventDefault(); go(routeLink.dataset.route); return;
-    }
     if (target.closest('[data-back-top]')) { e.preventDefault(); window.scrollTo({top:0,behavior:motion.paused ? 'instant' : 'smooth'}); main?.focus({preventScroll:true}); return; }
     const pf = target.closest('[data-project-filter]'); if (pf) { filterProjects(pf.dataset.projectFilter); return; }
     const rf = target.closest('[data-research-filter]'); if (rf) { filterResearch = rf.dataset.researchFilter; filterResearchItems(); return; }
@@ -106,6 +80,5 @@ import { copyContactEmail } from './contact.js';
     if (t.matches('[data-research-search]')) filterResearchItems();
   });
 
-  if (standalone && location.hash.startsWith('#/') && location.hash.length > 2) go(location.hash.slice(2), false);
-  else initPage();
+  initPage();
 })();
