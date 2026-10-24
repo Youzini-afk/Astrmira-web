@@ -108,7 +108,8 @@ const symbols = [
   .contact-direction-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
   .contact-direction { border-top: 1px solid var(--line); padding-top: 27px; }
   .contact-direction svg { width: 30px; height: 30px; color: var(--gold); opacity: .8; margin-bottom: 22px; }
-  .contact-direction h3 { font-size: 21px; margin-bottom: 15px; line-height: 1.5; }
+  /* Long compounds (German "Forschungskooperation") must hyphenate or wrap inside narrow columns. */
+  .contact-direction h3 { font-size: 21px; margin-bottom: 15px; line-height: 1.5; hyphens: auto; overflow-wrap: break-word; }
   .contact-direction p, .contact-writing p { color: var(--muted); font-size: 14px; line-height: 1.95; text-wrap: pretty; }
   .contact-writing { margin-top: 76px; padding-top: 48px; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 72px; }
   .contact-writing .eyebrow { color: var(--muted); font: 10px/1.8 var(--mono); }

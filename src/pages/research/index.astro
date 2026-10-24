@@ -36,14 +36,3 @@ import { papers } from '../../data/papers';
   </div>
 </Layout>
 
-<style>
-  .publication-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); justify-items: center; gap: 40px 32px; }
-  .publication-count { margin: 24px 0 0; color: var(--faint); font: 11px var(--mono); }
-  .empty-search { padding: 50px 0; color: var(--muted); font-size: 13px; }
-  .research-contact { padding: 0 0 95px; display: flex; align-items: center; gap: 30px; font-size: 15px; }
-  .research-contact .text-link { margin-top: 0; }
-  @media (max-width: 720px) {
-    .publication-grid { grid-template-columns: minmax(0, 360px); justify-content: center; gap: 32px; }
-    .research-contact { align-items: flex-start; flex-direction: column; gap: 16px; padding-bottom: 65px; }
-  }
-</style>
