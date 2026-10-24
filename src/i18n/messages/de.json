@@ -209,7 +209,6 @@
       "empty": "Keine passenden Artikel gefunden. Versuchen Sie ein anderes Stichwort oder Forschungsgebiet.",
       "count": "{count} Artikel",
       "countOne": "{count} Artikel",
-      "browseFields": "Forschungsgebiete erkunden",
       "arxivLabel": "{title} auf arXiv lesen (neues Fenster)"
     },
     "paper": {
@@ -338,15 +337,6 @@
     "question": "Eine Frage, die wir gemeinsam verfolgen sollten?",
     "contact": "Sprechen wir darüber"
   },
-  "fieldPage": {
-    "label": "Forschungsgebiet",
-    "unfolding": "eine Frage, die sich weiter entfaltet.",
-    "direction": "Forschungsrichtung",
-    "questions": "Offene Fragen",
-    "begin": "Mit der Frage beginnen.",
-    "approach": "Wir legen Annahmen offen, verbinden Methoden mit messbarem Verhalten und lassen Experimente und Systeme auch die Frage selbst präzisieren.",
-    "conversation": "Ein Forschungsgespräch beginnen"
-  },
   "partnerships": {
     "title": "Forschungskooperationen",
     "description": "Arbeiten Sie mit Astrmira an gemeinsamen wissenschaftlichen Fragen zu Datensystemen, effizienter Intelligenz und Mathematik.",
@@ -421,38 +411,14 @@
       }
     ]
   },
-  "fields": {
-    "databases": [
-      "Datenbanken",
-      "Datenorganisation, Anfrageausführung und Systementwurf verbinden grundlegende Methoden mit realen Arbeitslasten.",
-      "Wie kann ein Datensystem bei einer konkreten Arbeitslast und einem gegebenen Ressourcenbudget besser funktionieren?"
-    ],
-    "retrieval": [
-      "Informationssuche",
-      "Informationen finden, filtern und ordnen, damit relevante Inhalte im richtigen Moment verfügbar sind.",
-      "Wie definieren wir Relevanz und verbinden Suchqualität durch überprüfbare Belege mit Systemkosten?"
-    ],
-    "vectors": [
-      "Vektoren",
-      "Vektorrepräsentationen, Ähnlichkeit und Suchstrukturen machen Beziehungen in Datenräumen berechenbar.",
-      "Wie beeinflussen Repräsentation, Metrik und Suchstruktur gemeinsam eine konkrete Aufgabe?"
-    ],
-    "quantization": [
-      "Quantisierung",
-      "Diskrete Repräsentationen unter Ressourcenbeschränkungen und das Verhältnis zwischen Kompaktheit und erhaltener Information.",
-      "Was muss bei einer kompakteren Repräsentation erhalten bleiben, und wie sollte ihr Fehler gemessen werden?"
-    ],
-    "post-training": [
-      "Nachtraining",
-      "Methoden und Evaluation nach dem Vortraining untersuchen das Zusammenspiel von Modellfähigkeiten, Verhalten und Zielen.",
-      "Wie können explizite Daten, Ziele und Evaluation das Modellverhalten auf die gewünschte Aufgabe ausrichten?"
-    ],
-    "mathematics": [
-      "Mathematik",
-      "Definitionen, Strukturen und Herleitungen als Mittel, Forschungsfragen klarer auszudrücken.",
-      "Welche Strukturen, Annahmen und Grenzen können eine empirische Beobachtung besser erklären?"
-    ]
-  },
+  "domains": [
+    "Datenbanken",
+    "Informationssuche",
+    "Vektoren",
+    "Quantisierung",
+    "Nachtraining",
+    "Mathematik"
+  ],
   "about": {
     "title": "Über Astrmira · Staunen, Forschung und erste Prinzipien",
     "description": "Die Geschichte und Forschungshaltung von Astrmira: Neugier auf das Unbekannte, Denken aus ersten Prinzipien und Verständnis durch Belege und funktionierende Systeme.",

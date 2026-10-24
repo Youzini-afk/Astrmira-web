@@ -1,6 +1,6 @@
 import { uiEnglish } from './ui.ts';
 import { aboutCopy } from '../data/about.ts';
-import { projectDetails, researchFields } from '../data/english.ts';
+import { projectDetails, researchDomains } from '../data/english.ts';
 import { paperEnglish } from '../data/papers.ts';
 import { contactEnglish } from '../data/contact.ts';
 import { careersEnglish } from '../data/careers.ts';
@@ -9,7 +9,7 @@ export const baseContent = {
   ui: uiEnglish,
   about: aboutCopy.en,
   projectDetails,
-  fields: researchFields,
+  domains: researchDomains,
   papers: paperEnglish,
   home: {
     title: 'Astrmira · Research, systems, and lasting curiosity', description: 'Astrmira studies foundational questions in data and intelligence, then builds open systems that carry research into the real world.',
@@ -26,7 +26,6 @@ export const baseContent = {
   },
   projectPage: { title: 'Projects · Open-source systems — Astrmira', description: 'Explore Astrmira projects: TriviumDB, infOS, and the Piarium agent harness.', label: 'Projects / Open source', heading: ['Ideas,', 'made tangible.'], introduction: 'From the data core in TriviumDB and the companion runtime in infOS to sustained execution in Piarium, we build research into systems people can use.', noteHeading: 'Research and products move in both directions.', note: 'Research gives systems new methods. Real use gives research new questions.' },
   researchPage: { title: 'Research and publications — Astrmira', description: 'Read Astrmira papers and explore the questions, methods, and findings behind our research.', label: 'Research / Publications', heading: ['Questions.', 'Evidence. Progress.'], introduction: 'Our research begins with questions worth asking, then builds methods and evidence across different fields. This page brings together papers, current directions, and the next questions opened by each result.', question: 'Have a question worth pursuing together?', contact: 'Talk with us' },
-  fieldPage: { label: 'Research field', unfolding: 'an unfolding question.', direction: 'Research direction', questions: 'Open questions', begin: 'Begin with the question.', approach: 'We approach this field by making assumptions explicit, connecting methods to measurable behavior, and allowing experiments and systems to refine the question itself.', conversation: 'Start a research conversation' },
   partnerships: { title: 'Research partnerships', description: 'Work with Astrmira on shared scientific questions across data systems, efficient intelligence, and mathematics.', heading: ['Let a good question', 'meet shared curiosity.'], introduction: 'Research and university partnerships are a core direction. We connect our work in databases, retrieval, quantization, post-training, and mathematics to scientific questions that benefit from different kinds of experience.', label: 'Joint research', planning: 'Research planning', prototypes: 'Prototypes and evaluation', sections: [{ title: 'Begin with the question itself.', text: 'Questions worth sustained study often need theoretical insight, experimental method, and systems experience together. A collaboration begins with the problem rather than a predetermined technical answer.' }, { title: 'Ways to work together.', text: 'Joint problem selection, research prototypes, experimental evaluation, technical exchange, and paths toward practical use. Scope, ownership, and disclosure are agreed explicitly for each collaboration.' }, { title: 'How to begin.', text: 'Bring a question, a research plan, or a cross-disciplinary challenge. We first discuss the goal, existing foundation, and what can be shared, then design an appropriate path.' }], discuss: 'Discuss this direction' },
   collaborate: contactEnglish,
   careers: careersEnglish,

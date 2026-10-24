@@ -10,10 +10,9 @@ import { uiChinese } from '../src/i18n/ui.ts';
 const { chromium } = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const server = await serveMotionBuild();
 const origin = new URL(server.url).origin;
-const paths = ['/', '/about/', '/collaborate/', '/contact/', '/projects/',
+const paths = ['/', '/about/', '/collaborate/', '/contact/', '/careers/', '/projects/',
   '/projects/data-systems/', '/projects/agent-platform/', '/projects/piarium/', '/projects/research-partnerships/',
-  '/research/', '/research/databases/', '/research/retrieval/', '/research/vectors/',
-  '/research/quantization/', '/research/post-training/', '/research/mathematics/',
+  '/research/',
   ...Object.keys(baseContent.papers).map(slug => '/research/papers/' + slug + '/')];
 const browser = await chromium.launch({ headless: true, channel: 'msedge' });
 const errors = [];
@@ -166,6 +165,9 @@ try {
   const native = await nativeContext.newPage();
   await native.goto(origin + '/about/');
   await native.locator('.language-trigger').click();
+  // Let the 0.16s open animation finish: without page scripts, Playwright's stability
+  // check does not recover from a click issued while the menu is still moving.
+  await native.locator('.language-options').evaluate(menu => Promise.all(menu.getAnimations().map(animation => animation.finished)));
   await native.locator('[data-locale-choice="fr"]').click();
   await native.waitForURL('**/fr/about/');
   await native.goto(origin + '/fr/contact/');

@@ -1,7 +1,7 @@
 import { LOCALES, localePath, type Locale } from '../i18n';
 import { getContent, getUi } from '../i18n/content';
 import { papers, arxivUrl } from '../data/papers';
-import { projectDetails, researchFields } from '../data/english';
+import { projectDetails } from '../data/english';
 import { resolveContactEmail } from '../config/contact.js';
 
 export function structuredData({ title, description, route, locale, canonical, site }: {
@@ -61,10 +61,8 @@ export function structuredData({ title, description, route, locale, canonical, s
     const items = [{ name: ui.nav.home, item: localized('/') }];
     const group = route.split('/')[0];
     if (route.includes('/') && (group === 'projects' || group === 'research')) items.push({ name: ui.nav[group], item: localized(`/${group}/`) });
-    const field = route.split('/')[1] as keyof typeof researchFields;
-    const fieldName = researchFields[field] ? (locale === 'zh-cn' ? ({ databases: '数据库', retrieval: '检索', vectors: '向量', quantization: '量化', 'post-training': '后训练', mathematics: '数学' }[field]) : getContent(locale).fields[field][0]) : undefined;
     const labels: Record<string, string> = ui.nav;
-    const name = paper?.title || project?.name || fieldName || labels[route] || title.split(' — ')[0];
+    const name = paper?.title || project?.name || labels[route] || title.split(' — ')[0];
     items.push({ name, item: url });
     page.breadcrumb = { '@id': url + '#breadcrumb' };
     graph.push({ '@type': 'BreadcrumbList', '@id': url + '#breadcrumb', itemListElement: items.map((entry, index) => ({ '@type': 'ListItem', position: index + 1, ...entry })) });

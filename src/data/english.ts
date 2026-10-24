@@ -57,12 +57,7 @@ export const projectDetails = {
   }
 } as const;
 
-export const researchFields = {
-  databases: ['Databases', 'Data organization, query execution, and system design—connecting low-level methods with real workloads.', 'How can a data system work better under a concrete workload and resource budget?'],
-  retrieval: ['Retrieval', 'How information is discovered, filtered, and ranked so relevant material becomes available at the right moment.', 'How should relevance be defined, and how can retrieval quality be tied to system cost through testable evidence?'],
-  vectors: ['Vectors', 'Vector representations, similarity, and search structures as computable relationships inside data spaces.', 'How do representation, metric, and search structure jointly shape a specific task?'],
-  quantization: ['Quantization', 'Discrete representations under resource constraints, and the relationship between compactness and retained information.', 'When a representation becomes compact, what must survive and how should its error be measured?'],
-  'post-training': ['Post-training', 'Methods and evaluation after pretraining, studying how model capabilities, behavior, and objectives interact.', 'How can explicit data, objectives, and evaluation steer model behavior toward a desired task?'],
-  mathematics: ['Mathematics', 'Definitions, structure, and derivation as tools for expressing research questions more clearly.', 'Which structures, assumptions, and boundaries can give an empirical observation a stronger explanation?']
-} as const;
+// Research domains named in the home page strip. They no longer have separate
+// pages; the research directory and papers carry the work itself.
+export const researchDomains = ['Databases', 'Retrieval', 'Vectors', 'Quantization', 'Post-training', 'Mathematics'] as const;
 

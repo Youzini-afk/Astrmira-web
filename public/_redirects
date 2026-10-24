@@ -1,0 +1,26 @@
+# The six research field pages were merged into the research directory.
+# Keep their old addresses working (including the generated index.md copies).
+/research/databases /research/ 301
+/research/retrieval /research/ 301
+/research/vectors /research/ 301
+/research/quantization /research/ 301
+/research/post-training /research/ 301
+/research/mathematics /research/ 301
+/research/databases/* /research/ 301
+/research/retrieval/* /research/ 301
+/research/vectors/* /research/ 301
+/research/quantization/* /research/ 301
+/research/post-training/* /research/ 301
+/research/mathematics/* /research/ 301
+/:locale/research/databases /:locale/research/ 301
+/:locale/research/retrieval /:locale/research/ 301
+/:locale/research/vectors /:locale/research/ 301
+/:locale/research/quantization /:locale/research/ 301
+/:locale/research/post-training /:locale/research/ 301
+/:locale/research/mathematics /:locale/research/ 301
+/:locale/research/databases/* /:locale/research/ 301
+/:locale/research/retrieval/* /:locale/research/ 301
+/:locale/research/vectors/* /:locale/research/ 301
+/:locale/research/quantization/* /:locale/research/ 301
+/:locale/research/post-training/* /:locale/research/ 301
+/:locale/research/mathematics/* /:locale/research/ 301

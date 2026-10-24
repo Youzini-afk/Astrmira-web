@@ -209,7 +209,6 @@
       "empty": "Aucun article ne correspond. Essayez un autre mot-clé ou domaine.",
       "count": "{count} articles",
       "countOne": "{count} article",
-      "browseFields": "Parcourir les domaines de recherche",
       "arxivLabel": "Lire {title} sur arXiv (nouvelle fenêtre)"
     },
     "paper": {
@@ -338,15 +337,6 @@
     "question": "Une question à approfondir ensemble ?",
     "contact": "Échangeons"
   },
-  "fieldPage": {
-    "label": "Domaine de recherche",
-    "unfolding": "une question qui se déploie.",
-    "direction": "Orientation de recherche",
-    "questions": "Questions ouvertes",
-    "begin": "Partir de la question.",
-    "approach": "Nous explicitons les hypothèses, relions les méthodes à des comportements mesurables et laissons les expériences et les systèmes affiner la question elle-même.",
-    "conversation": "Engager un échange scientifique"
-  },
   "partnerships": {
     "title": "Partenariats de recherche",
     "description": "Travaillez avec Astrmira sur des questions communes en systèmes de données, intelligence efficace et mathématiques.",
@@ -421,38 +411,14 @@
       }
     ]
   },
-  "fields": {
-    "databases": [
-      "Bases de données",
-      "Organisation des données, exécution des requêtes et conception des systèmes : relier les méthodes de bas niveau aux charges réelles.",
-      "Comment améliorer un système de données pour une charge de travail et un budget de ressources précis ?"
-    ],
-    "retrieval": [
-      "Recherche d’information",
-      "Découvrir, filtrer et classer l’information pour rendre les contenus pertinents disponibles au bon moment.",
-      "Comment définir la pertinence et relier la qualité des résultats au coût du système par des preuves vérifiables ?"
-    ],
-    "vectors": [
-      "Vecteurs",
-      "Représentations vectorielles, similarité et structures de recherche comme relations calculables dans les espaces de données.",
-      "Comment la représentation, la métrique et la structure de recherche influencent-elles ensemble une tâche donnée ?"
-    ],
-    "quantization": [
-      "Quantification",
-      "Représentations discrètes sous contraintes de ressources et liens entre compacité et information conservée.",
-      "Lorsqu’une représentation devient compacte, que faut-il préserver et comment mesurer son erreur ?"
-    ],
-    "post-training": [
-      "Post-entraînement",
-      "Méthodes et évaluation après le préentraînement, pour étudier les interactions entre capacités, comportement et objectifs du modèle.",
-      "Comment des données, des objectifs et une évaluation explicites peuvent-ils orienter le modèle vers la tâche souhaitée ?"
-    ],
-    "mathematics": [
-      "Mathématiques",
-      "Définitions, structures et démonstrations pour exprimer plus clairement les questions de recherche.",
-      "Quelles structures, hypothèses et limites peuvent mieux expliquer une observation empirique ?"
-    ]
-  },
+  "domains": [
+    "Bases de données",
+    "Recherche d’information",
+    "Vecteurs",
+    "Quantification",
+    "Post-entraînement",
+    "Mathématiques"
+  ],
   "about": {
     "title": "À propos d’Astrmira · Émerveillement, recherche et premiers principes",
     "description": "L’histoire et la démarche d’Astrmira : curiosité pour l’inconnu, raisonnement à partir des premiers principes, compréhension nourrie de preuves et de systèmes qui fonctionnent.",

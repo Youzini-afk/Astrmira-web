@@ -9,7 +9,7 @@ import { getContent } from '../../i18n/content';
 import { localePath, type InternationalLocale } from '../../i18n';
 interface Props { locale: InternationalLocale }
 const { locale } = Astro.props;
-const { home: copy, ui, fields } = getContent(locale);
+const { home: copy, ui, domains } = getContent(locale);
 const href = (path: string) => localePath(path, locale);
 const colours = ['#c5ab81', '#719dc4', '#9dbbd6'];
 const strands = Array.from({ length: 72 }, (_, index) => {
@@ -33,7 +33,7 @@ const strands = Array.from({ length: 72 }, (_, index) => {
     </div>
     <div class="hero-bottom"><a href="#practice" class="scroll-cue">{ui.motion.scroll}</a><div class="motion-controls"><span class="phase-label">MIRA</span><button data-replay aria-label={ui.motion.replayLabel}>↺ {ui.motion.replay}</button><button data-motion-toggle aria-pressed="false"><span class="motion-dot"></span><span data-motion-text>{ui.motion.pause}</span></button></div></div>
   </section>
-  <div class="domains-strip"><div class="wrap domains-inner">{Object.values(fields).map(([name], index) => <>{index > 0 && <i aria-hidden="true">✧</i>}<span>{name}</span></>)}</div></div>
+  <div class="domains-strip"><div class="wrap domains-inner">{domains.map((name, index) => <>{index > 0 && <i aria-hidden="true">✧</i>}<span>{name}</span></>)}</div></div>
   <section id="practice" class="wrap manifesto"><p class="eyebrow">{copy.researchLabel}</p><div><h2 class="statement">{copy.researchHeading[0]}<br /><span>{copy.researchHeading[1]}</span></h2><p class="statement-note">{copy.researchNote}</p></div></section>
   <section id="principles" class="wrap projects-section"><div class="section-heading"><div><p class="eyebrow">{copy.papersLabel}</p><h2>{copy.papersHeading[0]}<br /><em>{copy.papersHeading[1]}</em></h2><p class="sub">{copy.papersNote}</p></div><StarLink href={href('/research/')} data-route="research" label={copy.allResearch} /></div><PaperCarousel locale={locale} /></section>
   <section class="wrap manifesto"><p class="eyebrow">{copy.practiceLabel}</p><div><h2 class="statement">{copy.practiceHeading[0]}<br /><span>{copy.practiceHeading[1]}</span></h2><p class="statement-note">{copy.practiceNote}</p></div></section>
