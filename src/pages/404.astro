@@ -13,7 +13,7 @@ import { LOCALES, localePath } from '../i18n';
   </head>
   <body>
     <main>
-      <a class="brand" href="/" lang="en">Astr<em>mira</em></a>
+      <a class="brand" href="/">Astrmira</a>
       <p class="code">404</p>
       <h1>这个页面，尚未抵达。</h1>
       <p lang="en">This page could not be found.</p>
@@ -25,9 +25,7 @@ import { LOCALES, localePath } from '../i18n';
   </body>
 </html>
 <style>
-  @font-face { font-family: Newsreader; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/newsreader-latin-v26.woff2") format("woff2"); }
-  @font-face { font-family: Newsreader; font-style: italic; font-weight: 400; font-display: swap; src: url("/fonts/newsreader-latin-italic-v26.woff2") format("woff2"); }
-  * { box-sizing: border-box; } body { margin: 0; color: #eeeae1; background: radial-gradient(ellipse at 80% 20%, #1b263b66, transparent 65%), #090c12; font: 16px/1.9 "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; min-height: 100svh; display: grid; align-items: center; }
-  main { width: min(820px, 100%); padding: 50px clamp(24px, 6vw, 80px); margin: auto; } a { color: inherit; text-decoration: none; } .brand { font: 400 40px/1 Newsreader, Georgia, serif; letter-spacing: -.03em; white-space: nowrap; } .brand em { font-style: italic; letter-spacing: -.035em; margin-left: .03em; } .code { margin: 70px 0 12px; color: #d6b881; font: 13px monospace; letter-spacing: .2em; }
+  * { box-sizing: border-box; } body { margin: 0; color: #eeeae1; background: radial-gradient(ellipse at 80% 20%, #1b263b66, transparent 65%), #090c12; font: 16px/1.9 Arial, "Microsoft YaHei", sans-serif; min-height: 100svh; display: grid; align-items: center; }
+  main { width: min(820px, 100%); padding: 50px clamp(24px, 6vw, 80px); margin: auto; } a { color: inherit; text-decoration: none; } .brand { font: 36px Georgia, serif; } .code { margin: 70px 0 12px; color: #d6b881; font: 13px monospace; letter-spacing: .2em; }
   h1 { font-size: clamp(26px, 4vw, 40px); font-weight: 400; margin: 12px 0; } p { color: #9ba5b6; } nav { display: flex; flex-wrap: wrap; gap: 12px 30px; border-top: 1px solid #b3c3db29; margin-top: 40px; padding-top: 24px; } nav a { min-height: 44px; padding: 8px 0; } nav span { color: #d6b881; } a:focus-visible { outline: 2px solid #d6b881; outline-offset: 6px; }
 </style>

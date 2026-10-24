@@ -87,20 +87,10 @@ export function createMotionController(main) {
     sceneDpr = devicePixelRatio || 1;
     measureHero(); prepareHeroTail(); observeCometDock(); updateMotionButtons();
     if (!worker) { fallback(); return; }
-    // Read fonts once; subsequent frames never measure or rasterize text. The
-    // wordmark faces are requested explicitly because they may not have started
-    // loading yet; a slow network falls back after a short wait.
-    if (document.fonts) {
-      const family = heroElement ? getComputedStyle($('.hero h1') || heroElement).fontFamily : '';
-      if (family) await Promise.race([
-        Promise.all([document.fonts.load(`400 1em ${family}`, 'Astr'), document.fonts.load(`italic 400 1em ${family}`, 'mira')]).catch(() => {}),
-        new Promise(resolve => setTimeout(resolve, 1500)),
-      ]);
-      if (document.fonts.status === 'loading') await document.fonts.ready;
-    }
+    // Read fonts once; subsequent frames never measure or rasterize text.
+    if (document.fonts?.status === 'loading') await document.fonts.ready;
     if (current !== revision) return;
-    // The webfont can change the wordmark's width, which moves the star's anchor.
-    measureHero(); prepareHeroTail();
+    measureHero();
     const glyphs = await captureGlyphs(heroElement);
     if (current !== revision || !worker) { glyphs.forEach(g => g.bitmap.close()); return; }
     const glyphBounds = glyphSurfaceBounds(glyphs, sceneDpr);
@@ -121,17 +111,6 @@ export function createMotionController(main) {
     }
     if (vw <= 720) {
       return { x: rect.left + rect.width * .78, y: rect.top + Math.min(135, rect.height * .2) };
-    }
-    // The star belongs to the wordmark's top-right corner, so follow the measured
-    // italic "mira" rather than a fixed share of the hero width.
-    const title = $('.hero h1'), mira = title?.querySelector('em');
-    if (title && mira) {
-      const word = mira.getBoundingClientRect(), line = title.getBoundingClientRect();
-      const size = parseFloat(getComputedStyle(title).fontSize) || 160;
-      if (word.width) return {
-        x: Math.min(word.right + size * .27, rect.right - 70),
-        y: line.top + line.height * .17
-      };
     }
     return {
       x: rect.left + rect.width * .79,

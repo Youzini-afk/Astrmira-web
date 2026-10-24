@@ -28,10 +28,7 @@ const isCurrent = (route: string) => currentRoute === route || (route !== 'home'
       <path d="M24 8C25.3 20.3 27.7 22.7 40 24C27.7 25.3 25.3 27.7 24 40C22.7 27.7 20.3 25.3 8 24C20.3 22.7 22.7 20.3 24 8Z" fill="currentColor"/>
       <circle cx="40" cy="12" r="1.7" fill="currentColor"/>
     </svg>
-    <span class="brand-text">
-      <span class="brand-name wordmark" lang="en">Astr<em>mira</em></span>
-      <span class="brand-cn" lang={locale === 'zh-hant' ? 'zh-Hant' : 'zh-CN'}>{locale === 'zh-hant' ? '幻夢星芒' : '幻梦星芒'}</span>
-    </span>
+    <span class="brand-name">Astrmira<span class="brand-cn">{locale === 'zh-hant' ? '幻夢星芒' : '幻梦星芒'}</span></span>
   </a>
   <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>{ui.nav.menu} <span aria-hidden="true">＋</span></button>
   <nav id="site-nav" class="site-nav" aria-label={ui.nav.navigation}>

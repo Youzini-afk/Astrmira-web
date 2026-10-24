@@ -4,8 +4,8 @@
 <g fill="none" stroke="#91b9d5" opacity=".13"><ellipse cx="620" cy="330" rx="530" ry="190" transform="rotate(-18 620 330)"/><ellipse cx="640" cy="340" rx="580" ry="235" transform="rotate(-18 640 340)"/></g>
 <g fill="none" stroke="#91b9d5" opacity=".1"><path d="M645 630C830 420 828 138 947 272"/><path d="M653 630C840 420 833 146 947 272"/><path d="M661 630C849 420 838 154 947 272"/></g>
 <text x="92" y="138" fill="#d6b881" font-family="Consolas, monospace" font-size="14" letter-spacing="4">RESEARCH &amp; OPEN SYSTEMS</text>
-<text x="86" y="338" fill="#eeeae1" font-family="Newsreader, Georgia, serif" font-size="132" letter-spacing="-4">Astr<tspan dx="4" font-style="italic" letter-spacing="-4.6">mira</tspan></text>
-<text x="94" y="410" fill="#aab4c5" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="23">Research. Systems. Lasting curiosity.</text>
+<text x="86" y="338" fill="#eeeae1" font-family="Georgia, serif" font-size="132" letter-spacing="-7">Astr<tspan font-style="italic">mira</tspan></text>
+<text x="94" y="410" fill="#aab4c5" font-family="Arial, sans-serif" font-size="23">Research. Systems. Lasting curiosity.</text>
 <g transform="translate(952 285)"><circle r="94" fill="none" stroke="#d6b881" stroke-opacity=".25"/><ellipse rx="124" ry="47" transform="rotate(-35)" fill="none" stroke="#a6bed6" stroke-opacity=".5"/><path d="M0-68C4-15 15-4 68 0 15 4 4 15 0 68-4 15-15 4-68 0-15-4-4-15 0-68Z" fill="#d6b881"/><circle cx="102" cy="-68" r="3" fill="#d6b881"/></g>
-<path d="M94 515H1106" stroke="#b3c3db" stroke-opacity=".18"/><text x="94" y="562" fill="#8996aa" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="16" letter-spacing="2">www.astrmira.com</text><text x="1106" y="563" fill="#c9c3b6" font-family="'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif" font-size="19" letter-spacing="8" text-anchor="end">幻梦星芒</text>
+<path d="M94 515H1106" stroke="#b3c3db" stroke-opacity=".18"/><text x="94" y="562" fill="#8996aa" font-family="Arial, sans-serif" font-size="16" letter-spacing="2">www.astrmira.com</text>
 </svg>

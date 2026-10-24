@@ -9,8 +9,6 @@ Astrmira（幻梦星芒）官方网站，使用 **Astro 静态架构**，部署�
 ```
 Astrmira-web/
 ├── public/                 # 静态资源与 Favicon
-│   ├── fonts/              # 自托管 Newsreader 拉丁子集（字标与西文展示字体）及 OFL 许可
-│   ├── _headers            # 字体长期缓存（构建时会追加文本类型规则）
 │   └── _redirects          # 已合并的旧研究方向地址 301 到研究目录
 ├── src/
 │   ├── styles/
@@ -88,20 +86,18 @@ npm run preview
 - `/contact/` 及其语言版本保留为可访问的别名，canonical 指向同语言 `/collaborate/`，避免重复收录。
 - `integrations/discovery.mjs` 在 Astro 构建完成后读取实际生成的 HTML。它自动生成 `robots.txt`、含 98 个正式 URL 的 `sitemap.xml`、`llms.txt`、`llms-full.txt`，以及每个正式页面的 `index.md`。例如 `/projects/data-systems/index.md` 对应 `/projects/data-systems/`。新增页面会跟随构建进入目录，不需要维护第二份正文。
 - Markdown 保留公开正文、标题、图注和引用链接，去掉画布、SVG 点线、脚本、按钮及隐藏的交互状态；所有链接转换为绝对地址。每页 HTML 通过 `rel="alternate"` 指向 Markdown，Markdown 响应通过 HTTP `Link` 标记对应的 HTML canonical。
-- `_headers` 在构建时补上文本、Markdown 与 XML 的正确类型，保留 `public/_headers` 中已有的字体缓存规则。未添加爬虫禁令，也没有修改 Cloudflare 账号的机器人策略。
+- `_headers` 在构建时补上文本、Markdown 与 XML 的正确类型，保留已有自定义规则。未添加爬虫禁令，也没有修改 Cloudflare 账号的机器人策略。
 - 原先 6 个研究方向页（`/research/databases/` 等）已并入研究目录。`public/_redirects` 把这些旧地址及其语言版本、`index.md` 永久重定向到对应语言的 `/research/`。
 - 本地验证：`npm run build` 后运行 `node scripts/check-seo.mjs`；浏览器语言行为使用 `node scripts/check-i18n-browser.mjs`。这些发现文件只在生产构建中生成，使用 `npm run preview` 查看。
 - 线上核对 `robots.txt` 和 `sitemap.xml` 的正文与 Content-Type、未知路径的 404、Markdown 的正文及 canonical 响应头。提交 [站点地图](https://www.astrmira.com/sitemap.xml) 到搜索平台需要站点所有者的 Search Console / Webmaster Tools 权限。AI 搜索的收录仍遵循各服务的抓取策略，`llms.txt` 是辅助阅读入口，并非搜索收录的替代条件。
 
 相关规则：[Cloudflare Pages 的 404 与 SPA 回退](https://developers.cloudflare.com/pages/configuration/serving-pages/)、[Google 多语言网站指南](https://developers.google.com/search/docs/specialty/international/managing-multi-regional-sites)、[Google 的 AI 搜索与网站说明](https://developers.google.com/search/docs/appearance/ai-features)。
 
-## 字标与字体
+## 字体
 
-- 字标为正体 `Astr` 接斜体 `mira`，两者之间留出一个笔画的间距；首屏星体飞入后停在字标右上角。顶栏、首屏、页脚、404 与分享图使用同一写法，字距由 `global.css` 的 `--astr-tracking`、`--mira-tracking`、`--mira-join` 统一控制，`.wordmark` 类可直接复用。首屏粒子文字按浏览器实际排版测量，修改这些变量后无需改脚本。
-- 字标与西文展示字体为自托管的 [Newsreader](https://github.com/productiontype/Newsreader)（SIL OFL 1.1，见 `public/fonts/Newsreader-OFL.txt`），只含拉丁字符子集，文件名带上游版本号并长期缓存。中日韩文字使用系统字体。
+- 字标与西文衬线使用 Georgia。中日韩文字使用系统字体。
 - 字体按语言分别选择：简体、繁体、日文、韩文各有自己的黑体与宋体/明朝字体栈，避免日文和繁体借用简体字形。衬线字体栈在找不到中文宋体时退回黑体，不再落到 SimSun。中文没有斜体字形，`font-synthesis-style: none` 禁止浏览器伪斜体。
 - 层级规则：页面主标题（H1）与论文封面标题用衬线，区块标题、正文与界面文字用无衬线。
-- 分享图源文件为 `public/social-card.svg`；修改后需用 Newsreader 重新渲染 1200×630 的 `social-card.png`。
 
 ## 联系邮箱
 
