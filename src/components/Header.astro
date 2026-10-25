@@ -23,11 +23,7 @@ const isCurrent = (route: string) => currentRoute === route || (route !== 'home'
 
 <header class="site-header">
   <a href={href('/')} data-route="home" class="brand" aria-label={ui.nav.homeLabel}>
-    <svg class="brand-symbol" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <ellipse cx="24" cy="24" rx="21" ry="9" transform="rotate(-36 24 24)" stroke="currentColor" stroke-width=".8"/>
-      <path d="M24 8C25.3 20.3 27.7 22.7 40 24C27.7 25.3 25.3 27.7 24 40C22.7 27.7 20.3 25.3 8 24C20.3 22.7 22.7 20.3 24 8Z" fill="currentColor"/>
-      <circle cx="40" cy="12" r="1.7" fill="currentColor"/>
-    </svg>
+    <img class="brand-symbol" src="/brand-mark.png" width="33" height="33" alt="" decoding="async" />
     <span class="brand-name">Astrmira<span class="brand-cn">{locale === 'zh-hant' ? '幻夢星芒' : '幻梦星芒'}</span></span>
   </a>
   <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>{ui.nav.menu} <span aria-hidden="true">＋</span></button>
