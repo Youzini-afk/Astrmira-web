@@ -66,9 +66,9 @@ const offsets = [[0, -5], [5, 0], [0, 5], [-5, 0]];
   :global(html.motion-ready:not(.is-paused) .hero-particle-mode:not(.is-settled)) .hero-actions:not(:focus-within) .hero-action { opacity: 0; transform: translateY(8px); transition: none; }
   .hero-actions:focus-within .hero-action, :global(html.is-paused) .hero-action { transition: none; }
 
-  .hero-particle-link { --field-active: 0; --field-depth: 0%; --field-reveal-time: 0s; --field-reveal-delay: .45s; --field-travel-time: .45s; position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; min-height: 52px; padding: 14px 20px; border: 1px solid #b3c9df30; border-radius: 9px; background: #111820cc; color: #e3e7eb; font: 500 14px/1.55 var(--sans); letter-spacing: .025em; text-decoration: none; transition: color .3s, border-color .3s; }
-  .hero-link-label { position: relative; z-index: 1; text-align: center; text-wrap: balance; text-shadow: 0 1px 2px #070b12; }
-  .hero-research { --hover-ink: #171c22; --hover-border: #f5eedb; background: #e8e1d2; border-color: #f5eee080; color: #22272d; box-shadow: inset 0 1px #ffffff60; }
+  .hero-particle-link { --field-active: 0; --field-depth: 0%; --field-reveal-time: 0s; --field-reveal-delay: .45s; --field-travel-time: .45s; position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; min-height: 52px; padding: 14px 20px; border: 1px solid rgba(238, 234, 225, .2); border-radius: var(--radius-control); background: #0b0c0fb3; color: #ece8df; font: 500 14px/1.55 var(--sans); letter-spacing: .025em; text-decoration: none; transition: color .3s, border-color .3s; }
+  .hero-link-label { position: relative; z-index: 1; text-align: center; text-wrap: balance; text-shadow: 0 1px 2px #0b0c0f; }
+  .hero-research { --hover-ink: #1d1b17; --hover-border: #f5eedb; background: #e8e1d2; border-color: #e8e1d2; color: #1d1b17; }
   .hero-research .hero-link-label { text-shadow: none; }
   .hero-research .hero-button-field { filter: brightness(.4) saturate(.6); }
   /* The inner aperture closes towards the centre, exposing actual star points

@@ -30,8 +30,6 @@ html { -webkit-text-size-adjust: 100%; }
   .section { padding-block: 85px; }
   .origin-section { gap: 40px; padding-block: 80px; }
   .manifesto { gap: 30px; }
-  .domains-inner { gap: 14px; justify-content: center; min-height: 82px; padding-block: 18px; }
-  .domains-inner span { font-size: 10px; }
   .page-title { padding-top: 75px; }
   .footer-wordmark { margin-bottom: -10px; }
 }
@@ -87,21 +85,16 @@ html { -webkit-text-size-adjust: 100%; }
   .hero-copy { padding-block: 20px; }
   .hero h1 { font-size: 22vw; }
   .hero-kicker { font-size: 10px; letter-spacing: .12em; gap: 10px; margin-bottom: 20px; }
-  .hero-kicker::before, .hero-kicker::after { width: 18px; }
   .hero-subtitle { font-size: clamp(18px, 4.7vw, 23px); letter-spacing: .025em; line-height: 1.65; margin: 24px 0 8px; }
   .hero-english { font-size: 14px; max-width: 330px; margin: 0 auto 22px; line-height: 1.6; }
   .hero-description { font-size: 14px; letter-spacing: 0; line-height: 1.9; }
   .hero-bottom { bottom: max(16px, env(safe-area-inset-bottom)); gap: 12px; align-items: center; }
-  .scroll-cue { font-size: 10px; max-width: 100px; gap: 10px; min-height: 44px; }
   .motion-controls { gap: 12px; }
   .motion-controls button { font-size: 12px; min-height: 44px; }
   .phase-label { display: none; }
   .mira-object { width: 240px; height: 240px; }
   .coordinates { top: 22px; font-size: 10px; }
   .coordinates .coord-star { font-size: 11px; margin-bottom: 4px; }
-  .domains-inner { gap: 12px 15px; line-height: 1.5; }
-  .domains-inner span { font-size: 10px; }
-  .domains-inner i { font-size: 11px; }
   .manifesto { grid-template-columns: minmax(0, 1fr); gap: 18px; padding-block: 58px 8px; }
   .manifesto .statement { font-size: clamp(23px, 5.8vw, 29px); line-height: 1.65; letter-spacing: .01em; }
   .manifesto .statement-note { margin-top: 18px; font-size: 14px; line-height: 1.9; }

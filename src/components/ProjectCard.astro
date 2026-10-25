@@ -29,11 +29,8 @@ const Artwork = identity.artwork;
   <!-- An observing window: corner marks, a readout and the system diagram. -->
   <div class="project-viewport">
     <div class="viewport-art" aria-hidden="true"><Artwork /></div>
-    <span class="viewport-frame" aria-hidden="true"></span>
     <p class="viewport-label">{copy.label}</p>
     <span class="viewport-index" aria-hidden="true">{identity.index}</span>
-    <p class="viewport-legend">{copy.tags}</p>
-    <span class="project-thread" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 0C17.5 12.5 19.5 14.5 32 16C19.5 17.5 17.5 19.5 16 32C14.5 19.5 12.5 17.5 0 16C12.5 14.5 14.5 12.5 16 0Z" /></svg></span>
   </div>
   <div class="project-body">
     <div class="project-title-row">
@@ -51,22 +48,16 @@ const Artwork = identity.artwork;
 <style>
   /* One surface, one window. The whole card opens the project; the repository
      link sits above the stretched link so both stay independently reachable. */
-  .project-card { --card-pad: 7px; --frame-inset: 12px; position: relative; display: flex; flex-direction: column; min-width: 0; padding: var(--card-pad); border: 1px solid #b3c9df1f; border-radius: var(--radius-surface); background: linear-gradient(#131924e6, #0d1219eb); box-shadow: inset 0 1px #e9eff50b, 0 18px 40px -28px #000c; transition: border-color .35s, box-shadow .35s, transform .35s var(--ease-ui); }
+  .project-card { --card-pad: 7px; position: relative; display: flex; flex-direction: column; min-width: 0; padding: var(--card-pad); border: 1px solid var(--line); border-radius: var(--radius-surface); background: var(--panel); transition: border-color .35s; }
   .project-card[hidden] { display: none; }
 
   .project-viewport { position: relative; aspect-ratio: 36 / 25; border-radius: calc(var(--radius-surface) - var(--card-pad)); }
-  .viewport-art { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; background: radial-gradient(ellipse 65% 60% at 50% 52%, #6f96c01c, transparent 72%), linear-gradient(#91b9d508 1px, transparent 1px) 50% 50% / 24px 24px, linear-gradient(90deg, #91b9d508 1px, transparent 1px) 50% 50% / 24px 24px, #0b1017; box-shadow: inset 0 0 0 1px #b3c9df14; }
-  /* The diagram keeps clear bands for the label row above and the readout below. */
-  .viewport-art > :global(svg) { position: absolute; inset: 22px 0 26px; width: 100%; height: calc(100% - 48px); opacity: .84; transition: opacity .4s, transform .7s var(--ease-ui); }
-  /* Four corner marks drawn as one layer; they close in when the card is aimed at. */
-  .viewport-frame { --arm: 11px; position: absolute; inset: var(--frame-inset); pointer-events: none; color: #b3c9df3d; background: linear-gradient(currentColor, currentColor) 0 0 / var(--arm) 1px, linear-gradient(currentColor, currentColor) 0 0 / 1px var(--arm), linear-gradient(currentColor, currentColor) 100% 0 / var(--arm) 1px, linear-gradient(currentColor, currentColor) 100% 0 / 1px var(--arm), linear-gradient(currentColor, currentColor) 0 100% / var(--arm) 1px, linear-gradient(currentColor, currentColor) 0 100% / 1px var(--arm), linear-gradient(currentColor, currentColor) 100% 100% / var(--arm) 1px, linear-gradient(currentColor, currentColor) 100% 100% / 1px var(--arm); background-repeat: no-repeat; transition: inset .45s var(--ease-ui), color .35s; }
-  .viewport-label, .viewport-index, .viewport-legend { position: absolute; z-index: 1; font: 10px/1.7 var(--mono); letter-spacing: .1em; text-transform: uppercase; pointer-events: none; }
-  .viewport-label { top: 17px; left: 32px; right: 64px; color: #8f9aab; }
-  .viewport-index { top: 17px; right: 32px; color: #b39d76; font-variant-numeric: tabular-nums; transition: color .35s; }
-  .viewport-legend { bottom: 17px; left: 32px; right: 32px; color: var(--faint); letter-spacing: .06em; }
-  /* A short dashed bridge between neighbouring cards in the three-column row. */
-  .project-thread { display: none; position: absolute; top: 50%; left: calc(100% + var(--card-pad) + 1px); width: var(--project-gap, 32px); height: 1px; background: repeating-linear-gradient(90deg, #91b9d55c 0 3px, transparent 3px 7px); color: var(--gold); pointer-events: none; }
-  .project-thread svg { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; fill: currentColor; opacity: .7; transform: translate(-50%, -50%); }
+  .viewport-art { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+  /* The diagram keeps a clear band for the label row above it. */
+  .viewport-art > :global(svg) { position: absolute; inset: 26px 0 14px; width: 100%; height: calc(100% - 40px); opacity: .84; transition: opacity .4s, transform .7s var(--ease-ui); }
+  .viewport-label, .viewport-index { position: absolute; z-index: 1; font: 500 11px/1.7 var(--sans); letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
+  .viewport-label { top: 16px; left: 20px; right: 64px; color: var(--faint); }
+  .viewport-index { top: 16px; right: 20px; color: #b39d76; font-family: var(--mono); font-weight: 400; font-variant-numeric: tabular-nums; transition: color .35s; }
 
   .project-body { flex: 1; display: flex; flex-direction: column; padding: 22px 17px 0; }
   .project-title-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
@@ -74,34 +65,27 @@ const Artwork = identity.artwork;
   .project-link::after { content: ''; position: absolute; inset: -1px; z-index: 1; border-radius: var(--radius-surface); }
   .project-link:focus-visible { outline: none; }
   .project-link:focus-visible::after { outline: 2px solid var(--gold); outline-offset: 4px; }
-  .project-open { display: grid; place-items: center; flex-shrink: 0; width: 38px; height: 38px; border: 1px solid #b3c9df26; border-radius: 50%; color: var(--gold); transition: color .25s, background-color .25s, border-color .25s; }
+  .project-open { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; color: var(--gold); transition: color .25s; }
   .project-open svg { width: 15px; height: 15px; transition: transform .25s var(--ease-ui); }
   .project-summary { margin: 13px 0 26px; color: var(--muted); font-size: 14px; line-height: 1.9; text-wrap: pretty; }
-  .project-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 54px; margin-top: auto; border-top: 1px solid #b3c9df14; }
+  .project-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 54px; margin-top: auto; border-top: 1px solid var(--line); }
   .project-license { display: inline-flex; align-items: baseline; gap: 10px; min-width: 0; color: var(--muted); font: 11px/1.8 var(--mono); letter-spacing: .03em; }
   .project-license span { color: var(--faint); font-family: var(--sans); letter-spacing: .02em; }
   .project-repo { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; flex-shrink: 0; color: var(--muted); font: 12px/1.8 var(--sans); letter-spacing: .02em; transition: color .2s; }
   .project-repo span { color: var(--gold); font-size: 15px; transition: transform .2s var(--ease-ui); }
   .project-repo:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
 
-  .project-card:has(.project-link:focus-visible) { border-color: #d6b88138; }
-  .project-card:has(.project-link:focus-visible) .viewport-frame { --frame-inset: 16px; color: #d6b881b0; }
-  .project-card:has(.project-link:focus-visible) .project-open { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+  .project-card:has(.project-link:focus-visible) { border-color: rgba(238, 234, 225, .26); }
+  .project-card:has(.project-link:focus-visible) .project-open svg { transform: translate(2px, -2px); }
   @media (hover: hover) and (pointer: fine) {
-    .project-card:hover { border-color: #d6b88138; transform: translateY(-3px); box-shadow: inset 0 1px #e9eff50f, 0 26px 50px -30px #000e; }
-    .project-card:hover .viewport-frame { --frame-inset: 16px; color: #d6b881b0; }
-    .project-card:hover .viewport-art > :global(svg) { opacity: 1; transform: scale(1.03); }
+    .project-card:hover { border-color: rgba(238, 234, 225, .26); }
+    .project-card:hover .viewport-art > :global(svg) { opacity: 1; transform: scale(1.02); }
     .project-card:hover .viewport-index { color: var(--gold); }
-    .project-card:hover .project-open { background: #d6b88115; border-color: #d6b88165; }
-    .project-card:hover .project-open svg { transform: translate(1px, -1px); }
+    .project-card:hover .project-open svg { transform: translate(2px, -2px); }
     .project-repo:hover { color: var(--text); }
     .project-repo:hover span { transform: translate(2px, -2px); }
   }
-  .project-card:active { transform: translateY(-1px); }
 
-  @media (min-width: 1101px) {
-    .project-card:has(~ .project-card:not([hidden])) .project-thread { display: block; }
-  }
   @media (max-width: 1100px) {
     .project-title-row h3 { font-size: 28px; }
   }
@@ -113,24 +97,20 @@ const Artwork = identity.artwork;
     :global(.project-grid:not(:has(> [hidden]))) > .project-card:nth-child(3) .project-body { padding: 18px 17px 0 61px; }
   }
   @media (max-width: 720px) {
-    .project-card { --frame-inset: 10px; }
     .viewport-label, .viewport-index { top: 14px; }
-    .viewport-label, .viewport-legend { left: 28px; }
-    .viewport-index { right: 28px; }
-    .viewport-legend { bottom: 14px; right: 28px; }
+    .viewport-label { left: 18px; }
+    .viewport-index { right: 18px; }
     .project-body { padding: 20px 14px 0; }
     .project-title-row h3 { font-size: 28px; }
     .project-summary { margin-bottom: 22px; }
-    .project-card:has(.project-link:focus-visible) .viewport-frame { --frame-inset: 13px; }
   }
 
   :global(html.is-paused) .project-card,
-  :global(html.is-paused) .project-card :is(.viewport-frame, .viewport-index, .project-open, .project-open svg, .project-repo, .project-repo span),
+  :global(html.is-paused) .project-card :is(.viewport-index, .project-open, .project-open svg, .project-repo, .project-repo span),
   :global(html.is-paused) .viewport-art > :global(svg) { transition: none; }
-  :global(html.is-paused) .project-card:is(:hover, :active),
   :global(html.is-paused) .project-card:hover .viewport-art > :global(svg) { transform: none; }
   @media (prefers-reduced-motion: reduce) {
-    .project-card, .viewport-frame, .viewport-art > :global(svg) { transition: none; }
-    .project-card:is(:hover, :active), .project-card:hover .viewport-art > :global(svg) { transform: none; }
+    .project-card, .viewport-art > :global(svg) { transition: none; }
+    .project-card:hover .viewport-art > :global(svg) { transform: none; }
   }
 </style>

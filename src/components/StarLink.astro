@@ -22,7 +22,7 @@ const stars = [
 <style>
   /* KINGFRESS's Uiverse.io fill interaction, reworked as stars gathering inward.
      The decorative copy keeps text contrast aligned with the advancing fill. */
-  .star-link { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 48px; max-width: 100%; padding: 12px 22px; margin: 0; border: 1px solid #b3c9df26; border-radius: 10px; background: #12171dcc; color: #eeeae1; font: 500 13px/1.6 var(--sans); letter-spacing: .02em; text-decoration: none; transition: border-color .25s, transform .12s; }
+  .star-link { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 48px; max-width: 100%; padding: 12px 22px; margin: 0; border: 1px solid rgba(238, 234, 225, .18); border-radius: var(--radius-control); background: transparent; color: #eeeae1; font: 500 13px/1.6 var(--sans); letter-spacing: .02em; text-decoration: none; transition: border-color .25s, transform .12s; }
   .star-link[aria-current="page"] { border-color: #d6b88165; }
   summary.star-link { list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   summary.star-link::-webkit-details-marker { display: none; }
@@ -32,7 +32,7 @@ const stars = [
   .star-arrow { color: var(--gold); font-size: 16px; line-height: 1; }
   .star-sparks { position: absolute; z-index: 1; inset: -10px; color: var(--gold); pointer-events: none; opacity: 0; }
   .star-spark { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); transform: translate(-50%, -50%) rotate(var(--turn)); }
-  .star-fill { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: inherit; overflow: hidden; background: #d6b881; color: #171c22; pointer-events: none; clip-path: circle(0% at 50% 50%); transition: clip-path .28s var(--ease-ui); }
+  .star-fill { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: inherit; overflow: hidden; background: #d6b881; color: #1d1b17; pointer-events: none; clip-path: circle(0% at 50% 50%); transition: clip-path .28s var(--ease-ui); }
   .star-fill .star-label, .star-fill .star-arrow { color: inherit; }
   .star-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
   .star-link:focus-visible .star-sparks { animation: star-gather .7s cubic-bezier(.4,0,.2,1) both; }
