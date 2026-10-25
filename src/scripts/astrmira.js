@@ -1,6 +1,7 @@
 import { mountArticleTocs } from './article-toc.js';
 import { mountPaperCarousels } from './paper-carousel.js';
 import { mountPaperBooks } from './paper-books.js';
+import { mountProjectCovers } from './project-covers.js';
 import { createMotionController } from './motion-controller.js';
 import { mountSiteMenu } from './site-menu.js';
 import { mountNavigationIndicator } from './navigation-indicator.js';
@@ -21,6 +22,7 @@ import { copyContactEmail } from './contact.js';
   let disposeArticleTocs = () => {};
   let disposePaperCarousels = () => {};
   let disposePaperBooks = () => {};
+  let disposeProjectCovers = () => {};
 
   function initPage() {
     disposeArticleTocs();
@@ -29,6 +31,8 @@ import { copyContactEmail } from './contact.js';
     disposePaperCarousels = mountPaperCarousels(main, () => motion.paused);
     disposePaperBooks();
     disposePaperBooks = mountPaperBooks(main);
+    disposeProjectCovers();
+    disposeProjectCovers = mountProjectCovers(main);
     filterResearch = 'all';
     $$('[data-copy-contact]').forEach(button => button.hidden = false);
     const route = main?.dataset.route || 'home';
